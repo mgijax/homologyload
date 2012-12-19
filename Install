@@ -66,11 +66,3 @@ if [ ! -d ${INPUTDIR} ]
 then
     mkdir -p ${INPUTDIR}
 fi
-
-for c in assocload.config coordload.config
-do
-. ${c}
-${DLAINSTALL} ${DEV}
-done
-
-
