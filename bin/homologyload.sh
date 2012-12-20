@@ -33,6 +33,12 @@ touch ${TMP_FILE}
 trap "rm -f ${TMP_FILE}" 0 1 2 15
 
 #
+# BCP delimiters
+#
+COLDELIM="\t"
+LINEDELIM="\n"
+
+#
 # verify & source the configuration file
 #
 
@@ -133,7 +139,6 @@ cleanDir ${OUTPUTDIR}
 # 
 # Sanity checks
 #
-
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
 echo "Running Sanity Checks" >> ${LOG_DIAG}
@@ -172,6 +177,9 @@ then
     exit 1
 fi
 
+#
+# QC checks
+#
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
 echo 'Running QC Checks' >> ${LOG_DIAG}
@@ -179,6 +187,9 @@ ${HOMOLOGYLOAD}/bin/runQC.py
 STAT=$?
 checkStatus ${STAT} "${HOMOLOGYLOAD}/bin/runQC.py"
 
+#
+# Create homology BCP files
+#
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
 echo 'Running homologyload.py' >> ${LOG_DIAG}
@@ -186,9 +197,10 @@ ${HOMOLOGYLOAD}/bin/homologyload.py
 STAT=$?
 checkStatus ${STAT} "${HOMOLOGYLOAD}/bin/homologyload.py"
 
-COLDELIM="\t"
-LINEDELIM="\n"
 
+#
+# Do BCP
+#
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
 echo 'BCP data into MRK_Cluster'  >> ${LOG_DIAG}
