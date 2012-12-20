@@ -56,8 +56,7 @@ errors = 0
 #
 def checkArgs ():
     global inputFile, numColumns
-
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
         print USAGE
         sys.exit(1)
 

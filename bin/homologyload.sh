@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh 
 
 #
 # load Homologene
@@ -171,7 +171,7 @@ fi
 
 # check file length, remove whitespace
 len=`cat ${INPUT_FILE} | wc -l | sed 's/ //g'`
-#echo "'$len'"
+
 if [ ${len} -lt ${MIN_LENGTH} ] 
 then
    echo "\n\nInput file does not have minimum length. Required: ${MIN_LENGTH} Found: ${len}" | tee -a ${SANITY_RPT}

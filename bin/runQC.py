@@ -235,10 +235,14 @@ for egId in egIdToLineDict.keys():
 	    else:
 		#print 'line: %s' % line
 		#print 'k:%s e:%s s:%s o:%s' % (m.k, m.e, m.s, m.o)
+		hgId = line[0]
+		taxId = line[1]
+		symbol =  m.s
+		markerKey = m.k
+		organism = m.o
 		fpOutFile.write('%s%s%s%s%s%s%s%s%s%s%s%s' % \
-		    (line[0], TAB, line[1], TAB, egId, TAB, m.k, TAB, m.s, TAB, m.o, CRT))
+		    ( organism, TAB, symbol, TAB, hgId, TAB, egId, TAB, markerKey, TAB, taxId, CRT))
     
-# (hgId, taxId, egId, junk1, junk2, junk3)
 # postprocess
 
 fpQcRpt.write(rptOne)

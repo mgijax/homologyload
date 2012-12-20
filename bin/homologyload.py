@@ -44,9 +44,13 @@ import db
 import string
 import mgi_utils
 import loadlib
+import symbolsort
 
 TAB = '\t'
 CRT = '\n'
+
+preferredOrganisms = [ 'human', 'mouse, laboratory', 'rat' ]
+#print 'preferredOrganisms: %s' % preferredOrganisms
 
 # Lookup of members by hgID (cluster ID)
 hgIdToMemberDict = {}
@@ -158,16 +162,58 @@ results = db.sql('''select max(_Accession_key) + 1 as nextKey
         from ACC_Accession''', 'auto')
 nextAccessionKey = results[0]['nextKey']
 
+#x = 1
+def byOrganismAndSymbol (a, b):
+     global x
+
+     [aOrg, aSym] = a[:2]
+     [bOrg, bSym] = b[:2]
+
+     #print str(x) + "    aOrg=" + str(aOrg) + "    aSym=" + aSym
+     #print str(x) + "    bOrg=" + str(bOrg) + "    bSym=" + bSym
+     #x += 1
+
+     # easy cases first...
+
+     # matching organisms, so purely a symbol sort
+     if (aOrg == bOrg):
+           return symbolsort.nomenCompare (aSym, bSym)
+
+     # 'a' is from a preferred organism and 'b' is not
+     if (aOrg in preferredOrganisms) and (bOrg not in preferredOrganisms):
+           return -1
+
+     # 'b' is from a preferred organism and 'a' is not
+     if (aOrg not in preferredOrganisms) and (bOrg in preferredOrganisms):
+           # 'b' comes first
+           return 1
+
+     # somewhat harder cases next...
+
+     # both organisms are preferred (and they do not match), so need to
+     # sort by position in the preferredOrganisms list
+
+     if (aOrg in preferredOrganisms) and (bOrg in preferredOrganisms):
+           aOrgPosition = preferredOrganisms.index(aOrg)
+           bOrgPosition = preferredOrganisms.index(bOrg)
+           return cmp(aOrgPosition, bOrgPosition)
+
+     # neither organism is preferred (and they do not match), so need to
+     # sort alphabetically by organism
+
+     return cmp(aOrg, bOrg)
+
 #############
 # Main      #
 #############
 deleteHomologies()
 
-print  'loading a dictionary mapping each hgID to its list of members'
+#print  'loading a dictionary mapping each hgID to its list of members'
+# Input line:( taxId, TAB, symbol, TAB, hgId, TAB, egId, TAB, markerKey, TAB, organism, CRT))
+
 for line in fpInFile.readlines():
     tokens = string.split(line[:-1], TAB)
-    hgId = tokens[0]
-    tokens = tokens[1:]
+    hgId = tokens[2]
     if not hgIdToMemberDict.has_key(hgId):
 	hgIdToMemberDict[hgId] = []   
     hgIdToMemberDict[hgId].append(tokens)
@@ -191,11 +237,15 @@ for hgId in hgIdToMemberDict.keys():
     #
     # create MRK_ClusterMember
     #
+    #print 'lineList before: %s' % lineList
+    lineList.sort(byOrganismAndSymbol)
     sequenceNum = 0
+    #print 'lineList after: %s' % lineList
     for line in lineList:
+	#  ( organism, TAB, symbol, TAB, hgId, TAB, egId, TAB, markerKey, TAB, taxId, CRT))
 	#print 'line: %s' % line
 	sequenceNum += 1
-	markerKey = line[2]
+	markerKey = line[4]
 	#print 'markerKey: %s' % markerKey
 	fpMemberBCP.write('%s%s%s%s%s%s%s%s' % (nextMemberKey, TAB, nextClusterKey, TAB, markerKey, TAB, sequenceNum, CRT))
 	nextMemberKey += 1
