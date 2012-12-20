@@ -121,18 +121,19 @@ def deleteHomologies():
         from #todelete1 d, ACC_Accession a
         where d._Accession_key = a._Accession_key''', None)
 
-    print 'Deleting Homology Cluster Members'
     db.sql('''select _Cluster_key
     into #todelete2
     from MRK_Cluster
     where _CreatedBy_key = %s''' % createdByKey, None)
 
     db.sql('create index idx1 on #todelete2(_Cluster_key)', None)
-
+   
+    print 'Deleting Homology Cluster Members' 
     db.sql('''delete MRK_ClusterMember
         from #todelete2 d, MRK_ClusterMember m
         where d._Cluster_key = m._Cluster_key''', None)
 
+    print 'Deleting Homology Clusters'
     db.sql('''delete MRK_Cluster
         from #todelete2 d, MRK_Cluster m
         where d._Cluster_key = m._Cluster_key''', None)
