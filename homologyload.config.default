@@ -80,13 +80,14 @@ NUM_COLUMNS=6
 # minimum  number of lines in the file (for sanity check).
 MIN_LENGTH=200000
 
-# Homology version (temporary?)
-HOMOLOGY_VERSION="67"
+# Full path to file containing the release number
+RELEASE_NO_FILE=${DATADOWNLOADS}/homologene/RELEASE_NUMBER
 
-# Homology date (temporary?) - date version released
-HOMOLOGY_DATE="12/12/2012"
+# Text to prepend the release number when storing as
+# MRK_Cluster.version
+RELEASE_NO_TEXT="Release"
 
-export NUM_COLUMNS MIN_LENGTH HOMOLOGY_VERSION HOMOLOGY_DATE
+export NUM_COLUMNS MIN_LENGTH RELEASE_NO_FILE RELEASE_NO_TEXT
 
 CLUSTER_SRC_KEY=9272151
 CLUSTER_TYPE_KEY=9272150

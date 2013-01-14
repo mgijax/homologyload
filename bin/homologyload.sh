@@ -1,7 +1,8 @@
 #!/bin/sh 
 
 #
-# load Homologene
+# This script is a wrapper around the process that QC's the HomoloGene
+# input file, generates a load-ready input file, and runs the load
 #
 # Usage:
 #
@@ -49,6 +50,14 @@ then
 fi
 
 . ${CONFIG_LOAD}
+
+#
+# get the homologene version
+#
+
+HOMOLOGY_VERSION=`cat ${RELEASE_NO_FILE}`
+
+export HOMOLOGY_VERSION
 
 #
 #  Source the DLA library functions.
@@ -136,8 +145,8 @@ preload ${OUTPUTDIR}
 #
 cleanDir ${OUTPUTDIR}
 
-# 
-# Sanity checks
+#
+# Run sanity checks
 #
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
@@ -250,4 +259,3 @@ ${MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
 # run postload cleanup and email logs
 #
 shutDown
-

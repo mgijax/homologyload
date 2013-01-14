@@ -3,24 +3,37 @@
 ##########################################################################
 #
 # Purpose:
-#       Create HomoloGene bcp files for the MRK_Cluster* tables
+#       Create HomoloGene (HG) bcp files for the MRK_Cluster* tables
 #
 # Usage: homologyload.py
 #
 # Inputs:
-#       1. Intermediate homologene file tab-delimited in following format:
-#           1.
-#           2.
-#           3.
-#           4.
-#           5.
-#           5.
+#       1. load-ready HG file tab-delimited in following format:
+#           1. Cluster ID - identifies the HG cluster
+#           2. Taxonomy ID - identifies the organism for this marker
+#           3. EntrezGene ID - identifies the marker itself
+#           4. Marker symbol
+#           5. MGI ID - NCBI identifier for the RefSeq
+#           6. Protein sequence ID - RefSeq
 #       2. Configuration - see homologyload.config
-#         1.
-#         2.
-#         3.
-#         4.
-#         5.
+#           1. INPUT_FILE_DEFAULT - Full path name HG file we copy to 
+#		the load input directory
+#	    2. INPUT_FILE_LOAD - Full path name of the load-ready file that is
+#		created by this script
+#	    3. CLUSTER_BCP - MRK_Cluster bcp file
+#	    4. MEMBER_BCP - MRK_ClusterMember bcp file
+#	    5. ACCESSION_BCP - ACC_Accession bcp file  ( HG ID assoc to cluster)
+#	    6. CLUSTER_TYPE_KEY - MRK_Cluster._ClusterType_key
+#	    7. CLUSTER_SRC_KEY - MRK_Cluster._ClusterSource_key
+#	    8. RELEASE_NO_TEXT - Text to be prepended tO the HG release number
+#	    9. HOMOLOGY_VERSION - HG release number stored with RELEASE_NO_TEXT
+#		in MRK_Cluster.version
+#	    10. HOM_LDB_KEY - HG logicalDB key for association HG ID with 
+#		MRK_Cluster objects
+#	    11. CLUSTER_MGITYPE_KEY - MGI Type key for MRK_Cluster
+#	    12. MGD_DBUSER - database user loading this data
+#	    13. MGD_DBPASSWORDFILE - pass work file containing pw for MGD_DBUSER
+#
 # Outputs:
 #        1. MRK_Cluster.bcp
 #        2. MRK_ClusterMember.bcp
@@ -36,7 +49,6 @@
 #  Notes:  None
 #
 ###########################################################################
-
 import sys
 import os
 import re
@@ -45,12 +57,12 @@ import string
 import mgi_utils
 import loadlib
 import symbolsort
+import time
 
 TAB = '\t'
 CRT = '\n'
 
 preferredOrganisms = [ 'human', 'mouse, laboratory', 'rat' ]
-#print 'preferredOrganisms: %s' % preferredOrganisms
 
 # Lookup of members by hgID (cluster ID)
 hgIdToMemberDict = {}
@@ -61,27 +73,38 @@ clusterBCP = os.environ['CLUSTER_BCP']
 memberBCP = os.environ['MEMBER_BCP']
 accessionBCP = os.environ['ACCESSION_BCP']
 
+# file descriptors
 fpInFile = ''
 fpClusterBCP = ''
 fpMemberBCP = ''
 fpAccessionBCP = ''
 
-nextClusterKey = ''
-nextMemberKey = ''
-nextAccessionKey = ''
+# database primary keys, the next one available
+nextClusterKey = ''	# MRK_Cluster
+nextMemberKey = ''	# MRK_ClusterMember
+nextAccessionKey = ''	# ACC_Accession
 
+# get MRK_Cluster type and source keys from Configuration
 clusterTypeKey = os.environ['CLUSTER_TYPE_KEY']
 clusterSource = os.environ['CLUSTER_SRC_KEY']
-clusterVersion =  os.environ['HOMOLOGY_VERSION']
-clusterDate = os.environ['HOMOLOGY_DATE']
 
+# create MRK_Cluster.version for environment variabels
+# RELEASE_NO_TEXT is set from config, HOMOLOGY_VERSION is set in calling script
+clusterVersion = "%s %s" % (os.environ['RELEASE_NO_TEXT'], os.environ['HOMOLOGY_VERSION'])
+
+# The timestamp on the HG input file is used for MRK_Cluster.cluster_date
+clusterDate = time.strftime("%b %d, %Y",time.localtime(os.path.getmtime(os.environ['INPUT_FILE_DEFAULT'])))
+
+# MGI_User key for this load
 createdByKey = 1527
+# today's date for record timestamp
 cdate = mgi_utils.date("%m/%d/%Y")
 
-# for hgId to cluster Accession
+# for HG ID to MRK_Cluster Accession
 ldbKey = os.environ['HOM_LDB_KEY']
 mgiTypeKey =  os.environ['CLUSTER_MGITYPE_KEY']
 
+# create file descriptors for input/output files
 try:
     fpInFile = open(inFile, 'r')
 except:
@@ -101,6 +124,31 @@ try:
     fpAccessionBCP = open(accessionBCP, 'w')
 except:
     exit(1, 'Could not open file %s\n' % accessionBCP)
+
+# get next ACC_Accession, MRK_Cluster and MRK_ClusterMember key
+user = os.environ['MGD_DBUSER']
+passwordFileName = os.environ['MGD_DBPASSWORDFILE']
+db.useOneConnection(1)
+db.set_sqlUser(user)
+db.set_sqlPasswordFromFile(passwordFileName)
+
+results = db.sql('''select max(_Cluster_key) + 1 as nextKey
+        from MRK_Cluster''', 'auto')
+if results[0]['nextKey'] is None:
+    nextClusterKey = 1000
+else:
+    nextClusterKey = results[0]['nextKey']
+
+results = db.sql('''select max(_ClusterMember_key) + 1 as nextKey
+        from MRK_ClusterMember''', 'auto')
+if results[0]['nextKey'] is None:
+    nextMemberKey = 1000
+else:
+    nextMemberKey = results[0]['nextKey']
+
+results = db.sql('''select max(_Accession_key) + 1 as nextKey
+        from ACC_Accession''', 'auto')
+nextAccessionKey = results[0]['nextKey']
 
 def deleteHomologies():
     # Purpose: delete accession, cluster and member records
@@ -138,41 +186,11 @@ def deleteHomologies():
         from #todelete2 d, MRK_Cluster m
         where d._Cluster_key = m._Cluster_key''', None)
 
-# get next ACC_Accession, MRK_Cluster and MRK_ClusterMember key
-user = os.environ['MGD_DBUSER']
-passwordFileName = os.environ['MGD_DBPASSWORDFILE']
-db.useOneConnection(1)
-db.set_sqlUser(user)
-db.set_sqlPasswordFromFile(passwordFileName)
-
-results = db.sql('''select max(_Cluster_key) + 1 as nextKey
-	from MRK_Cluster''', 'auto')
-if results[0]['nextKey'] is None:
-    nextClusterKey = 1000
-else:
-    nextClusterKey = results[0]['nextKey']
-
-results = db.sql('''select max(_ClusterMember_key) + 1 as nextKey
-        from MRK_ClusterMember''', 'auto')
-if results[0]['nextKey'] is None:
-    nextMemberKey = 1000
-else:
-    nextMemberKey = results[0]['nextKey']
-
-results = db.sql('''select max(_Accession_key) + 1 as nextKey
-        from ACC_Accession''', 'auto')
-nextAccessionKey = results[0]['nextKey']
-
-#x = 1
 def byOrganismAndSymbol (a, b):
      global x
 
      [aOrg, aSym] = a[:2]
      [bOrg, bSym] = b[:2]
-
-     #print str(x) + "    aOrg=" + str(aOrg) + "    aSym=" + aSym
-     #print str(x) + "    bOrg=" + str(bOrg) + "    bSym=" + bSym
-     #x += 1
 
      # easy cases first...
 
@@ -209,9 +227,7 @@ def byOrganismAndSymbol (a, b):
 #############
 deleteHomologies()
 
-#print  'loading a dictionary mapping each hgID to its list of members'
-# Input line:( taxId, TAB, symbol, TAB, hgId, TAB, egId, TAB, markerKey, TAB, organism, CRT))
-
+# load input file into memory organizing by HG ID
 for line in fpInFile.readlines():
     tokens = string.split(line[:-1], TAB)
     hgId = tokens[2]
@@ -221,6 +237,7 @@ for line in fpInFile.readlines():
 
 fpInFile.close()
 
+print "Creating BCP files"
 for hgId in hgIdToMemberDict.keys():
     # lineList is list of lists [ [line1], [line2], ... ]
     lineList = hgIdToMemberDict[hgId]
@@ -238,16 +255,13 @@ for hgId in hgIdToMemberDict.keys():
     #
     # create MRK_ClusterMember
     #
-    #print 'lineList before: %s' % lineList
+
+    # sort the list by organism and symbol
     lineList.sort(byOrganismAndSymbol)
     sequenceNum = 0
-    #print 'lineList after: %s' % lineList
     for line in lineList:
-	#  ( organism, TAB, symbol, TAB, hgId, TAB, egId, TAB, markerKey, TAB, taxId, CRT))
-	#print 'line: %s' % line
 	sequenceNum += 1
 	markerKey = line[4]
-	#print 'markerKey: %s' % markerKey
 	fpMemberBCP.write('%s%s%s%s%s%s%s%s' % (nextMemberKey, TAB, nextClusterKey, TAB, markerKey, TAB, sequenceNum, CRT))
 	nextMemberKey += 1
 

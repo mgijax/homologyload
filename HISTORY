@@ -1,3 +1,17 @@
+TAG: mrkcoordload-5-1-1-4
+DATE: 01/14/2013
+STAFF: sc
+RELEASE: dev
+CHANGES: US 62 Complete & document the homologene load
+1) runQC.py - a bit of code reorg and additional commenting
+2) homologyload.sh
+a) moved setting of HOMOLOGY_VERSION to homologyload.py to use pythons 
+   date string formatting
+b) improved commenting
+2) homologyload.py
+a) set HOMOLOGY_VERSION 
+b) improved commenting
+
 TAG: mrkcoordload-5-1-1-3
 DATE: 12/20/2012
 STAFF: sc
