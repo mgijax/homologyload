@@ -1,3 +1,9 @@
+TAG: homologyload-5-1-9-1
+DATE: 7/31/2014
+STAFF: dbm
+CHANGES: TR11662
+1) homologyload.config.default: Added taxon ID 8364 for Xenopus
+
 TAG: homologyload-5-1-7-1
 DATE: 01/28/2014
 STAFF: lec
