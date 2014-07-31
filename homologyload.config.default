@@ -102,8 +102,8 @@ export HOM_LDB_KEY CLUSTER_MGITYPE_KEY
 
 # the set of taxIds we are loading
 # corresponds to: human, mouse, rat, cattle, chimp, dog, chicken,
-#                 zebrafish, monkey
-LOADED_TAXIDS="9606, 10090, 10116, 9913, 9598, 9615, 9031, 7955, 9544"
+#                 zebrafish, monkey, xenopus
+LOADED_TAXIDS="9606, 10090, 10116, 9913, 9598, 9615, 9031, 7955, 9544, 8364"
 PREFERRED_TAXIDS="9606, 10090, 10116"
 
 export LOADED_TAXIDS PREFERRED_TAXIDS
