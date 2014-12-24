@@ -30,8 +30,9 @@
 import string
 import Set
 
-def cluster(inputFile, idPrefix):
-    fpCF = open(inputFile, 'r')
+#def cluster(inputFile, idPrefix):
+def cluster(toClusterList, idPrefix):
+    #fpCF = open(inputFile, 'r')
     
     # read file into two data structures representing column 1 and column 2
     # e.g. idOne=human NCBI ID, idTwo=mouse MGI ID
@@ -42,8 +43,11 @@ def cluster(inputFile, idPrefix):
     # ids from column 2 mapped to ids from column 2
     idTwoToIdOneDict = {}
 
-    for line in fpCF.readlines():
-	idOne, idTwo = string.split(line)
+    #for line in fpCF.readlines():
+    for pair in toClusterList:
+	#idOne, idTwo = string.split(line)
+	idOne = pair[0]
+	idTwo = pair[1]
 	if not idOneToIdTwoDict.has_key(idOne):
 	    idOneToIdTwoDict[idOne] = []
 	idOneToIdTwoDict[idOne].append(idTwo)
@@ -51,7 +55,7 @@ def cluster(inputFile, idPrefix):
 	    if not idTwoToIdOneDict.has_key(idTwo):
 		idTwoToIdOneDict[idTwo] = []
 	    idTwoToIdOneDict[idTwo].append(idOne)
-    fpCF.close()
+    #fpCF.close()
     print idOneToIdTwoDict
     print idTwoToIdOneDict
     # set of all clusters (uniq set of tuples)

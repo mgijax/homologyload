@@ -173,7 +173,9 @@ def init():
 
 def process():
     global rptOne, rptTwo, hgncIdOnlyCount, mgiIdOnlyCount
-
+    
+    # dictionary of id pairs to send to the clusterizer
+    toClusterList = []
     print 'processing input file'
     lineCt = 0
     # These will be ignored by the load
@@ -209,6 +211,7 @@ def process():
 	mgiIDList = map(string.strip, string.split(mgiIDs, ','))
 	# line to write to the cluster
 	for id in mgiIDList:
+	    toClusterList.append([egId, id])
 	    clusterFileLine = ('%s%s%s%s%s' % \
 		(clusterFileLine, egId, TAB, id, CRT))
 	    if id != 'None' and id not in mouseMarkerIdList:
@@ -220,8 +223,11 @@ def process():
 	if not error:
 	    fpClustererFile.write(clusterFileLine)
     fpClustererFile.close()
-    clusterDict = clusterize.cluster(clustererFilePath, 'HGNC')
+    # clusterDict = clusterize.cluster(clustererFilePath, 'HGNC')
+    clusterDict = clusterize.cluster(toClusterList, 'HGNC')
     print 'clusterDict: %s' % clusterDict
+
+    # now resolve the ids to database keys; human and mouse gene keys
     return
 
 def writeReports():
@@ -230,55 +236,6 @@ def writeReports():
     fpQcRpt.write(rptTwo)
 
     return
-
-def cluster():
-    fpCF = open(clustererFilePath, 'r')
-    humanToMouseDict = {}
-    mouseToHumanDict = {}
-    for line in fpCF.readlines():
-	humanId, mouseId = string.split(line)
-	#print '%s, %s' % (humanId, mouseId)
-	if not humanToMouseDict.has_key(humanId):
-	    humanToMouseDict[humanId] = []
-	humanToMouseDict[humanId].append(mouseId)
-	if mouseId != 'None':
-	    if not mouseToHumanDict.has_key(mouseId):
-		mouseToHumanDict[mouseId] = []
-	    mouseToHumanDict[mouseId].append(humanId)
-    print 'humanToMouseDict'
-    print humanToMouseDict
-    print 'mouseToHumanDict'
-    print mouseToHumanDict
-    fpCF.close()
-
-    # set of all clusters, uniq set of tuples
-    clusterSet = set()
-    clusterCt = 0 
-    for humanId in humanToMouseDict.keys():
-	print 'One: ' + humanId
-	# current cluster
-	currentList = []
-	#currentList.append(humanId)
-	for mouseId in humanToMouseDict[humanId]:
-	    print 'Two: ' + mouseId
-	    if mouseId != 'None':
-		currentList.append(mouseId)
-	    if mouseToHumanDict.has_key(mouseId):
-		for hId in mouseToHumanDict[mouseId]:
-		    print 'Three: ' + hId
-		    if hId not in currentList:
-			currentList.append(hId)
-	print 'Four: %s' % currentList
-	currentList.sort()
-	clusterSet.add(tuple(currentList))
-    fpLF = open(os.environ['INPUT_FILE_LOAD'], 'w')
-    clusterCt = 0
-    for c in clusterSet:
-  	clusterCt +=1
-	nextId = 'HGNC:%s' % clusterCt
-	fpLF.write('%s%s%s%s' % (nextId, TAB, ', '.join(c), CRT))
-    fpLF.close()
-
 
 def closeFiles():
     print 'closing files'
