@@ -3,8 +3,10 @@
 #
 # Installation script
 #
-# 1) cp homologyload.config.default homologyload.config
+# 1) cp homologeneload.config.default homologeneload.config
 # 2) Install 
+# 3) cp hgncload.config.default hgncload.config
+# 4) Install
 #
 
 Usage=Install
@@ -32,16 +34,20 @@ fi
 #
 cd `dirname $0`
 
+#
+# HomoloGene
+#
+
 # establish the config files
-MAIN_CONFIG=homologyload.config
+CONFIG=homologeneload.config
 
 # Make sure config file exists and source it
-if [ -r ${MAIN_CONFIG} ]
+if [ -r ${CONFIG} ]
 then
-    echo "Source ${MAIN_CONFIG}"
-    . ${MAIN_CONFIG}
+    echo "Source ${CONFIG}"
+    . ${CONFIG}
 else
-    echo "Cannot source configuration file: ${MAIN_CONFIG}"
+    echo "Cannot source configuration file: ${CONFIG}"
     installFailed
 fi
 
@@ -66,3 +72,44 @@ if [ ! -d ${INPUTDIR} ]
 then
     mkdir -p ${INPUTDIR}
 fi
+
+#
+# HNGC
+#
+
+# establish the config files
+CONFIG=hgncload.config
+
+# Make sure config file exists and source it
+if [ -r ${CONFIG} ]
+then
+    echo "Source ${CONFIG}"
+    . ${CONFIG}
+else
+    echo "Cannot source configuration file: ${CONFIG}"
+    installFailed
+fi
+
+# Check to see if this is a development installation
+#
+DEV=""
+if [ "${INSTALL_TYPE}" = "dev" ]
+then
+    DEV="-d"
+fi
+
+#
+# run DLAInstall for each configuration file
+#
+echo 'running DLAINSTALL'
+${DLAINSTALL} ${DEV}
+
+#
+# Create the input directory.
+#
+if [ ! -d ${INPUTDIR} ]
+then
+    mkdir -p ${INPUTDIR}
+fi
+
+
