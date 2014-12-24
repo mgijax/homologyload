@@ -6,7 +6,7 @@
 #
 # Usage:
 #
-#     homologyload.sh
+#     homologyload.sh configFile
 #
 
 cd `dirname $0`/..
