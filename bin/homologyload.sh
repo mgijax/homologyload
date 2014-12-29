@@ -1,31 +1,27 @@
 #!/bin/sh 
 
 #
-# Convenience script to use during development to run the preprocessor
-#
-# This script is a wrapper around the process that QC's the HGNC
-# input file and generates a load-ready input file
+# This script is a wrapper around the process that QC's a homology
+# input file, generates a load-ready input file, and runs the load
 #
 # Usage:
 #
-#     preprocessHGNC.sh
+#     homologyload.sh configFile
 #
 
-cd `dirname $0`/..
-CONFIG_LOAD=`pwd`/hgncload.config
-CONFIG_COMMON=`pwd`/common.config
-
 cd `dirname $0`
-LOG=`pwd`/hgncload.log
+CONFIG_COMMON=`pwd`/common.config
+LOG=`pwd`/homologyload.log
 rm -rf ${LOG}
 
 #
 #  Verify the argument(s) to the shell script.
 #
-if [ $# -ne 0 ]
+if [ $# -ne 1 ]
 then
-    echo ${Usage} | tee -a ${LOG}
-    exit 1
+    echo ${USAGE}; exit 1   
+else
+    CONFIG_LOAD=$1   
 fi
 
 #
@@ -54,7 +50,6 @@ fi
 
 . ${CONFIG_COMMON}
 
-
 if [ ! -r ${CONFIG_LOAD} ]
 then
     echo "Cannot read configuration file: ${CONFIG_LOAD}"
@@ -62,6 +57,14 @@ then
 fi
 
 . ${CONFIG_LOAD}
+
+#
+# get the homologene version
+#
+
+HOMOLOGY_VERSION=`cat ${RELEASE_NO_FILE}`
+
+export HOMOLOGY_VERSION
 
 #
 #  Source the DLA library functions.
@@ -196,9 +199,68 @@ fi
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
 echo 'Running QC Checks' >> ${LOG_DIAG}
-${HOMOLOGYLOAD}/bin/preprocessHGNC.py
+${HOMOLOGYLOAD}/bin/preprocessHomologene.py
 STAT=$?
-checkStatus ${STAT} "${HOMOLOGYLOAD}/bin/preprocessHGNC.py"
+checkStatus ${STAT} "${HOMOLOGYLOAD}/bin/preprocessHomologene.py"
+
+#
+# Create homologene BCP files
+#
+echo "" >> ${LOG_DIAG}
+date >> ${LOG_DIAG}
+echo 'Running homologeneload.py' >> ${LOG_DIAG}
+${HOMOLOGYLOAD}/bin/homologeneload.py
+STAT=$?
+checkStatus ${STAT} "${HOMOLOGYLOAD}/bin/homologeneload.py"
+
+
+#
+# Do BCP
+#
+echo "" >> ${LOG_DIAG}
+date >> ${LOG_DIAG}
+echo 'BCP data into MRK_Cluster'  >> ${LOG_DIAG}
+
+TABLE=MRK_Cluster
+
+# Drop indexes
+${MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
+
+# BCP new data 
+${MGI_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
+
+# Create indexes
+${MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
+
+echo "" >> ${LOG_DIAG}
+date >> ${LOG_DIAG}
+echo 'BCP data into MRK_ClusterMember'  >> ${LOG_DIAG}
+
+TABLE=MRK_ClusterMember
+
+# Drop indexes
+${MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
+
+# BCP new data 
+${MGI_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
+
+# Create indexes
+${MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
+
+echo "" >> ${LOG_DIAG}
+date >> ${LOG_DIAG}
+echo 'BCP data into ACC_Accession'  >> ${LOG_DIAG}
+
+TABLE=ACC_Accession
+
+# Drop indexes
+${MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
+
+# BCP new data
+${MGI_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
+
+# Create indexes
+${MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
 
 #
 # run postload cleanup and email logs

@@ -11,6 +11,7 @@
 
 cd `dirname $0`/..
 CONFIG_LOAD=`pwd`/homologeneload.config
+CONFIG_COMMON=`pwd`/common.config
 
 cd `dirname $0`
 LOG=`pwd`/homologeneload.log
@@ -40,8 +41,17 @@ COLDELIM="\t"
 LINEDELIM="\n"
 
 #
-# verify & source the configuration file
+# verify & source the configuration files
 #
+
+if [ ! -r ${CONFIG_COMMON} ]
+then
+    echo "Missing configuration file: ${CONFIG_COMMON}"
+    exit 1
+fi
+
+. ${CONFIG_COMMON}
+
 
 if [ ! -r ${CONFIG_LOAD} ]
 then

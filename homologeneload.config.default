@@ -1,30 +1,9 @@
 #format: sh
 #
-#  Configuration for HomoloGene homologyload
+#  homologeneload.config.default
 #
-#  This file sets up environment vars that are needed for the HomoloGene load
-#
-###########################################################################
-
-#
-#  If the MGICONFIG environment variable does not have a local override,
-#  use the default "live" settings.
-#
-if [ "${MGICONFIG}" = "" ]
-then
-    MGICONFIG=/usr/local/mgi/live/mgiconfig
-    export MGICONFIG
-fi
-
-CONFIG_MASTER=${MGICONFIG}/master.config.sh
-
-export CONFIG_MASTER
-
-. ${CONFIG_MASTER}
-
-###########################################################################
-#
-#  LOAD SPECIFIC SETTINGS
+#  This file sets up the common environment variables that are needed by
+#  the HomoloGene homology load
 #
 ###########################################################################
 
@@ -52,13 +31,6 @@ INPUT_FILE="${INPUTDIR}/homologene.data"
 INPUT_FILE_LOAD=${OUTPUTDIR}/homologeneload_load.txt
 
 export INPUT_FILE_DEFAULT INPUT_FILE INPUT_FILE_LOAD
-
-# Full path name of the BCP files
-CLUSTER_BCP=${OUTPUTDIR}/MRK_Cluster.bcp
-MEMBER_BCP=${OUTPUTDIR}/MRK_ClusterMember.bcp
-ACCESSION_BCP=${OUTPUTDIR}/ACC_Accession.bcp
-
-export CLUSTER_BCP MEMBER_BCP ACCESSION_BCP
 
 #  Full path name of the log files
 LOG_PROC=${LOGDIR}/homologeneload.proc.log
@@ -89,14 +61,19 @@ RELEASE_NO_TEXT="Release"
 
 export NUM_COLUMNS MIN_LENGTH RELEASE_NO_FILE RELEASE_NO_TEXT
 
+# Full path name of the BCP files
+CLUSTER_BCP=${OUTPUTDIR}/MRK_Cluster.bcp
+MEMBER_BCP=${OUTPUTDIR}/MRK_ClusterMember.bcp
+ACCESSION_BCP=${OUTPUTDIR}/ACC_Accession.bcp
+
+export CLUSTER_BCP MEMBER_BCP ACCESSION_BCP
+
 CLUSTER_SRC_KEY=9272151
-CLUSTER_TYPE_KEY=9272150
 
-export CLUSTER_SRC_KEY CLUSTER_TYPE_KEY
+export CLUSTER_SRC_KEY
 
-# HomoloGene ldb key and MRK_Cluster MGI Type key
+# HomoloGene ldb key 
 HOM_LDB_KEY=81
-CLUSTER_MGITYPE_KEY=39
 
 export HOM_LDB_KEY CLUSTER_MGITYPE_KEY
 
@@ -113,21 +90,8 @@ JOBSTREAM=homologeneload
 
 export JOBSTREAM
 
-###########################################################################
-#
-#  MISCELLANEOUS SETTINGS
-#
-###########################################################################
 #  The name of the load for the subject of an email notification
 # will be set by wrapper based on collection for each load
-MAIL_LOADNAME="Homology Load"
-
-#  Recipient list for mailing the curation log file (comma-separated)
-MAIL_LOG_CUR="mgiadmin"
+MAIL_LOADNAME="HomoloGene Homology Load"
 
 export MAIL_LOADNAME MAIL_LOG_CUR
-
-#  INSTALLDIR expected by dlautils/DLAInstall
-INSTALLDIR=${HOMOLOGYLOAD}
-
-export INSTALLDIR

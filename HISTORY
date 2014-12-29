@@ -1,3 +1,16 @@
+TAG: homologyload-tr11886-5
+DATE: 12/24/2014
+STAFF: sc
+CHANGES:
+1) common.config.default - added
+2) homologeneload.config.default - factored common settings out
+3) hgncload.config.default - factored common settings out
+4) Install, all .sh wrappers added sourcing of common.config
+5) Added bin/homologyload.sh, this is now the wrapper that runs the NON
+   HomoloGene loads
+6) Added preprocessHomologene.sh, convenience script to run HomoloGene
+   pre processor
+
 TAG: homologyload-tr11886-4
 DATE: 12/24/2014
 STAFF: sc

@@ -3,20 +3,19 @@
 #
 # Convenience script to use during development to run the preprocessor
 #
-# This script is a wrapper around the process that QC's the HGNC
+# This script is a wrapper around the process that QC's the HomoloGene
 # input file and generates a load-ready input file
-#
 # Usage:
 #
-#     preprocessHGNC.sh
+#     preprocessHomologene.sh
 #
 
 cd `dirname $0`/..
-CONFIG_LOAD=`pwd`/hgncload.config
+CONFIG_LOAD=`pwd`/homologeneload.config
 CONFIG_COMMON=`pwd`/common.config
 
 cd `dirname $0`
-LOG=`pwd`/hgncload.log
+LOG=`pwd`/homologeneload.log
 rm -rf ${LOG}
 
 #
@@ -53,7 +52,6 @@ then
 fi
 
 . ${CONFIG_COMMON}
-
 
 if [ ! -r ${CONFIG_LOAD} ]
 then

@@ -11,6 +11,8 @@
 
 Usage=Install
 
+cd `dirname $0`
+
 #
 #  Function called when the install fails.
 #
@@ -32,7 +34,24 @@ fi
 #
 # Make sure config files exist
 #
-cd `dirname $0`
+
+#
+# Common
+#
+
+COMMON_CONFIG=common.config
+
+if [ ! -r ${COMMON_CONFIG} ]
+then
+    echo "Missing configuration file: ${COMMON_CONFIG}"
+    installFailed
+fi
+
+#
+# Source the common configuration file.
+#
+. ${COMMON_CONFIG}
+
 
 #
 # HomoloGene
@@ -51,6 +70,7 @@ else
     installFailed
 fi
 
+#
 # Check to see if this is a development installation
 #
 DEV=""
@@ -111,5 +131,4 @@ if [ ! -d ${INPUTDIR} ]
 then
     mkdir -p ${INPUTDIR}
 fi
-
 
