@@ -1,8 +1,8 @@
 #format: sh
 #
-#  Configuration for homologyload
+#  Configuration for HGNC homologyload
 #
-#  This file sets up environment variables that are needed for the homology load
+#  This file sets up environment vars that are needed for the HGNC homology load
 #
 ###########################################################################
 

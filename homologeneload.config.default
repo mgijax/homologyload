@@ -1,8 +1,8 @@
 #format: sh
 #
-#  Configuration for homologyload
+#  Configuration for HomoloGene homologyload
 #
-#  This file sets up environment variables that are needed for the homology load
+#  This file sets up environment vars that are needed for the HomoloGene load
 #
 ###########################################################################
 
@@ -29,7 +29,7 @@ export CONFIG_MASTER
 ###########################################################################
 
 # Full path to the logs, reports, and archive directories 
-FILEDIR=${DATALOADSOUTPUT}/homologene/homologyload
+FILEDIR=${DATALOADSOUTPUT}/homology/homologeneload
 
 # Full path to the input, output, logs, reports and archive directories.
 #
@@ -49,7 +49,7 @@ INPUT_FILE="${INPUTDIR}/homologene.data"
 
 # Full path name of the load-ready file that is created by
 # by the createInputFile script
-INPUT_FILE_LOAD=${OUTPUTDIR}/homologyload_load.txt
+INPUT_FILE_LOAD=${OUTPUTDIR}/homologeneload_load.txt
 
 export INPUT_FILE_DEFAULT INPUT_FILE INPUT_FILE_LOAD
 
@@ -61,10 +61,10 @@ ACCESSION_BCP=${OUTPUTDIR}/ACC_Accession.bcp
 export CLUSTER_BCP MEMBER_BCP ACCESSION_BCP
 
 #  Full path name of the log files
-LOG_PROC=${LOGDIR}/homologyload.proc.log
-LOG_DIAG=${LOGDIR}/homologyload.diag.log
-LOG_CUR=${LOGDIR}/homologyload.cur.log
-LOG_VAL=${LOGDIR}/homologyload.val.log
+LOG_PROC=${LOGDIR}/homologeneload.proc.log
+LOG_DIAG=${LOGDIR}/homologeneload.diag.log
+LOG_CUR=${LOGDIR}/homologeneload.cur.log
+LOG_VAL=${LOGDIR}/homologeneload.val.log
 
 export LOG_PROC LOG_DIAG LOG_CUR LOG_VAL
 
@@ -109,7 +109,7 @@ PREFERRED_TAXIDS="9606, 10090, 10116"
 export LOADED_TAXIDS PREFERRED_TAXIDS
  
 # this load's login value for DB table CreatedBy and ModifiedBy
-JOBSTREAM=homologyload
+JOBSTREAM=homologeneload
 
 export JOBSTREAM
 

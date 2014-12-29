@@ -6,14 +6,14 @@
 #
 # Usage:
 #
-#     homologyload.sh configFile
+#     homologeneload.sh 
 #
 
 cd `dirname $0`/..
-CONFIG_LOAD=`pwd`/homologyload.config
+CONFIG_LOAD=`pwd`/homologeneload.config
 
 cd `dirname $0`
-LOG=`pwd`/homologyload.log
+LOG=`pwd`/homologeneload.log
 rm -rf ${LOG}
 
 #
@@ -192,19 +192,19 @@ fi
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
 echo 'Running QC Checks' >> ${LOG_DIAG}
-${HOMOLOGYLOAD}/bin/runQC.py
+${HOMOLOGYLOAD}/bin/preprocessHomologene.py
 STAT=$?
-checkStatus ${STAT} "${HOMOLOGYLOAD}/bin/runQC.py"
+checkStatus ${STAT} "${HOMOLOGYLOAD}/bin/preprocessHomologene.py"
 
 #
-# Create homology BCP files
+# Create homologene BCP files
 #
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
-echo 'Running homologyload.py' >> ${LOG_DIAG}
-${HOMOLOGYLOAD}/bin/homologyload.py
+echo 'Running homologeneload.py' >> ${LOG_DIAG}
+${HOMOLOGYLOAD}/bin/homologeneload.py
 STAT=$?
-checkStatus ${STAT} "${HOMOLOGYLOAD}/bin/homologyload.py"
+checkStatus ${STAT} "${HOMOLOGYLOAD}/bin/homologeneload.py"
 
 
 #
