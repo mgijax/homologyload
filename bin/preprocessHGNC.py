@@ -63,8 +63,9 @@ CRT = '\n'
 # {egID:[list of Marker instances], ...}
 egToMarkerDict = {}
 
-# list of all preferred mouse MGI IDs in the database
-mouseMarkerIdList = []
+# MGI ID/Mouse Marker associations from the database
+mgiToMarkerDict = {}
+
 #
 # paths to input and output files
 #
@@ -72,9 +73,13 @@ mouseMarkerIdList = []
 # input file from Homologene
 inFilePath = os.environ['INPUT_FILE']
 
-# This is the cleaned up load-ready input file
+# path to the file to be clustered by the clusterizer
 clustererFilePath = os.environ['INPUT_FILE_CLUSTERER']
 
+# This is the cleaned up load-ready input file
+loadFilePath = os.environ['INPUT_FILE_LOAD']
+
+#
 # The QC report 
 qcRptPath = os.environ['QC_RPT']
 
@@ -92,6 +97,7 @@ rptTwo = '%s%sLines where a Mouse MGI ID not in database%s%s%s%s' % (CRT, CRT,CR
 
 fpInFile = ''
 fpClustererFile = ''
+fpLoadFile = ''
 fpQcRpt = ''
 
 #
@@ -104,8 +110,8 @@ class Marker:
 	self.s = symbol
 
 def init():
-    global egToMarkerDict, mouseMarkerIdList
-    global fpInFile, fpClustererFile, fpQcRpt
+    global egToMarkerDict, mgiToMarkerDict
+    global fpInFile, fpClustererFile, fpLoadFile, fpQcRpt
 
     user = os.environ['MGD_DBUSER']
     passwordFileName = os.environ['MGD_DBPASSWORDFILE']
@@ -122,6 +128,10 @@ def init():
 	fpClustererFile = open(clustererFilePath, 'w')
     except:
 	exit('Could not open file for writing %s\n' % clustererFilePath)
+    try:
+        fpLoadFile = open(loadFilePath, 'w')
+    except:
+        exit('Could not open file for writing %s\n' % loadFilePath)
 
     try:
 	fpQcRpt = open(qcRptPath, 'w')
@@ -130,7 +140,7 @@ def init():
 
 
     # get all human markers that are associated with egIds
-    results = db.sql('''select distinct a.accid as egId, m._Marker_key, m.symbol
+    results = db.sql('''select distinct a.accid as egId, m._Marker_key
 	from ACC_Accession a, MRK_Marker m
 	where a._MGIType_key = 2
 	and a._LogicalDB_key = 55
@@ -145,16 +155,13 @@ def init():
     for r in results:
 	egId = r['egId']
 	markerKey = r['_Marker_key']
-	symbol = r['symbol']
 	#print 'egId: %s' % egId
-	if not egToMarkerDict.has_key(egId):
-	    egToMarkerDict[egId] = []
-	    egToMarkerDict[egId].append( Marker(markerKey, egId, symbol) )
+	egToMarkerDict[egId] = markerKey
     print ' size of egToMarkerDict %s' % len(egToMarkerDict)
 
     # get all mouse markers
     print 'creating mouse marker lookup'
-    results = db.sql('''select distinct a.accID as mgiID
+    results = db.sql('''select distinct a.accID as mgiId, m._Marker_key
 	    from ACC_Accession a, MRK_Marker m
 	    where a._MGIType_key = 2
 	    and a._LogicalDB_key = 1
@@ -166,8 +173,10 @@ def init():
     # removed per Richard
     # and a.preferred = 1
     for r in results:
-	    mouseMarkerIdList.append(r['mgiID'])
-    print 'size of mouseMarkerIdList %s' % len(mouseMarkerIdList)
+	    mgiId = r['mgiId']
+	    markerKey = r['_Marker_key']
+	    mgiToMarkerDict[mgiId] = markerKey
+    print 'size of mgiToMarkerDict %s' % len(mgiToMarkerDict)
 
     return
 
@@ -186,7 +195,7 @@ def process():
     mgiIdOnlyCount = 0
 
     for line in fpInFile.readlines():
-	#print 'line: %s' % line
+	print 'line: %s' % line
 	lineCt += 1
 	(egId, mgiIDs, junk1) = string.split(line[:-1], TAB)
 	# if both egId and mgiId columns are blank, skip and don't
@@ -200,7 +209,7 @@ def process():
 	    continue
 	elif mgiIDs == '':
 	    mgiIDs = 'None'
-	#print 'mgiIDs: %s' % mgiIDs
+	print 'mgiIDs: %s' % mgiIDs
 	egId = string.strip(egId)
 	error = 0
 	clusterFileLine = ''
@@ -214,7 +223,7 @@ def process():
 	    toClusterList.append([egId, id])
 	    clusterFileLine = ('%s%s%s%s%s' % \
 		(clusterFileLine, egId, TAB, id, CRT))
-	    if id != 'None' and id not in mouseMarkerIdList:
+	    if id != 'None' and id not in mgiToMarkerDict.keys():
 		error = 1
 		print 'id not in MGI: %s' % id
 		rptTwo = '%s%s%s%s' % (rptTwo, lineCt, TAB, line)
@@ -223,11 +232,23 @@ def process():
 	if not error:
 	    fpClustererFile.write(clusterFileLine)
     fpClustererFile.close()
+    print len(toClusterList)
     # clusterDict = clusterize.cluster(clustererFilePath, 'HGNC')
     clusterDict = clusterize.cluster(toClusterList, 'HGNC')
     print 'clusterDict: %s' % clusterDict
 
     # now resolve the ids to database keys; human and mouse gene keys
+    for clusterId in clusterDict.keys():
+	idTuple = clusterDict[clusterId]
+	keyList = []
+	for id in idTuple:
+	    if id.startswith('MGI:'):
+		keyList.append(str(mgiToMarkerDict[id]))
+	    else:
+		keyList.append(str(egToMarkerDict[id]))
+	idString = ', '.join(keyList)
+	fpLoadFile.write('%s%s%s%s' % (clusterId, TAB, idString, CRT))
+
     return
 
 def writeReports():
@@ -240,6 +261,7 @@ def writeReports():
 def closeFiles():
     print 'closing files'
     fpInFile.close()
+    fpLoadFile.close()
     fpQcRpt.close()
 
     # close the database connection

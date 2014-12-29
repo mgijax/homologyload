@@ -4,7 +4,8 @@ STAFF: sc
 CHANGES: 
 1) preprocessHGNC.py - removed cluster function (factored out in last tag)
     also create list of list to pass to clusterizer rather than file
-2) clusterize.py - take list of list as parameter rather than file
+2) clusterize.py - take list of list as parameter rather than file, return
+    a dictionary
 
 TAG: homologyload-tr11886-1
 DATE: 12/24/2014

@@ -8,13 +8,12 @@
 # Usage: clusterize.py
 #
 # Inputs:
-#       1. Two column tab-delimited file of ids to be clustered
-#       2. Each column containing one ID
+#       1. List of lists
+#           [ [idType1, idType2], [idType1, idType2], ...]
 #
 # Outputs:
-#        1. Two column tab-delimited file of clusters
-#	 1.1. generated cluster ID
-#	 1.2  comma delimited list of cluster member IDs
+#        1. Dictionary of auto-generated clusterIDs mapped to tuples of clusters
+#	     {clusterID:(id1, ..., idn), ...}
 #
 # Exit Codes:
 #
@@ -88,12 +87,14 @@ def cluster(toClusterList, idPrefix):
 
     # now assign ids to the clusters creating a dict to return
     # we'll remove IDs when we change the schema and simply return a list
-    # of lists
+    # of tuples
+    # {clusterID:(id1, ..., idn), ...} 
     clusterDict = {}
     clusterCt = 0
     for c in clusterSet:
 	clusterCt += 1
 	nextId = '%s:%s' % (idPrefix, clusterCt)
-	clusterDict[nextId] = ', '.join(c)
-
+	#clusterDict[nextId] = ', '.join(c)
+	clusterDict[nextId] = c
+	
     return clusterDict
