@@ -109,7 +109,7 @@ PREFERRED_TAXIDS="9606, 10090, 10116"
 export LOADED_TAXIDS PREFERRED_TAXIDS
  
 # this load's login value for DB table CreatedBy and ModifiedBy
-JOBSTREAM=homologyload
+JOBSTREAM=homologeneload
 
 export JOBSTREAM
 
