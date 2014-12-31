@@ -60,7 +60,7 @@ TAB= '\t'
 CRT = '\n'
 
 # EG ID/Human Marker associations from the database
-# {egID:[list of Marker instances], ...}
+# {egID:[marker keys], ...}
 egToMarkerDict = {}
 
 # MGI ID/Mouse Marker associations from the database
@@ -195,7 +195,7 @@ def process():
     mgiIdOnlyCount = 0
 
     for line in fpInFile.readlines():
-	print 'line: %s' % line
+	#print 'line: %s' % line
 	lineCt += 1
 	(egId, mgiIDs, junk1) = string.split(line[:-1], TAB)
 	# if both egId and mgiId columns are blank, skip and don't
@@ -209,7 +209,7 @@ def process():
 	    continue
 	elif mgiIDs == '':
 	    mgiIDs = 'None'
-	print 'mgiIDs: %s' % mgiIDs
+	#print 'mgiIDs: %s' % mgiIDs
 	egId = string.strip(egId)
 	error = 0
 	clusterFileLine = ''
@@ -232,22 +232,25 @@ def process():
 	if not error:
 	    fpClustererFile.write(clusterFileLine)
     fpClustererFile.close()
-    print len(toClusterList)
+    #print len(toClusterList)
     # clusterDict = clusterize.cluster(clustererFilePath, 'HGNC')
     clusterDict = clusterize.cluster(toClusterList, 'HGNC')
-    print 'clusterDict: %s' % clusterDict
+    #print 'clusterDict: %s' % clusterDict
 
     # now resolve the ids to database keys; human and mouse gene keys
     for clusterId in clusterDict.keys():
 	idTuple = clusterDict[clusterId]
-	keyList = []
+	humanKeyList = []
+	mouseKeyList = []
 	for id in idTuple:
 	    if id.startswith('MGI:'):
-		keyList.append(str(mgiToMarkerDict[id]))
+		mouseKeyList.append(str(mgiToMarkerDict[id]))
 	    else:
-		keyList.append(str(egToMarkerDict[id]))
-	idString = ', '.join(keyList)
-	fpLoadFile.write('%s%s%s%s' % (clusterId, TAB, idString, CRT))
+		humanKeyList.append(str(egToMarkerDict[id]))
+	# we want human before mouse for cluster member sequence numbering
+	keyList = humanKeyList + mouseKeyList
+	keyString = ', '.join(keyList)
+	fpLoadFile.write('%s%s%s%s' % (clusterId, TAB, keyString, CRT))
 
     return
 

@@ -48,6 +48,11 @@ QC_RPT=${RPTDIR}/qc.rpt
 
 export SANITY_RPT QC_RPT
 
+# Pre-processor to use
+PREPROCESSOR=${HOMOLOGYLOAD}/bin/preprocessHGNC.py
+
+export PREPROCESSOR
+
 # Number of columns expected for the input file (for sanity check).
 NUM_COLUMNS=3
 
@@ -59,6 +64,11 @@ MIN_LENGTH=4
 HOMOLOGY_VERSION=''
 
 export NUM_COLUMNS MIN_LENGTH HOMOLOGY_VERSION
+
+# true if this load handles cluster accession IDs
+LOAD_ACCESSION=false
+
+export LOAD_ACCESSION
 
 # Full path name of the BCP files
 CLUSTER_BCP=${OUTPUTDIR}/MRK_Cluster.bcp

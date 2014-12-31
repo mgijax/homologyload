@@ -9,7 +9,8 @@
 #     homologyload.sh configFile
 #
 
-cd `dirname $0`
+cd `dirname $0`/..
+
 CONFIG_COMMON=`pwd`/common.config
 LOG=`pwd`/homologyload.log
 rm -rf ${LOG}
@@ -23,6 +24,8 @@ then
 else
     CONFIG_LOAD=$1   
 fi
+CONFIG_LOAD=`pwd`/${CONFIG_LOAD}
+echo "CONFIG_LOAD: ${CONFIG_LOAD}"
 
 #
 # Create a temporary file and make sure that it is removed when this script
@@ -41,7 +44,7 @@ LINEDELIM="\n"
 #
 # verify & source the configuration files
 #
-
+echo 'sourcing common config'
 if [ ! -r ${CONFIG_COMMON} ]
 then
     echo "Missing configuration file: ${CONFIG_COMMON}"
@@ -50,6 +53,7 @@ fi
 
 . ${CONFIG_COMMON}
 
+echo 'sourcing load config'
 if [ ! -r ${CONFIG_LOAD} ]
 then
     echo "Cannot read configuration file: ${CONFIG_LOAD}"
@@ -59,17 +63,9 @@ fi
 . ${CONFIG_LOAD}
 
 #
-# get the homologene version
-#
-
-HOMOLOGY_VERSION=`cat ${RELEASE_NO_FILE}`
-
-export HOMOLOGY_VERSION
-
-#
 #  Source the DLA library functions.
 #
-
+echo 'sourcing dla library functions'
 if [ "${DLAJOBSTREAMFUNC}" != "" ]
 then
     if [ -r ${DLAJOBSTREAMFUNC} ]
@@ -87,6 +83,7 @@ fi
 #
 # check that INPUT_FILE_DEFAULT has been set
 #
+echo 'checking INPUT_FILE_DEFAULT'
 if [ "${INPUT_FILE_DEFAULT}" = "" ]
 then
     # set STAT for endJobStream.py
@@ -97,6 +94,7 @@ fi
 #
 # check that INPUT_FILE has been set
 #
+echo 'checking INPUT_FILE'
 if [ "${INPUT_FILE}" = "" ]
 then
     # set STAT for endJobStream.py
@@ -107,6 +105,7 @@ fi
 #
 # check that INPUT_FILE_LOAD has been set
 #
+echo 'checking INPUT_FILE_LOAD'
 if [ "${INPUT_FILE_LOAD}" = "" ]
 then
     # set STAT for endJobStream.py
@@ -114,6 +113,7 @@ then
     checkStatus ${STAT} "INPUT_FILE_LOAD not defined"
 fi
 
+echo "copying ${INPUT_FILE_DEFAULT} to  ${INPUTDIR}"
 # copy the latest file from /data/downloads to the input dir
 cp -p ${INPUT_FILE_DEFAULT} ${INPUTDIR}
 
@@ -145,11 +145,13 @@ checkColumns ()
 #
 # createArchive including OUTPUTDIR, startLog, getConfigEnv
 # sets "JOBKEY"
+echo 'preload'
 preload ${OUTPUTDIR}
 
 #
 # rm all files/dirs from OUTPUTDIR
 #
+echo 'cleanDir'
 cleanDir ${OUTPUTDIR}
 
 #
@@ -172,7 +174,7 @@ fi
 
 # check file length, remove whitespace
 len=`cat ${INPUT_FILE} | wc -l | sed 's/ //g'`
-
+echo 'checking min length'
 if [ ${len} -lt ${MIN_LENGTH} ] 
 then
    echo "\n\nInput file does not have minimum length. Required: ${MIN_LENGTH} Found: ${len}" | tee -a ${SANITY_RPT}
@@ -194,73 +196,88 @@ then
 fi
 
 #
-# QC checks
+# Run preprocessor to QC and create load ready file
 #
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
-echo 'Running QC Checks' >> ${LOG_DIAG}
-${HOMOLOGYLOAD}/bin/preprocessHomologene.py
+echo "Running Preprocessor ${PREPROCESSOR}" >> ${LOG_DIAG}
+${PREPROCESSOR}
 STAT=$?
-checkStatus ${STAT} "${HOMOLOGYLOAD}/bin/preprocessHomologene.py"
+checkStatus ${STAT} "${PREPROCESSOR}"
 
 #
-# Create homologene BCP files
+# Run the load
 #
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
-echo 'Running homologeneload.py' >> ${LOG_DIAG}
-${HOMOLOGYLOAD}/bin/homologeneload.py
+echo 'Running homologyload.py' >> ${LOG_DIAG}
+${HOMOLOGYLOAD}/bin/homologyload.py
 STAT=$?
-checkStatus ${STAT} "${HOMOLOGYLOAD}/bin/homologeneload.py"
+checkStatus ${STAT} "${HOMOLOGYLOAD}/bin/homologyload.py"
 
 
 #
 # Do BCP
 #
-echo "" >> ${LOG_DIAG}
-date >> ${LOG_DIAG}
-echo 'BCP data into MRK_Cluster'  >> ${LOG_DIAG}
-
+echo 'doing bcp'
 TABLE=MRK_Cluster
 
-# Drop indexes
-${MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
+if [ -s "${OUTPUTDIR}/${TABLE}.bcp" ]
+then
 
-# BCP new data 
-${MGI_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
+    echo "" >> ${LOG_DIAG}
+    date >> ${LOG_DIAG}
+    echo 'BCP data into MRK_Cluster'  >> ${LOG_DIAG}
 
-# Create indexes
-${MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
+    # Drop indexes
+    ${MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
 
-echo "" >> ${LOG_DIAG}
-date >> ${LOG_DIAG}
-echo 'BCP data into MRK_ClusterMember'  >> ${LOG_DIAG}
+    # BCP new data 
+    ${MGI_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
+
+    # Create indexes
+    ${MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
+fi
 
 TABLE=MRK_ClusterMember
 
-# Drop indexes
-${MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
+if [ -s "${OUTPUTDIR}/${TABLE}.bcp" ]
+then
 
-# BCP new data 
-${MGI_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
+    echo "" >> ${LOG_DIAG}
+    date >> ${LOG_DIAG}
+    echo 'BCP data into MRK_ClusterMember'  >> ${LOG_DIAG}
 
-# Create indexes
-${MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
 
-echo "" >> ${LOG_DIAG}
-date >> ${LOG_DIAG}
-echo 'BCP data into ACC_Accession'  >> ${LOG_DIAG}
+    # Drop indexes
+    ${MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
+
+    # BCP new data 
+    ${MGI_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
+
+    # Create indexes
+    ${MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
+
+fi
 
 TABLE=ACC_Accession
 
-# Drop indexes
-${MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
+if [ -s "${OUTPUTDIR}/${TABLE}.bcp" ]
+then
 
-# BCP new data
-${MGI_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
+    echo "" >> ${LOG_DIAG}
+    date >> ${LOG_DIAG}
+    echo 'BCP data into ACC_Accession'  >> ${LOG_DIAG}
 
-# Create indexes
-${MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
+    # Drop indexes
+    ${MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
+
+    # BCP new data
+    ${MGI_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
+
+    # Create indexes
+    ${MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
+fi
 
 #
 # run postload cleanup and email logs
