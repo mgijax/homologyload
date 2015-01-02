@@ -55,8 +55,8 @@ def cluster(toClusterList, idPrefix):
 		idTwoToIdOneDict[idTwo] = []
 	    idTwoToIdOneDict[idTwo].append(idOne)
     #fpCF.close()
-    print idOneToIdTwoDict
-    print idTwoToIdOneDict
+    #print idOneToIdTwoDict
+    #print idTwoToIdOneDict
     # set of all clusters (uniq set of tuples)
     clusterSet = set()
 
