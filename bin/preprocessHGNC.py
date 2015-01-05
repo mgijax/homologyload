@@ -152,16 +152,16 @@ def init():
     #
     # create Human egID to marker lookup from database
     #
-    print 'creating egID to marker lookup'
+    #print 'creating egID to marker lookup'
     for r in results:
 	egId = r['egId']
 	markerKey = r['_Marker_key']
 	#print 'egId: %s' % egId
 	egToMarkerDict[egId] = markerKey
-    print ' size of egToMarkerDict %s' % len(egToMarkerDict)
+    #print ' size of egToMarkerDict %s' % len(egToMarkerDict)
 
     # get all mouse markers
-    print 'creating mouse marker lookup'
+    #print 'creating mouse marker lookup'
     results = db.sql('''select distinct a.accID as mgiId, m._Marker_key
 	    from ACC_Accession a, MRK_Marker m
 	    where a._MGIType_key = 2
@@ -177,7 +177,7 @@ def init():
 	    mgiId = r['mgiId']
 	    markerKey = r['_Marker_key']
 	    mgiToMarkerDict[mgiId] = markerKey
-    print 'size of mgiToMarkerDict %s' % len(mgiToMarkerDict)
+    #print 'size of mgiToMarkerDict %s' % len(mgiToMarkerDict)
 
     return
 
@@ -186,7 +186,7 @@ def process():
     
     # dictionary of id pairs to send to the clusterizer
     toClusterList = []
-    print 'processing input file'
+    #print 'processing input file'
     lineCt = 0
     # These will be ignored by the load
     hgncIdOnlyCount = 0
@@ -229,7 +229,7 @@ def process():
 	# report and skip lines with egId not in the database
 	if egId and egId not in egToMarkerDict.keys():
 	    rptOne = '%s%s%s%s' % (rptOne, lineCt, TAB, line)
-	    print 'writing to rptOne and continuing: %s %s' % (lineCt, line)
+	    #print 'writing to rptOne and continuing: %s %s' % (lineCt, line)
 	    # if egId not in database continue to next input line
 	    continue
 	mgiIDList = map(string.strip, string.split(mgiIDs, ','))
@@ -239,9 +239,9 @@ def process():
 	    # report and skip lines with mgiId not in the database
 	    if id != 'None' and id not in mgiToMarkerDict.keys(): 
 		error = 1
-		print 'id not in MGI: %s' % id
+		#print 'id not in MGI: %s' % id
 		rptTwo = '%s%s%s%s' % (rptTwo, lineCt, TAB, line)
-		print 'writing to rptTwo: %s %s' % (lineCt, line)
+		#print 'writing to rptTwo: %s %s' % (lineCt, line)
 		# No need to check any more ids, get out of the loop
 		break
 	    else:
@@ -260,24 +260,7 @@ def process():
 	fpClustererFile.write(clusterFileLine)
 	# if we get here, we the egId is in the database and ALL the
 	# mgiIds are in the database
-	
 		
-	#################################################
-	## 1/2 old code
-	# line to write to the cluster
-	#for id in mgiIDList:
-	#    toClusterList.append([egId, id])
-	#    clusterFileLine = ('%s%s%s%s%s' % \
-	#	(clusterFileLine, egId, TAB, id, CRT))
-	#    if id != 'None' and id not in mgiToMarkerDict.keys():
-	#	error = 1
-	#	print 'id not in MGI: %s' % id
-	#	rptTwo = '%s%s%s%s' % (rptTwo, lineCt, TAB, line)
-	#	print 'writing to rptTwo: %s %s' % (lineCt, line)
-	#	break
-	#if not error:
-	#    fpClustererFile.write(clusterFileLine)
-	## 1/2 end old code
     # idList replaces this file, but keeping for time being
     fpClustererFile.close()
     #print len(toClusterList)
@@ -303,14 +286,14 @@ def process():
     return
 
 def writeReports():
-    print 'writing reports'
+    #print 'writing reports'
     fpQcRpt.write(rptOne)
     fpQcRpt.write(rptTwo)
 
     return
 
 def closeFiles():
-    print 'closing files'
+    #print 'closing files'
     fpInFile.close()
     fpLoadFile.close()
     fpQcRpt.close()

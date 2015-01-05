@@ -1,3 +1,16 @@
+TAG: homologyload-tr11886-9
+DATE: 01/05/2015
+STAFF: sc
+CHANGES:
+1) hgncload.config.default - added LOADER settings
+2) homologeneload.config.default - added LOADER and PREPROCESSOR settings
+3) homologyload.sh - updated to run any preprocessor or loader based on
+    LOADER and PREPROCESSOR settings. Also set HOMOLOGY_VERSION if 
+    RELEASE_NO_FILE exists in the environment
+4) preprocessHGNC.py - removed some debug print statements and commented out
+    blocks of code
+5) homologeneload.sh - removed
+
 TAG: homologyload-tr11886-8
 DATE: 01/02/2015
 STAFF: sc

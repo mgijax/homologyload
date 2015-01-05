@@ -46,6 +46,13 @@ QC_RPT=${RPTDIR}/qc.rpt
 
 export SANITY_RPT QC_RPT
 
+# Pre-processor to use
+PREPROCESSOR=${HOMOLOGYLOAD}/bin/preprocessHomologene.py
+LOADER=${HOMOLOGYLOAD}/bin/homologeneload.py
+
+export PREPROCESSOR
+export LOADER
+
 # Number of columns expected for the input file (for sanity check).
 NUM_COLUMNS=6
 

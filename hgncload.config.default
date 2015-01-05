@@ -50,9 +50,10 @@ export SANITY_RPT QC_RPT
 
 # Pre-processor to use
 PREPROCESSOR=${HOMOLOGYLOAD}/bin/preprocessHGNC.py
+LOADER=${HOMOLOGYLOAD}/bin/homologyload.py
 
 export PREPROCESSOR
-
+export LOADER
 # Number of columns expected for the input file (for sanity check).
 NUM_COLUMNS=3
 

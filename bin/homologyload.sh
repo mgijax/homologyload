@@ -28,6 +28,21 @@ CONFIG_LOAD=`pwd`/${CONFIG_LOAD}
 echo "CONFIG_LOAD: ${CONFIG_LOAD}"
 
 #
+# get the homologene version
+#
+#if [ ! -z "${RELEASE_NO_FILE}" ]
+#if [ "${RELEASE_NO_FILE}" != "" ]
+if [ "${RELEASE_NO_FILE}" ]
+then
+    echo 'have value for RELEASE_NO_FILE'
+    HOMOLOGY_VERSION=`cat ${RELEASE_NO_FILE}`
+
+    export HOMOLOGY_VERSION
+else
+    echo 'have no value for RELEASE_NO_FILE'
+fi
+
+#
 # Create a temporary file and make sure that it is removed when this script
 # terminates.
 #
@@ -61,6 +76,21 @@ then
 fi
 
 . ${CONFIG_LOAD}
+
+#
+# get the homologene version
+#
+#if [ ! -z "${RELEASE_NO_FILE}" ]
+if [ "${RELEASE_NO_FILE}" != "" ]
+then
+    echo 'have value for RELEASE_NO_FILE'
+    HOMOLOGY_VERSION=`cat ${RELEASE_NO_FILE}`
+
+    export HOMOLOGY_VERSION
+else
+    echo 'have no value for RELEASE_NO_FILE'
+fi
+
 
 #
 #  Source the DLA library functions.
@@ -210,10 +240,10 @@ checkStatus ${STAT} "${PREPROCESSOR}"
 #
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
-echo 'Running homologyload.py' >> ${LOG_DIAG}
-${HOMOLOGYLOAD}/bin/homologyload.py
+echo 'Running loader ${LOADER}' >> ${LOG_DIAG}
+${LOADER}
 STAT=$?
-checkStatus ${STAT} "${HOMOLOGYLOAD}/bin/homologyload.py"
+checkStatus ${STAT} "${LOADER}"
 
 
 #
