@@ -60,17 +60,18 @@ TAB= '\t'
 CRT = '\n'
 
 # EG ID/Human Marker associations from the database
-# {egID:[marker keys], ...}
+# {egID:marker key, ...}
 egToMarkerDict = {}
 
 # MGI ID/Mouse Marker associations from the database
+# {mgiID:marker key, ...}
 mgiToMarkerDict = {}
 
 #
 # paths to input and output files
 #
 
-# input file from Homologene
+# input file from HGNC
 inFilePath = os.environ['INPUT_FILE']
 
 # path to the file to be clustered by the clusterizer
