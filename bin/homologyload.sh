@@ -28,21 +28,6 @@ CONFIG_LOAD=`pwd`/${CONFIG_LOAD}
 echo "CONFIG_LOAD: ${CONFIG_LOAD}"
 
 #
-# get the homologene version
-#
-#if [ ! -z "${RELEASE_NO_FILE}" ]
-#if [ "${RELEASE_NO_FILE}" != "" ]
-if [ "${RELEASE_NO_FILE}" ]
-then
-    echo 'have value for RELEASE_NO_FILE'
-    HOMOLOGY_VERSION=`cat ${RELEASE_NO_FILE}`
-
-    export HOMOLOGY_VERSION
-else
-    echo 'have no value for RELEASE_NO_FILE'
-fi
-
-#
 # Create a temporary file and make sure that it is removed when this script
 # terminates.
 #
@@ -80,7 +65,6 @@ fi
 #
 # get the homologene version
 #
-#if [ ! -z "${RELEASE_NO_FILE}" ]
 if [ "${RELEASE_NO_FILE}" != "" ]
 then
     echo 'have value for RELEASE_NO_FILE'
