@@ -1,3 +1,22 @@
+TAG: homologyload-tr11886-11
+DATE: 01/12/2015
+STAFF: sc
+CHANGES: final checkin zfin stuff
+1) zfin.config.default - xpat as 'INPUT_FILE_DEFAULT' file handled by 
+    homologyload.sh. gene.txt and mouse_orthos.txt handled by preprocessZFIN.sh
+    NUM_COLUMNS updated to 1 (only column required for INPUT_FILE_DEFAULT
+2) common.config.default - commented out MAIL_LOG_CUR as nothing going to that 
+    log as of yet
+3) index.html - restructured to three section HomoloGene, HGNC, ZFIN
+4) checkColumns.py - commented out print statement
+5) bin/homologyload.sh - removed debug echo's, updated call to checkColumns.py
+    echo 'No Sanity Errors' when none found to the sanity report
+6) bin/preprocessZFIN.py - removed debug print statements, 
+	changed INPUT_FILE_EXPR INPUT_FILE
+7) bin/preprocessZFIN.sh - changed from a 'convenience script to use while
+    developing' to the PREPROCESSOR for ZFIN as ZFIN must handle three input
+    files
+
 TAG: homologyload-tr11886-10
 DATE:
 STAFF: sc

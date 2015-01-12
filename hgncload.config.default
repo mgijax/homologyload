@@ -59,8 +59,7 @@ export LOADER
 NUM_COLUMNS=3
 
 # minimum  number of lines in the file (for sanity check).
-#MIN_LENGTH=43000
-MIN_LENGTH=4
+MIN_LENGTH=40000
 
 # Version number of the HGNC homology - there isn't one
 HOMOLOGY_VERSION=''

@@ -89,7 +89,6 @@ def openFile ():
 # Throws: Nothing
 #
 def checkColumns ():
-    #print 'starting checkColumns'
     global errors
     lineNum = 0
     for line in fpInput.readlines():

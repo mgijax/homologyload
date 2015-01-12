@@ -95,7 +95,8 @@ mgiToMarkerDict = {}
 # input files from ZFIN
 inFileGenePath = os.environ['INPUT_FILE_GENE']
 inFileOrthoPath = os.environ['INPUT_FILE_ORTHO']
-inFileExprPath = os.environ['INPUT_FILE_EXPR']
+# The expression input file
+inFileExprPath = os.environ['INPUT_FILE']
 
 # This is the cleaned up load-ready input file
 loadFilePath = os.environ['INPUT_FILE_LOAD']
@@ -258,7 +259,7 @@ def process():
 
     for zfinID in exprSet:
 	# Join to gene and orthos to get ncbi and mgi IDs
-	print zfinID
+	#print zfinID
 	ncbiID = ''
 	mgiID = ''
 	error = 0
@@ -273,7 +274,6 @@ def process():
 	    error = 1
 	    zfinIdNotInSet.add(zfinID)
 	if error:
-	    print 'continuing: %s' % zfinID
 	    continue
 	# verify zfin NCBI ID in database
 	if ncbiID not in egToMarkerDict.keys():
@@ -287,7 +287,6 @@ def process():
 		mgiNotInDBSet.add(mgiID)
 		error = 1
 	if error:
-	    print 'ncbi or mgi not in db continuing: %s' % zfinID
 	    continue
 	else:
 	    # no errors so append the next cluster

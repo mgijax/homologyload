@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/sh
 
 #
 # Convenience script to use during development to run the preprocessor
@@ -11,78 +11,19 @@
 #     preprocessZFIN.sh
 #
 
-cd `dirname $0`/..
-CONFIG_LOAD=`pwd`/zfinload.config
-CONFIG_COMMON=`pwd`/common.config
-
-cd `dirname $0`
-LOG=`pwd`/zfinload.log
-rm -rf ${LOG}
-
-#
-#  Verify the argument(s) to the shell script.
-#
-if [ $# -ne 0 ]
-then
-    echo ${Usage} | tee -a ${LOG}
-    exit 1
-fi
-
-#
-# BCP delimiters
-#
-COLDELIM="\t"
-LINEDELIM="\n"
-
 #
 # Create a temporary file and make sure that it is removed when this script
 # terminates.
 #
-TMP_FILE=/tmp/`basename $0`.$$
-touch ${TMP_FILE}
-trap "rm -f ${TMP_FILE}" 0 1 2 15
+TMP2_FILE=/tmp/`basename $0`.$$
+touch ${TMP2_FILE}
+trap "rm -f ${TMP2_FILE}" 0 1 2 15
+
 
 #
-# verify & source the configuration files
-#
-
-if [ ! -r ${CONFIG_COMMON} ]
-then
-    echo "Missing configuration file: ${CONFIG_COMMON}"
-    exit 1
-fi
-
-. ${CONFIG_COMMON}
-
-
-if [ ! -r ${CONFIG_LOAD} ]
-then
-    echo "Cannot read configuration file: ${CONFIG_LOAD}"
-    exit 1
-fi
-
-. ${CONFIG_LOAD}
-
-#
-#  Source the DLA library functions.
-#
-
-if [ "${DLAJOBSTREAMFUNC}" != "" ]
-then
-    if [ -r ${DLAJOBSTREAMFUNC} ]
-    then
-        . ${DLAJOBSTREAMFUNC}
-    else
-        echo "Cannot source DLA functions script: ${DLAJOBSTREAMFUNC}" | tee -a ${LOG}
-        exit 1
-    fi
-else
-    echo "Environment variable DLAJOBSTREAMFUNC has not been defined." | tee -a ${LOG}
-    exit 1
-fi
-
-#
-# check that three default input files  have been set
+# check that two additional default input files  have been set
+# Note that the expression file is the default input file and is
+# checked in the calling wrapper script
 # 
 if [ "${INPUT_FILE_GENE_DEFAULT}" = "" ]
 then
@@ -98,15 +39,8 @@ then
     checkStatus ${STAT} "INPUT_FILE_ORTHO_DEFAULT not defined"
 fi
 
-if [ "${INPUT_FILE_DEFAULT}" = "" ]
-then
-    # set STAT for endJobStream.py
-    STAT=1
-    checkStatus ${STAT} "INPUT_FILE_DEFAULT not defined"
-fi
-
 #
-# check that three input files have been set
+# check that two additional input files have been set
 # 
 if [ "${INPUT_FILE_GENE}" = "" ]
 then
@@ -122,27 +56,11 @@ then
     checkStatus ${STAT} "INPUT_FILE_ORTHO not defined"
 fi
 
-if [ "${INPUT_FILE_EXPR}" = "" ]
-then
-    # set STAT for endJobStream.py
-    STAT=1
-    checkStatus ${STAT} "INPUT_FILE_EXPR not defined"
-fi
-
-#
-# check that INPUT_FILE_LOAD has been set
-#
-if [ "${INPUT_FILE_LOAD}" = "" ]
-then
-    # set STAT for endJobStream.py
-    STAT=1
-    checkStatus ${STAT} "INPUT_FILE_LOAD not defined"
-fi
-
-# copy the latest files from /data/downloads to the input dir
+# copy the additional two files from /data/downloads to the input dir
+echo "copying ${INPUT_FILE_GENE_DEFAULT} to ${INPUTDIR}"
 cp -p ${INPUT_FILE_GENE_DEFAULT} ${INPUTDIR}
+echo "copying ${INPUT_FILE_ORTHO_DEFAULT} to ${INPUTDIR}"
 cp -p ${INPUT_FILE_ORTHO_DEFAULT} ${INPUTDIR}
-cp -p ${INPUT_FILE_EXPR_DEFAULT} ${INPUTDIR}
 
 #
 # FUNCTION: Check for lines with missing columns and data in input file and
@@ -152,8 +70,8 @@ checkColumns ()
 {
     FILE=$1         # The input file to check
     NUM_COLUMNS=$2  # The number of columns expected in each input record
-    ${HOMOLOGYLOAD}/bin/checkColumns.py ${FILE} ${NUM_COLUMNS} >>  ${TMP_FILE}
-    if [ `cat ${TMP_FILE} | wc -l` -eq 0 ]
+    ${HOMOLOGYLOAD}/bin/checkColumns.py ${FILE} ${NUM_COLUMNS} >>  ${TMP2_FILE}
+    if [ `cat ${TMP2_FILE} | wc -l` -eq 0 ]
     then
         return 0
     else
@@ -168,29 +86,19 @@ checkColumns ()
 #####################################
 
 #
-# createArchive including OUTPUTDIR, startLog, getConfigEnv
-# sets "JOBKEY"
-preload ${OUTPUTDIR}
-
-#
-# rm all files/dirs from OUTPUTDIR
-#
-cleanDir ${OUTPUTDIR}
-
-#
 # Run sanity checks
 #
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
-echo "Running Sanity Checks" >> ${LOG_DIAG}
+echo "Running Sanity Checks on additional two input files" >> ${LOG_DIAG}
 FILE_ERROR=0
 
-echo '                         Sanity Errors' > ${SANITY_RPT}
+echo '                         Sanity Errors in additional two input files' >> ${SANITY_RPT}
 echo '---------------------------------------------------------------' >> ${SANITY_RPT}
 echo ''
 
 #
-# check each input file for length, remove whitespace
+# check each of additional two input files for length, remove whitespace
 #
 len=`cat ${INPUT_FILE_GENE} | wc -l | sed 's/ //g'`
 if [ ${len} -lt ${MIN_LENGTH} ]
@@ -206,19 +114,13 @@ then
    FILE_ERROR=1
 fi
 
-len=`cat ${INPUT_FILE_EXPR} | wc -l | sed 's/ //g'`
-if [ ${len} -lt ${MIN_LENGTH} ]
-then
-   echo "\n\nInput file ${INPUT_FILE_EXPR} does not have minimum length. Required: ${MIN_LENGTH} Found: ${len}" | tee -a ${SANITY_RPT}
-   FILE_ERROR=1
-fi
-
 #
 # check each input file for proper number of columns
 #
 
 # gene.txt - column 1: zfin gene id, column 4: NCBI gene id
 COLUMNS=4
+echo "checkColumns ${INPUT_FILE_GENE} ${COLUMNS}"
 checkColumns ${INPUT_FILE_GENE} ${COLUMNS}
 if [ $? -ne 0 ]
 then
@@ -227,15 +129,8 @@ fi
 
 # mouse_orthos.txt - column 1: zfin gene id, column 5: MGI mouse gene id
 COLUMNS=5
+echo "checkColumns ${INPUT_FILE_ORTHO} ${COLUMNS}"
 checkColumns ${INPUT_FILE_ORTHO} ${COLUMNS}
-if [ $? -ne 0 ]
-then
-    FILE_ERROR=1
-fi
-
-# xpat.txt - column 1: zfin gene id
-COLUMNS=1
-checkColumns ${INPUT_FILE_EXPR} ${COLUMNS}
 if [ $? -ne 0 ]
 then
     FILE_ERROR=1
@@ -244,18 +139,15 @@ fi
 #
 # If the input file had sanity errors exit
 #
-STAT=0
-echo "TMP_FILE: ${TMP_FILE}"
+echo "TMP2_FILE: ${TMP2_FILE}"
 echo "Contents: "
-cat ${TMP_FILE}
+cat ${TMP2_FILE}
 if [ ${FILE_ERROR} -ne 0 ]
 then
-    cat ${TMP_FILE} >> ${SANITY_RPT}
+    cat ${TMP2_FILE} >> ${SANITY_RPT}
     echo "Sanity errors in input file. See ${SANITY_RPT}" >> ${LOG_DIAG}
     echo "Sanity errors in input file. See ${SANITY_RPT}" >> ${LOG_PROC}
-    # set STAT for shutdown
-    STAT=${FILE_ERROR}
-    shutDown
+    
     exit 1
 else
     echo "No sanity errors in input file" >> ${SANITY_RPT}
@@ -269,9 +161,6 @@ date >> ${LOG_DIAG}
 echo 'Running QC Checks' >> ${LOG_DIAG}
 ${HOMOLOGYLOAD}/bin/preprocessZFIN.py
 STAT=$?
-checkStatus ${STAT} "${HOMOLOGYLOAD}/bin/preprocessZFIN.py"
+exit ${STAT}
 
-#
-# run postload cleanup and email logs
-#
-shutDown
+exit 0

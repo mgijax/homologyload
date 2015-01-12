@@ -33,7 +33,7 @@ CLUSTER_MGITYPE_KEY=39
 export CLUSTER_MGITYPE_KEY
 
 #  Recipient list for mailing the curation log file (comma-separated)
-MAIL_LOG_CUR="mgiadmin"
+#MAIL_LOG_CUR="mgiadmin"
 
 export MAIL_LOG_CUR
 

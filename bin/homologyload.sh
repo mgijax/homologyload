@@ -25,7 +25,6 @@ else
     CONFIG_LOAD=$1   
 fi
 CONFIG_LOAD=`pwd`/${CONFIG_LOAD}
-echo "CONFIG_LOAD: ${CONFIG_LOAD}"
 
 #
 # Create a temporary file and make sure that it is removed when this script
@@ -44,7 +43,6 @@ LINEDELIM="\n"
 #
 # verify & source the configuration files
 #
-echo 'sourcing common config'
 if [ ! -r ${CONFIG_COMMON} ]
 then
     echo "Missing configuration file: ${CONFIG_COMMON}"
@@ -53,7 +51,6 @@ fi
 
 . ${CONFIG_COMMON}
 
-echo 'sourcing load config'
 if [ ! -r ${CONFIG_LOAD} ]
 then
     echo "Cannot read configuration file: ${CONFIG_LOAD}"
@@ -79,7 +76,6 @@ fi
 #
 #  Source the DLA library functions.
 #
-echo 'sourcing dla library functions'
 if [ "${DLAJOBSTREAMFUNC}" != "" ]
 then
     if [ -r ${DLAJOBSTREAMFUNC} ]
@@ -97,7 +93,6 @@ fi
 #
 # check that INPUT_FILE_DEFAULT has been set
 #
-echo 'checking INPUT_FILE_DEFAULT'
 if [ "${INPUT_FILE_DEFAULT}" = "" ]
 then
     # set STAT for endJobStream.py
@@ -108,7 +103,6 @@ fi
 #
 # check that INPUT_FILE has been set
 #
-echo 'checking INPUT_FILE'
 if [ "${INPUT_FILE}" = "" ]
 then
     # set STAT for endJobStream.py
@@ -119,7 +113,6 @@ fi
 #
 # check that INPUT_FILE_LOAD has been set
 #
-echo 'checking INPUT_FILE_LOAD'
 if [ "${INPUT_FILE_LOAD}" = "" ]
 then
     # set STAT for endJobStream.py
@@ -140,7 +133,7 @@ checkColumns ()
     FILE=$1         # The input file to check
     REPORT=$2       # The sanity report to write to
     NUM_COLUMNS=$3  # The number of columns expected in each input record
-    ${HOMOLOGYLOAD}/bin/checkColumns.py ${FILE} ${NUM_COLUMNS}  ${TMP_FILE}
+    ${HOMOLOGYLOAD}/bin/checkColumns.py ${FILE} ${NUM_COLUMNS}
     cat ${TMP_FILE} | tee -a ${REPORT}
     if [ `cat ${TMP_FILE} | wc -l` -eq 0 ]
     then
@@ -159,13 +152,11 @@ checkColumns ()
 #
 # createArchive including OUTPUTDIR, startLog, getConfigEnv
 # sets "JOBKEY"
-echo 'preload'
 preload ${OUTPUTDIR}
 
 #
 # rm all files/dirs from OUTPUTDIR
 #
-echo 'cleanDir'
 cleanDir ${OUTPUTDIR}
 
 #
@@ -176,10 +167,9 @@ date >> ${LOG_DIAG}
 echo "Running Sanity Checks" >> ${LOG_DIAG}
 FILE_ERROR=0
 
-echo '                         Sanity Errors' > ${SANITY_RPT}
+echo '                         Sanity Errors in Primary Input File' > ${SANITY_RPT}
 echo '---------------------------------------------------------------' >> ${SANITY_RPT}
 echo ''
-
 checkColumns ${INPUT_FILE} ${SANITY_RPT} ${NUM_COLUMNS}
 if [ $? -ne 0 ]
 then
@@ -188,10 +178,9 @@ fi
 
 # check file length, remove whitespace
 len=`cat ${INPUT_FILE} | wc -l | sed 's/ //g'`
-echo 'checking min length'
 if [ ${len} -lt ${MIN_LENGTH} ] 
 then
-   echo "\n\nInput file does not have minimum length. Required: ${MIN_LENGTH} Found: ${len}" | tee -a ${SANITY_RPT}
+   echo "\n\nInput file ${INPUT_FILE} does not have minimum length. Required: ${MIN_LENGTH} Found: ${len}" | tee -a ${SANITY_RPT}
    FILE_ERROR=1
 fi
 
@@ -201,12 +190,14 @@ fi
 STAT=0
 if [ ${FILE_ERROR} -ne 0 ]
 then
-    echo "Sanity errors in input file. See ${SANITY_RPT}"
-    echo "Sanity errors in input file. See ${SANITY_RPT}" >>  ${LOG_DIAG}  ${LOG_PROC}
+    echo "Sanity errors in ${INPUT_FILE}. See ${SANITY_RPT}"
+    echo "Sanity errors in ${INPUT_FILE}. See ${SANITY_RPT}" >>  ${LOG_DIAG}  ${LOG_PROC}
     # set STAT for shutdown
     STAT=${FILE_ERROR}
     shutDown
     exit 1
+else
+    echo "No sanity errors in ${INPUT_FILE} file\n" >> ${SANITY_RPT}
 fi
 
 #
@@ -233,7 +224,6 @@ checkStatus ${STAT} "${LOADER}"
 #
 # Do BCP
 #
-echo 'doing bcp'
 TABLE=MRK_Cluster
 
 if [ -s "${OUTPUTDIR}/${TABLE}.bcp" ]
