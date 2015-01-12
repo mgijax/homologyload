@@ -1,0 +1,106 @@
+#format: sh
+#
+#  zfinload.config.default
+#
+#  This file sets up the common environment variables that are needed by
+#  the ZFIN homology load
+#
+###########################################################################
+
+# Full path to the logs, reports, and archive directories 
+FILEDIR=${DATALOADSOUTPUT}/homology/zfinload
+
+# Full path to the input, output, logs, reports and archive directories.
+#
+INPUTDIR=${FILEDIR}/input
+LOGDIR=${FILEDIR}/logs
+RPTDIR=${FILEDIR}/reports
+OUTPUTDIR=${FILEDIR}/output
+ARCHIVEDIR=${FILEDIR}/archive
+
+export INPUTDIR FILEDIR LOGDIR RPTDIR OUTPUTDIR ARCHIVEDIR
+
+# Full path name of the zfin file we copy to INPUTDIR
+INPUT_FILE_GENE_DEFAULT="${DATADOWNLOADS}/www.zfin.org/downloads/gene.txt"
+INPUT_FILE_ORTHO_DEFAULT="${DATADOWNLOADS}/www.zfin.org/downloads/mouse_orthos.txt"
+INPUT_FILE_EXPR_DEFAULT="${DATADOWNLOADS}/www.zfin.org/downloads/xpat.txt"
+
+export INPUT_FILE_GENE_DEFAULT INPUT_FILE_ORTHO_DEFAULT INPUT_FILE_EXPR_DEFAULT
+
+# Full path name of the file we copy from INPUT_FILE_DEFAULT for use by the load
+INPUT_FILE_GENE="${INPUTDIR}/gene.txt"
+INPUT_FILE_ORTHO="${INPUTDIR}/mouse_orthos.txt"
+INPUT_FILE_EXPR="${INPUTDIR}/xpat.txt"
+
+export INPUT_FILE_GENE INPUT_FILE_ORTHO INPUT_FILE_EXPR
+
+# Full path name of the load-ready file that is created
+# by the preprocessor
+INPUT_FILE_LOAD=${OUTPUTDIR}/zfin_load.txt
+
+export INPUT_FILE_LOAD
+
+#  Full path name of the log files
+LOG_PROC=${LOGDIR}/zfinload.proc.log
+LOG_DIAG=${LOGDIR}/zfinload.diag.log
+LOG_CUR=${LOGDIR}/zfinload.cur.log
+LOG_VAL=${LOGDIR}/zfinload.val.log
+
+export LOG_PROC LOG_DIAG LOG_CUR LOG_VAL
+
+# Full path name of the sanity and QC reports
+SANITY_RPT=${RPTDIR}/sanity.rpt
+QC_RPT=${RPTDIR}/qc.rpt
+
+export SANITY_RPT QC_RPT
+
+# Pre-processor to use
+PREPROCESSOR=${HOMOLOGYLOAD}/bin/preprocessZFIN.py
+LOADER=${HOMOLOGYLOAD}/bin/homologyload.py
+
+export PREPROCESSOR
+export LOADER
+
+# Number of columns expected for the input file (for sanity check).
+NUM_COLUMNS=3
+
+# minimum  number of lines in the file (for sanity check).
+#MIN_LENGTH=43000
+MIN_LENGTH=4
+
+# Version number of the ZFIN homology - there isn't one
+HOMOLOGY_VERSION=''
+
+export NUM_COLUMNS MIN_LENGTH HOMOLOGY_VERSION
+
+# true if this load handles cluster accession IDs
+LOAD_ACCESSION=false
+
+export LOAD_ACCESSION
+
+# Full path name of the BCP files
+CLUSTER_BCP=${OUTPUTDIR}/MRK_Cluster.bcp
+MEMBER_BCP=${OUTPUTDIR}/MRK_ClusterMember.bcp
+ACCESSION_BCP=${OUTPUTDIR}/ACC_Accession.bcp
+
+export CLUSTER_BCP MEMBER_BCP ACCESSION_BCP
+
+CLUSTER_SRC_KEY=13437099
+
+export CLUSTER_SRC_KEY 
+
+# homology ldb key  - empty as there are no ZFIN cluster IDs
+HOM_LDB_KEY=''
+
+export HOM_LDB_KEY
+
+# this load's login value for DB table CreatedBy and ModifiedBy
+JOBSTREAM=zfin_homologyload
+
+export JOBSTREAM
+
+#  The name of the load for the subject of an email notification
+# will be set by wrapper based on collection for each load
+MAIL_LOADNAME="ZFIN Homology Load"
+
+export MAIL_LOADNAME
