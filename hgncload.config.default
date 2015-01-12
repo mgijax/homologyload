@@ -1,6 +1,6 @@
 #format: sh
 #
-#  homologeneload.config.default
+#  hgncload.config.default
 #
 #  This file sets up the common environment variables that are needed by
 #  the HGNC homology load
@@ -20,14 +20,14 @@ ARCHIVEDIR=${FILEDIR}/archive
 
 export INPUTDIR FILEDIR LOGDIR RPTDIR OUTPUTDIR ARCHIVEDIR
 
-# Full path name of the homologene file we copy to INPUTDIR
+# Full path name of the HGNC file we copy to INPUTDIR
 INPUT_FILE_DEFAULT="${DATADOWNLOADS}/www.genenames.org/hgnc.tsv"
 
 # Full path name of the file we copy from INPUT_FILE_DEFAULT for use by the load
 INPUT_FILE="${INPUTDIR}/hgnc.tsv"
 
-# Full path name of the load-ready file that is created by
-# by the createInputFile script
+# Full path name of the load-ready file that is created
+# by the preprocessor
 INPUT_FILE_LOAD=${OUTPUTDIR}/hgnc_load.txt
 
 INPUT_FILE_CLUSTERER=${OUTPUTDIR}/hgnc_tocluster.txt
@@ -54,6 +54,7 @@ LOADER=${HOMOLOGYLOAD}/bin/homologyload.py
 
 export PREPROCESSOR
 export LOADER
+
 # Number of columns expected for the input file (for sanity check).
 NUM_COLUMNS=3
 
@@ -82,7 +83,7 @@ CLUSTER_SRC_KEY=13437099
 
 export CLUSTER_SRC_KEY 
 
-# homology ldb key  - there are no HGNC cluster IDs
+# homology ldb key  - empty as there are no HGNC cluster IDs
 HOM_LDB_KEY=''
 
 export HOM_LDB_KEY
