@@ -119,6 +119,31 @@ then
 fi
 
 #
+# ZFIN
+#
+
+# establish the config files
+CONFIG=zfinload.config
+
+# Make sure config file exists and source it
+if [ -r ${CONFIG} ]
+then
+    echo "Source ${CONFIG}"
+    . ${CONFIG}
+else
+    echo "Cannot source configuration file: ${CONFIG}"
+    installFailed
+fi
+
+# Check to see if this is a development installation
+#
+DEV=""
+if [ "${INSTALL_TYPE}" = "dev" ]
+then
+    DEV="-d"
+fi
+
+#
 # run DLAInstall for each configuration file
 #
 echo 'running DLAINSTALL'
