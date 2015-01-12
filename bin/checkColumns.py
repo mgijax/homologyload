@@ -56,7 +56,7 @@ errors = 0
 #
 def checkArgs ():
     global inputFile, numColumns
-    if len(sys.argv) != 4:
+    if len(sys.argv) != 3:
         print USAGE
         sys.exit(1)
 
@@ -101,7 +101,7 @@ def checkColumns ():
         columns[-1] = last
 	nc = len(columns) 
 	if nc < numColumns:
-	    print 'Missing Column(s) on line %s: %s ' % (lineNum, columns)
+	    print 'Missing Column(s) in %s on line %s: %s ' % (inputFile, lineNum, columns)
 	    continue
     return
 
