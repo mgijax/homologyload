@@ -1,3 +1,13 @@
+TAG: homologyload-tr11886-10
+DATE:
+STAFF: sc
+CHANGES: Initial check in of zfin stuff and misc other stuff
+1) homologyload.sh - removed extra check for RELEASE_NO_FILE
+2) Install - added zfin
+3) checkColumns.py - changed num of args
+4) hgncload.config.default - comments only
+5) added - zfinload.config.default bin/preprocessZFIN.py bin/preprocessZFIN.sh
+
 TAG: homologyload-tr11886-9
 DATE: 01/05/2015
 STAFF: sc
