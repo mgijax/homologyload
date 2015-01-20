@@ -8,6 +8,7 @@
 #
 #     homologyload.sh configFile
 #
+USAGE='Usage: homologyload.sh configFile'
 
 cd `dirname $0`/..
 

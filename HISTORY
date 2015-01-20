@@ -1,3 +1,20 @@
+TAG: homologyload-tr11886-13
+DATE:01/20/2015
+STAFF: sc
+CHANGES: adding geisha
+1) Install - updated to loop through all config files and run install
+2) common.config.default - commented out MAIL_LOG_CUR - log not being used
+3) geisha.config.default - new
+4) bin/homologyload.sh - added USAGE
+5) bin/preprocessHGNC.py and bin/preprocessZFIN.py - removed class Marker
+6) bin/preprocessGEISHA.sh and bin/preprocessGEISHA.py - new
+
+TAG: homologyload-tr11886-12
+DATE:
+STAFF: sc
+CHANGES: 
+1) zfinload.config.default - updated cluster source key to correct value
+
 TAG: homologyload-tr11886-11
 DATE: 01/12/2015
 STAFF: sc

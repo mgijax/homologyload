@@ -102,15 +102,6 @@ fpClustererFile = ''
 fpLoadFile = ''
 fpQcRpt = ''
 
-#
-# class to hold information about an MGI marker
-#
-class Marker:
-    def __init__(self, markerKey, egId, symbol):
-	self.k = markerKey
-	self.e = egId
-	self.s = symbol
-
 def init():
     global egToMarkerDict, mgiToMarkerDict
     global fpInFile, fpClustererFile, fpLoadFile, fpQcRpt

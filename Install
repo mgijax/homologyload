@@ -52,108 +52,24 @@ fi
 #
 . ${COMMON_CONFIG}
 
-
-#
-# HomoloGene
-#
-
-# establish the config files
-CONFIG=homologeneload.config
-
-# Make sure config file exists and source it
-if [ -r ${CONFIG} ]
-then
-    echo "Source ${CONFIG}"
-    . ${CONFIG}
-else
-    echo "Cannot source configuration file: ${CONFIG}"
-    installFailed
-fi
-
-#
-# Check to see if this is a development installation
-#
-DEV=""
-if [ "${INSTALL_TYPE}" = "dev" ]
-then
-    DEV="-d"
-fi
-
 #
 # run DLAInstall for each configuration file
 #
-echo 'running DLAINSTALL'
-${DLAINSTALL} ${DEV}
-
-#
-# Create the input directory.
-#
-if [ ! -d ${INPUTDIR} ]
+echo "HOMOLOGYLOAD: ${HOMOLOGYLOAD}"
+for c in ${HOMOLOGYLOAD}/[a-z]*config 
+do
+if [ "${c}" != "${HOMOLOGYLOAD}/common.config" ]
 then
-    mkdir -p ${INPUTDIR}
+    echo 'running DLAINSTALL:' ${c}
+    . ${c}
+    ${DLAINSTALL} ${DEV}
+    #
+    # Create the input directory if it doesn't exist.
+    #
+    if [ ! -d ${INPUTDIR} ]
+    then
+	mkdir -p ${INPUTDIR}
+    fi
 fi
-
-#
-# HNGC
-#
-
-# establish the config files
-CONFIG=hgncload.config
-
-# Make sure config file exists and source it
-if [ -r ${CONFIG} ]
-then
-    echo "Source ${CONFIG}"
-    . ${CONFIG}
-else
-    echo "Cannot source configuration file: ${CONFIG}"
-    installFailed
-fi
-
-# Check to see if this is a development installation
-#
-DEV=""
-if [ "${INSTALL_TYPE}" = "dev" ]
-then
-    DEV="-d"
-fi
-
-#
-# ZFIN
-#
-
-# establish the config files
-CONFIG=zfinload.config
-
-# Make sure config file exists and source it
-if [ -r ${CONFIG} ]
-then
-    echo "Source ${CONFIG}"
-    . ${CONFIG}
-else
-    echo "Cannot source configuration file: ${CONFIG}"
-    installFailed
-fi
-
-# Check to see if this is a development installation
-#
-DEV=""
-if [ "${INSTALL_TYPE}" = "dev" ]
-then
-    DEV="-d"
-fi
-
-#
-# run DLAInstall for each configuration file
-#
-echo 'running DLAINSTALL'
-${DLAINSTALL} ${DEV}
-
-#
-# Create the input directory.
-#
-if [ ! -d ${INPUTDIR} ]
-then
-    mkdir -p ${INPUTDIR}
-fi
+done
 
