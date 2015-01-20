@@ -215,8 +215,6 @@ def processInputFiles():
 	    line = fpOrthoFile.readline()
 	    continue
 	else:
-	    print ncbiMouseIDs
-	    print string.split(ncbiMouseIDs, ',')
 	    mouseList = string.split(ncbiMouseIDs, ',')
 	    mouseDict[ncbiChickenID] = mouseList
 	#for id in mouseList:
