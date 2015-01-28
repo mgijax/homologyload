@@ -3,7 +3,7 @@
 ##########################################################################
 #
 # Purpose:
-#       Create HomoloGene (HG) bcp files for the MRK_Cluster* tables
+#       Create bcp files for the MRK_Cluster* tables
 #
 # Usage: homologyload.py
 #

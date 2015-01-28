@@ -13,7 +13,7 @@
 #	    2. Mouse MGI IDs, comma-delimited
 #           3. HGNC ID (sans the 'HGNC:')
 #
-#	2. Configuration - see homologyload.config
+#	2. Configuration - see hgncload.config
 #	  1. 
 #         2. INPUT_FILE - path to input file
 #         3. INPUT_FILE_LOAD - path to cleaned up load-ready file

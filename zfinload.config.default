@@ -21,9 +21,9 @@ ARCHIVEDIR=${FILEDIR}/archive
 export INPUTDIR FILEDIR LOGDIR RPTDIR OUTPUTDIR ARCHIVEDIR
 
 # Full path name of the zfin file we copy to INPUTDIR
-INPUT_FILE_GENE_DEFAULT="${DATADOWNLOADS}/www.zfin.org/downloads/gene.txt"
-INPUT_FILE_ORTHO_DEFAULT="${DATADOWNLOADS}/www.zfin.org/downloads/mouse_orthos.txt"
-INPUT_FILE_DEFAULT="${DATADOWNLOADS}/www.zfin.org/downloads/xpat.txt"
+INPUT_FILE_GENE_DEFAULT="${DATADOWNLOADS}/zfin.org/downloads/gene.txt"
+INPUT_FILE_ORTHO_DEFAULT="${DATADOWNLOADS}/zfin.org/downloads/mouse_orthos.txt"
+INPUT_FILE_DEFAULT="${DATADOWNLOADS}/zfin.org/downloads/xpat.txt"
 
 export INPUT_FILE_GENE_DEFAULT INPUT_FILE_ORTHO_DEFAULT INPUT_FILE_DEFAULT
 

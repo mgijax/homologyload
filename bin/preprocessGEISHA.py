@@ -12,21 +12,21 @@
 #	    1. Chicken NCBI ID
 # 	    2. Chicken gene name (not used)
 #	    3. GEISHA ID  (not used)
-#	    4. Human NCBI gene ID       
+#	    4. Human NCBI gene ID (not used)
 # 	    5. Mouse NCBI ID
 #	    6. Xenopus NCBI gene ID (not used)
 #	    7. Zebrafish NCBI Gene ID (not used)
 #
 #	2. GEISHA Genes with Expression Assay Records file tab delimited:
 #	    1. Chicken NCBI gene ID     
-# 	    2. Chicken gene name        
-#	    3. GEISHA ID BirdBase ID    
-#	    4. Ensembl ID       
-#	    5. GO ids   
-#	    6. stages   
-#	    7. locations
+# 	    2. Chicken gene name (not used)
+#	    3. GEISHA ID BirdBase ID (not used)
+#	    4. Ensembl ID (not used)
+#	    5. GO ids (not used)
+#	    6. stages (not used)
+#	    7. locations (not used)
 #
-#	3. Configuration - see homologyload.config
+#	3. Configuration - see geishaload.config
 #	  . INPUT_FILE_* - path to file in load input file directory
 #         . INPUT_FILE_LOAD - path to load-ready file
 #         . QC_RPT - path to QC report

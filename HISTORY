@@ -1,3 +1,10 @@
+TAG: homologyload-tr11886-15
+DATE:01/28/2015
+STAFF: sc
+CHANGES: documenation tweaks
+1) zfinload.config.default - replaced www.zfin.org with zfin.org
+2) index.html - added geisha as it was forgotten
+
 TAG: homologyload-tr11886-14
 DATE:01/20/2015
 STAFF: sc

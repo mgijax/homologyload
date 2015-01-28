@@ -35,7 +35,7 @@
 # 	    9. Environment ID (not used)
 # 	    10 Probe Quality (optiona 0 - 5 rating) (not used)
 #
-#	4. Configuration - see homologyload.config
+#	4. Configuration - see zfinload.config
 #	  . INPUT_FILE_* - path to file in load input file directory
 #         . INPUT_FILE_LOAD - path to load-ready file
 #         . QC_RPT - path to QC report

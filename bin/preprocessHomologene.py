@@ -5,7 +5,7 @@
 # Purpose:
 #       From HomoloGene input file create load ready file
 #
-# Usage: runQC.py
+# Usage: preprocessHomologene.py
 #
 # Inputs:
 #	1. HomoloGene file tab-delimited in following format:
