@@ -58,7 +58,7 @@ allClustersList = []
 
 # list of all connected components
 connCompList = []
-
+connCompDict = {}
 # List of the hybrid clusters
 hybridClusterList = []
 
@@ -245,34 +245,46 @@ def closure(c): # c is Cluster object
 		closure(c2)
 
 def findComponents():
-    global connectedComp, hybridClusterList
-    
+    global connectedComp, hybridClusterList, connCompDict
+    ccCount = 0
     for c in allClustersList:
 	#print '\n' + c.toString()
 	if c.done == 0:
 	    connectedComp = []
             closure(c)
-	    connCompList.append(connectedComp)
+	    #connCompList.append(connectedComp) # replaced by dict below
 	    hcList = decideWhatToDo(connectedComp)
 	    hybridClusterList = hybridClusterList + hcList
+	    # add to dict
+            ccCount += 1
+	    connCompDict[ccCount] = [connectedComp, hcList]
 
 def writeComponents():
     global fpCC
 
-    ccCount = 0
-    for cc in connCompList:
-	ccCount += 1
+    #ccCount = 0
+    #for cc in connCompList:
+	#ccCount += 1
+    keyList = connCompDict.keys()
+    keyList.sort()
+    for ccCount in keyList:
+	connCompList = connCompDict[ccCount][0]
 	fpCC.write('comp%s:%s' % (ccCount, CRT))
-	for c in cc:
-            fpCC.write('%s%s%s' % (c.toString(), CRT, CRT))
+	for c in connCompList:
+	    fpCC.write('%s%s' % (c.toString(), CRT))
     fpCC.close()
 
 def writeHybrid():
     global fpH
 
-    for c in hybridClusterList:
-	fpH.write('%s%s%s' % (c.toStringHybrid(), CRT, CRT))
-    fpH.write('%s%s%s' % (CRT, len(hybridClusterList), CRT))
+    #for c in hybridClusterList:
+    keyList = connCompDict.keys()
+    keyList.sort()
+    for ccCount in keyList:
+	hybridList = connCompDict[ccCount][1]
+	fpH.write('comp%s:%s' % (ccCount, CRT))
+	for c in hybridList:
+	    fpH.write('%s%s' % (c.toStringHybrid(), CRT))
     fpH.close()
  
 def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
@@ -350,11 +362,11 @@ def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
 
     # both sources have M/H clusters
     # don't need this test - it is implied, test w/o later
-    print 'bothHG: %s bothHGNC: %s' % (bothHG, bothHGNC)
+    #print 'bothHG: %s bothHGNC: %s' % (bothHG, bothHGNC)
     if bothHG == 1 and  bothHGNC == 1: 
 	# Rule 1 - only one M/H cluster from each source; keep one source=both,
 	# conflict=none
-	print 'len(hgList): %s len(hgncList): %s' % (len(hgList), len(hgncList))
+	#print 'len(hgList): %s len(hgncList): %s' % (len(hgList), len(hgncList))
 	if len(hgList) == 1 and len(hgncList) == 1:
 	    hgMarkerList = []
 	    hgncMarkerList = []
@@ -366,12 +378,12 @@ def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
 		hgncMarkerList.append(m.key)
 	    hgMarkerSet = set(hgMarkerList)
 	    hgncMarkerSet = set(hgncMarkerList)
-	    print CRT
-	    print 'hg: %s' % hgMarkerSet
-	    print 'hgnc: %s' % hgncMarkerSet
-	    print CRT
+	    #print CRT
+	    #print 'hg: %s' % hgMarkerSet
+	    #print 'hgnc: %s' % hgncMarkerSet
+	    #print CRT
 	    if not len(hgMarkerSet.difference(hgncMarkerSet)):
-		print 'rule 1 sets are equal'
+		#print 'rule 1 sets are equal'
 		# both the same, arbitrarily pick hg
 
 		# update the default hybridSource, conflict and rule values
@@ -381,20 +393,20 @@ def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
 		return [hgCluster]
 	    else:
 		# Rule 4 sources disagree keep hgnc cluster
-		print 'rule 4 one cluster each'
+		#print 'rule 4 one cluster each'
 		hgncCluster.rule = '4'
 		# hybridSource and conflict value remain the default
 		return [hgncCluster]
 	# Rule 4 both sources have disagreeing M/H cluster, keep hgnc clusters
 	# source=hgnc, conflict= conflict
 	else:
-	    print 'rule 4 multi clusters'
+	    #print 'rule 4 multi clusters'
 	    # update rule number from default to 4
 	    for c in hgncList:
 		c.rule = '4'
 	    # hybridSource and conflict value remain the default
 	    return hgncList
-    print "we shouldn't get here"
+    #print "we shouldn't get here"
     return
 #####################################
 #
