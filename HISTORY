@@ -1,3 +1,10 @@
+TAG: homologyload-tr11886-17
+DATE:02/17/2015
+STAFF: sc
+CHANGES: HGNC/HG hybrid homology
+1) All configs -  removed references to LOAD_ACCESSION 
+2) removed ACCESSION_BCP  from configs where not applicable
+
 TAG: homologyload-tr11886-16
 DATE:02/17/2015
 STAFF: sc

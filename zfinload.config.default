@@ -73,17 +73,11 @@ HOMOLOGY_VERSION=''
 
 export NUM_COLUMNS MIN_LENGTH HOMOLOGY_VERSION
 
-# true if this load handles cluster accession IDs
-LOAD_ACCESSION=false
-
-export LOAD_ACCESSION
-
 # Full path name of the BCP files
 CLUSTER_BCP=${OUTPUTDIR}/MRK_Cluster.bcp
 MEMBER_BCP=${OUTPUTDIR}/MRK_ClusterMember.bcp
-ACCESSION_BCP=${OUTPUTDIR}/ACC_Accession.bcp
 
-export CLUSTER_BCP MEMBER_BCP ACCESSION_BCP
+export CLUSTER_BCP MEMBER_BCP
 
 CLUSTER_SRC_KEY=13575996
 
