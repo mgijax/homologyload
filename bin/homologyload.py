@@ -206,6 +206,11 @@ def deleteHomologies():
         from #todelete2 d, MRK_ClusterMember m
         where d._Cluster_key = m._Cluster_key''', None)
 
+    print 'Deleting Homology Cluster Properties'
+    db.sql('''delete MGI_Property
+        from #todelete2 d, MGI_Property m
+        where d._Cluster_key = m._Object_key''', None)
+
     print 'Deleting Homology Clusters'
     db.sql('''delete MRK_Cluster
         from #todelete2 d, MRK_Cluster m
@@ -273,7 +278,7 @@ for line in fpInFile.readlines():
 	    if not propertyDict.has_key(propertyTerm):
 		exit(1, 'Invalid property term: %s' % propertyTerm)
 	    propertyTermKey = propertyDict[propertyTerm]
-	    fpPropertyBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextPropertyKey, TAB, propertyTypeKey, TAB, propertyTermKey, TAB, nextMemberKey, TAB, mgiTypeKey, TAB, propertyValue, TAB, 1, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
+	    fpPropertyBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextPropertyKey, TAB, propertyTypeKey, TAB, propertyTermKey, TAB, nextClusterKey, TAB, mgiTypeKey, TAB, propertyValue, TAB, 1, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
 	    nextPropertyKey += 1
 	    
     # now increment the cluster key

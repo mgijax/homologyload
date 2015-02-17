@@ -1,3 +1,9 @@
+TAG: homologyload-tr11886-18
+DATE:02/17/2015
+STAFF: sc
+CHANGES: HGNC/HG hybrid homology
+1) homologyload.py - added deletion of MGI_Property records
+
 TAG: homologyload-tr11886-17
 DATE:02/17/2015
 STAFF: sc
