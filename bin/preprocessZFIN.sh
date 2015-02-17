@@ -57,9 +57,7 @@ then
 fi
 
 # copy the additional two files from /data/downloads to the input dir
-echo "copying ${INPUT_FILE_GENE_DEFAULT} to ${INPUTDIR}"
 cp -p ${INPUT_FILE_GENE_DEFAULT} ${INPUTDIR}
-echo "copying ${INPUT_FILE_ORTHO_DEFAULT} to ${INPUTDIR}"
 cp -p ${INPUT_FILE_ORTHO_DEFAULT} ${INPUTDIR}
 
 #
@@ -120,7 +118,6 @@ fi
 
 # gene.txt - column 1: zfin gene id, column 4: NCBI gene id
 COLUMNS=4
-echo "checkColumns ${INPUT_FILE_GENE} ${COLUMNS}"
 checkColumns ${INPUT_FILE_GENE} ${COLUMNS}
 if [ $? -ne 0 ]
 then
@@ -129,7 +126,6 @@ fi
 
 # mouse_orthos.txt - column 1: zfin gene id, column 5: MGI mouse gene id
 COLUMNS=5
-echo "checkColumns ${INPUT_FILE_ORTHO} ${COLUMNS}"
 checkColumns ${INPUT_FILE_ORTHO} ${COLUMNS}
 if [ $? -ne 0 ]
 then
@@ -139,8 +135,6 @@ fi
 #
 # If the input file had sanity errors exit
 #
-echo "TMP2_FILE: ${TMP2_FILE}"
-echo "Contents: "
 cat ${TMP2_FILE}
 if [ ${FILE_ERROR} -ne 0 ]
 then
@@ -158,7 +152,7 @@ fi
 #
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
-echo 'Running QC Checks' >> ${LOG_DIAG}
+echo 'Running Preprocessor' >> ${LOG_DIAG}
 ${HOMOLOGYLOAD}/bin/preprocessZFIN.py
 STAT=$?
 exit ${STAT}

@@ -43,7 +43,6 @@ then
 fi
 
 # copy the additional two file from /data/downloads to the input dir
-echo "copying ${INPUT_FILE_ORTHO_DEFAULT} to ${INPUTDIR}"
 cp -p ${INPUT_FILE_ORTHO_DEFAULT} ${INPUTDIR}
 
 #
@@ -97,7 +96,6 @@ fi
 
 # orthology.txt - column 1: chicken NCBI ID, column 5: mouse NCBI ID
 COLUMNS=5
-echo "checkColumns ${INPUT_FILE_ORTHO} ${COLUMNS}"
 checkColumns ${INPUT_FILE_ORTHO} ${COLUMNS}
 if [ $? -ne 0 ]
 then
@@ -107,10 +105,8 @@ fi
 #
 # If the input file had sanity errors exit
 #
-echo "TMP2_FILE: ${TMP2_FILE}"
 echo "Contents: "
 cat ${TMP2_FILE}
-echo "FILE_ERROR: ${FILE_ERROR}"
 if [ ${FILE_ERROR} -ne 0 ]
 then
     cat ${TMP2_FILE} >> ${SANITY_RPT}
@@ -127,7 +123,7 @@ fi
 #
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
-echo 'Running QC Checks' >> ${LOG_DIAG}
+echo 'Running Preprocessor' >> ${LOG_DIAG}
 ${HOMOLOGYLOAD}/bin/preprocessGEISHA.py
 STAT=$?
 exit ${STAT}

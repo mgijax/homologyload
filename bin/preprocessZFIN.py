@@ -183,16 +183,12 @@ def init():
     #
     # create Human egID to marker lookup from database
     #
-    #print 'creating egID to marker lookup'
     for r in results:
 	egId = r['egId']
 	markerKey = r['_Marker_key']
-	#print 'egId: %s' % egId
 	egToMarkerDict[egId] = markerKey
-    #print ' size of egToMarkerDict %s' % len(egToMarkerDict)
 
     # get all mouse markers
-    #print 'creating mouse marker lookup'
     results = db.sql('''select distinct a.accID as mgiId, m._Marker_key
 	    from ACC_Accession a, MRK_Marker m
 	    where a._MGIType_key = 2
@@ -208,7 +204,6 @@ def init():
 	    mgiId = r['mgiId']
 	    markerKey = r['_Marker_key']
 	    mgiToMarkerDict[mgiId] = markerKey
-    #print 'size of mgiToMarkerDict %s' % len(mgiToMarkerDict)
 
     return
 
@@ -219,14 +214,12 @@ def processInputFiles():
 	zfinID = string.strip(tokens[0])
 	if zfinID.startswith('ZDB-GENE'):
 	    exprSet.add(zfinID)
-    #print exprSet
     for line in fpGeneFile.readlines():
 	tokens = string.split(line, TAB)
 	zfinID = string.strip(tokens[0])
 	if zfinID.startswith('ZDB-GENE'):
 	    ncbiID = string.strip(tokens[3])
 	    geneDict[zfinID] = ncbiID
-    #print geneDict.keys()
     for line in fpOrthoFile.readlines():
 	tokens = string.split(line, TAB)
 	zfinID = string.strip(tokens[0])
@@ -235,7 +228,6 @@ def processInputFiles():
 	    if not mouseDict.has_key(zfinID):
 		mouseDict[zfinID] = []
 	    mouseDict[zfinID].append(mgiID)
-    #print mouseDict.keys()
 
 def process():
     global rptOne, rptTwo, rptThree
@@ -243,14 +235,12 @@ def process():
 
     # dictionary of id pairs to send to the clusterizer
     toClusterList = []
-    print 'processing input file'
     zfinIdNotInSet = set([])
     ncbiNotInDBSet = set([])
     mgiNotInDBSet = set([])
 
     for zfinID in exprSet:
 	# Join to gene and orthos to get ncbi and mgi IDs
-	#print zfinID
 	ncbiID = ''
 	mgiID = ''
 	error = 0
@@ -311,11 +301,9 @@ def process():
 	rptThree = '%s%s%s' % (rptThree, id, CRT)
     rptThree = '%s%sTotal IDs: %s%s' % (rptThree, CRT, len(mgiNotInDBSet), CRT)
 
-    #print 'zfinID: %s, ncbiID: %s, mgiID: %s' % (zfinID, ncbiID, mgiID)
     return
 
 def writeReports():
-    #print 'writing reports'
     fpQcRpt.write(rptOne)
     fpQcRpt.write(rptTwo)
     fpQcRpt.write(rptThree)
@@ -323,7 +311,6 @@ def writeReports():
     return
 
 def closeFiles():
-    #print 'closing files'
     fpGeneFile.close()
     fpOrthoFile.close()
     fpExprFile.close()
@@ -334,10 +321,26 @@ def closeFiles():
     db.useOneConnection(0)
     
     return
+
+##########################
+#
+# Main
+#
+##########################
+
+print 'initializing'
 init()
+
+print 'processing input files'
 processInputFiles()
+
+print 'processing clusters'
 process()
+
+print 'writing reports'
 writeReports()
+
+print 'closing files'
 closeFiles()
 
 print '%s' % mgi_utils.date()

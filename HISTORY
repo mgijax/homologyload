@@ -1,3 +1,20 @@
+TAG: homologyload-tr11886-16
+DATE:02/17/2015
+STAFF: sc
+CHANGES: HGNC/HG hybrid homology 
+1) hybrid.config.default - new
+2) homologyload.sh - factored code out inot runSanityChecks()
+     Added bcp of MGI_Property.bcp if it exists
+3) homologyload.py - added handling of properties when property attributes
+    are configured, factored out init() function
+4) preprocessGEISHA.* - removed debug, comments
+5) preprocessHGNC.* - removed debug, comments
+6) preprocessHomologene.* - removed debug, comments
+7) preprocessHybrid.py - added Cluster.toLoadFormat method
+    added closeFiles function, removed debug, added handling of properties
+8) preprocessZFIN.* - removed debug, comments
+9) preprocessHybrid.sh - added, development testing script
+
 TAG: homologyload-tr11886-15
 DATE:01/28/2015
 STAFF: sc

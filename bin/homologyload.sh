@@ -65,12 +65,9 @@ fi
 #
 if [ "${RELEASE_NO_FILE}" != "" ]
 then
-    echo 'have value for RELEASE_NO_FILE'
     HOMOLOGY_VERSION=`cat ${RELEASE_NO_FILE}`
 
     export HOMOLOGY_VERSION
-else
-    echo 'have no value for RELEASE_NO_FILE'
 fi
 
 
@@ -121,9 +118,17 @@ then
     checkStatus ${STAT} "INPUT_FILE_LOAD not defined"
 fi
 
-echo "copying ${INPUT_FILE_DEFAULT} to  ${INPUTDIR}"
-# copy the latest file from /data/downloads to the input dir
-cp -p ${INPUT_FILE_DEFAULT} ${INPUTDIR}
+#
+# loads with no input file will be specified as 'None'
+#
+
+if [ "${INPUT_FILE_DEFAULT}" != "None" ]
+then
+
+    echo "copying ${INPUT_FILE_DEFAULT} to  ${INPUTDIR}"
+    # copy the latest file from /data/downloads to the input dir
+    cp -p ${INPUT_FILE_DEFAULT} ${INPUTDIR}
+fi
 
 #
 # FUNCTION: Check for lines with missing columns and data in input file and
@@ -144,6 +149,51 @@ checkColumns ()
     fi
 }
 
+#
+# FUNCTION: run sanity checks on input file
+#           write the line numbers to the sanity report.
+#
+runSanityChecks()
+{
+    echo "" >> ${LOG_DIAG}
+    date >> ${LOG_DIAG}
+    echo "Running Sanity Checks" >> ${LOG_DIAG}
+    FILE_ERROR=0
+
+    echo '                         Sanity Errors in Primary Input File' > ${SANITY_RPT}
+    echo '---------------------------------------------------------------' >> ${SANITY_RPT}
+    echo ''
+    checkColumns ${INPUT_FILE} ${SANITY_RPT} ${NUM_COLUMNS}
+    if [ $? -ne 0 ]
+    then
+	FILE_ERROR=1
+    fi
+
+    # check file length, remove whitespace
+    len=`cat ${INPUT_FILE} | wc -l | sed 's/ //g'`
+    if [ ${len} -lt ${MIN_LENGTH} ]
+    then
+       echo "\n\nInput file ${INPUT_FILE} does not have minimum length. Required: ${MIN_LENGTH} Found: ${len}" | tee -a ${SANITY_RPT}
+       FILE_ERROR=1
+    fi
+
+    #
+    # If the input file had sanity errors exit
+    #
+    STAT=0
+    if [ ${FILE_ERROR} -ne 0 ]
+    then
+	echo "Sanity errors in ${INPUT_FILE}. See ${SANITY_RPT}"
+	echo "Sanity errors in ${INPUT_FILE}. See ${SANITY_RPT}" >>  ${LOG_DIAG}  ${LOG_PROC}
+	# set STAT for shutdown
+	STAT=${FILE_ERROR}
+	shutDown
+	exit 1
+    else
+	echo "No sanity errors in ${INPUT_FILE} file\n" >> ${SANITY_RPT}
+    fi
+
+}
 #####################################
 #
 # Main
@@ -161,44 +211,14 @@ preload ${OUTPUTDIR}
 cleanDir ${OUTPUTDIR}
 
 #
-# Run sanity checks
+# run sanity checks
 #
-echo "" >> ${LOG_DIAG}
-date >> ${LOG_DIAG}
-echo "Running Sanity Checks" >> ${LOG_DIAG}
-FILE_ERROR=0
-
-echo '                         Sanity Errors in Primary Input File' > ${SANITY_RPT}
-echo '---------------------------------------------------------------' >> ${SANITY_RPT}
-echo ''
-checkColumns ${INPUT_FILE} ${SANITY_RPT} ${NUM_COLUMNS}
-if [ $? -ne 0 ]
+if [ "${INPUT_FILE}" != "None" ]
 then
-    FILE_ERROR=1
-fi
-
-# check file length, remove whitespace
-len=`cat ${INPUT_FILE} | wc -l | sed 's/ //g'`
-if [ ${len} -lt ${MIN_LENGTH} ] 
-then
-   echo "\n\nInput file ${INPUT_FILE} does not have minimum length. Required: ${MIN_LENGTH} Found: ${len}" | tee -a ${SANITY_RPT}
-   FILE_ERROR=1
-fi
-
-#
-# If the input file had sanity errors exit
-#
-STAT=0
-if [ ${FILE_ERROR} -ne 0 ]
-then
-    echo "Sanity errors in ${INPUT_FILE}. See ${SANITY_RPT}"
-    echo "Sanity errors in ${INPUT_FILE}. See ${SANITY_RPT}" >>  ${LOG_DIAG}  ${LOG_PROC}
-    # set STAT for shutdown
-    STAT=${FILE_ERROR}
-    shutDown
-    exit 1
-else
-    echo "No sanity errors in ${INPUT_FILE} file\n" >> ${SANITY_RPT}
+    runSanityChecks
+    ${PREPROCESSOR}
+    STAT=$?
+    checkStatus ${STAT} "runSanityChecks"
 fi
 
 #
@@ -273,6 +293,25 @@ then
     echo "" >> ${LOG_DIAG}
     date >> ${LOG_DIAG}
     echo 'BCP data into ACC_Accession'  >> ${LOG_DIAG}
+
+    # Drop indexes
+    ${MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
+
+    # BCP new data
+    ${MGI_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
+
+    # Create indexes
+    ${MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
+fi
+
+TABLE=MGI_Property
+
+if [ -s "${OUTPUTDIR}/${TABLE}.bcp" ]
+then
+
+    echo "" >> ${LOG_DIAG}
+    date >> ${LOG_DIAG}
+    echo 'BCP data into MGI_Property'  >> ${LOG_DIAG}
 
     # Drop indexes
     ${MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}

@@ -165,16 +165,12 @@ def init():
     #
     # create Chicken ncbiID to marker lookup from database
     #
-    #print 'creating chicken ncbiID to marker lookup'
     for r in results:
 	ncbiId = r['ncbiId']
 	markerKey = r['_Marker_key']
-	#print 'ncbiId: %s' % ncbiId
 	ncbiToChickenDict[ncbiId] = markerKey
-    #print ' size of ncbiToChickenDict %s' % len(ncbiToChickenDict)
 
     # get all mouse markers
-    #print 'creating mouse marker lookup'
     results = db.sql('''select distinct a.accID as ncbiId, m._Marker_key
 	    from ACC_Accession a, MRK_Marker m
 	    where a._MGIType_key = 2
@@ -187,7 +183,6 @@ def init():
 	    ncbiId = r['ncbiId']
 	    markerKey = r['_Marker_key']
 	    ncbiToMouseDict[ncbiId] = markerKey
-    #print 'size of ncbiToMouseDict %s' % len(ncbiToMouseDict)
 
     return
 
@@ -202,7 +197,6 @@ def processInputFiles():
 	ncbiChickenID = string.strip(tokens[0])
 	exprSet.add(ncbiChickenID)
 	line =  fpExprFile.readline()
-    #print exprSet
     # remove header
     header = fpOrthoFile.readline()
     line = fpOrthoFile.readline()
@@ -222,20 +216,17 @@ def processInputFiles():
 	#	mouseDict[ncbiChickenID] = []
 	#    mouseDict[ncbiChickenID].append(id)
 	line = fpOrthoFile.readline()
-    #print mouseDict.keys()
 
 def process():
     global rptOne, rptTwo, rptThree
     # dictionary of id pairs to send to the clusterizer
     toClusterList = []
-    print 'processing input file'
     chickenIdNotInSet = set([])
     chickenIdNotInDBSet = set([])
     mouseIdNotInDBSet = set([])
 
     for chickenID in exprSet:
 	# Join to orthos to get mouse ncbi Ids
-	#print ncbiChickenID
 	mouseID = ''
 	error = 0
 	# get the mouse orthology, if none report
@@ -298,7 +289,6 @@ def process():
     return
 
 def writeReports():
-    #print 'writing reports'
     fpQcRpt.write(rptOne)
     fpQcRpt.write(rptTwo)
     fpQcRpt.write(rptThree)
@@ -306,7 +296,6 @@ def writeReports():
     return
 
 def closeFiles():
-    #print 'closing files'
     fpOrthoFile.close()
     fpExprFile.close()
     fpLoadFile.close()
@@ -317,14 +306,24 @@ def closeFiles():
     
     return
 
+###########################
+#
+# Main
+#
+###########################
+ 
 print 'initializing'
 init()
-print 'processInputFiles'
+
+print 'processing input files'
 processInputFiles()
+
 print 'processing clusters'
 process()
+
 print 'writing reports'
 writeReports()
+
 print 'closing files'
 closeFiles()
 

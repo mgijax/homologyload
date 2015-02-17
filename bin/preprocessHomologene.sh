@@ -193,7 +193,7 @@ fi
 #
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
-echo 'Running QC Checks' >> ${LOG_DIAG}
+echo 'Running Preprocessor' >> ${LOG_DIAG}
 ${HOMOLOGYLOAD}/bin/preprocessHGNC.py
 STAT=$?
 checkStatus ${STAT} "${HOMOLOGYLOAD}/bin/preprocessHGNC.py"

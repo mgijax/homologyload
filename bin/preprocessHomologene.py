@@ -185,7 +185,6 @@ db.sql('''select distinct a.accid as egId, m._Marker_key, m.symbol, o.commonName
 results = db.sql('''select * from #eg
 	group by _Marker_key having count(*) > 1''', 'auto')
 
-print 'creating marker to multi egID lookup'
 for r in results:
     egId = r['egId']
     markerKey = r['_Marker_key']
@@ -201,18 +200,15 @@ for r in results:
 
 results = db.sql('''select * from #eg''', 'auto')
 
-print 'creating egID to marker lookup'
 for r in results:
     egId = r['egId']
     markerKey = r['_Marker_key']
     symbol = r['symbol']
     organism = r['commonName']
-    #print 'egId: %s' % egId
     if not egToMarkerDict.has_key(egId):
 	egToMarkerDict[egId] = []
     egToMarkerDict[egId].append( Marker(markerKey, egId, symbol, organism) )
 
-print 'creating input file lookup'
 for line in fpInFile.readlines():
 
     (hgId, taxId, egId, junk1, junk2, junk3) = string.split(line[:-1], TAB)
@@ -230,7 +226,6 @@ for line in fpInFile.readlines():
 # Process
 #
 
-print 'iterating over input file lookup'
 for egId in egIdToLineDict.keys():
     lineList = egIdToLineDict[egId]
     
@@ -281,8 +276,6 @@ for egId in egIdToLineDict.keys():
 		    (line[0], TAB, line[1], TAB, egId, TAB, otherEgIds, CRT)
 	    # All QC checks passed - write out to the load-ready file
 	    else:
-		#print 'line: %s' % line
-		#print 'k:%s e:%s s:%s o:%s' % (m.k, m.e, m.s, m.o)
 		hgId = line[0]
 		taxId = line[1]
 		symbol =  m.s

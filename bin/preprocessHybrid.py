@@ -57,10 +57,14 @@ keyToMarkerDict = {}
 allClustersList = []
 
 # list of all connected components
-connCompList = []
+#connCompList = []
 connCompDict = {}
+
 # List of the hybrid clusters
 hybridClusterList = []
+
+# load-ready input file
+loadFilePath = os.environ['INPUT_FILE_LOAD']
 
 class Marker:
     # Is: data object  representing a Marker
@@ -91,7 +95,11 @@ class Cluster:
         # Effects: nothing
         # Throws: nothing
         self.clusterKey = None
+
+	# comma separated key:value pairs e.g.
+	# 'secondary source':HG
   	self.source = None
+
 	self.done = 0
 	self.markers = [] # list of marker objects
 	self.organisms = set([]) # 'm' or 'h' 
@@ -99,6 +107,22 @@ class Cluster:
 	self.conflict = None
 	self.hybridSource = None
  	self.rule = None
+
+    def toLoadFormat(self):
+	humanKeyList = []
+	mouseKeyList = []
+	clusterList = []
+	for m in self.markers:
+	    if m.organism == 'h':
+		humanKeyList.append('%s' % m.key)
+	    else:
+		mouseKeyList.append('%s' % m.key)
+	# we want human before mouse for cluster member sequence numbering
+	keyList = humanKeyList + mouseKeyList
+	keyString = ', '.join(keyList)
+	propertyString = 'secondary source:%s' % self.hybridSource
+	clusterList.append('%s%s%s%s%s%s' % (self.clusterKey, TAB, keyString, TAB, propertyString, CRT))
+	return ''.join(clusterList)
 
     def toString(self):
 	mList = []
@@ -114,14 +138,24 @@ class Cluster:
 
 
 def init():
-    global fpCC, fpH
+    global fpCC, fpH, fpRptFile, fpLoadFile
     user = os.environ['MGD_DBUSER']
     passwordFileName = os.environ['MGD_DBPASSWORDFILE']
     db.useOneConnection(1)
     db.set_sqlUser(user)
     db.set_sqlPasswordFromFile(passwordFileName)
+    # temp report
     fpCC = open('connComp.rpt', 'w')
+    # temp report
     fpH = open('hybridCluster.rpt', 'w')
+    # Sue's temp report 
+    fpRptFile = open(os.environ['HYBRID_RPT'], 'w')
+    # Load file in homologyload format
+    try:
+        fpLoadFile = open(loadFilePath, 'w')
+    except:
+        exit('Could not open file for writing %s\n' % loadFilePath)
+
     return 0
 
 def getClusters():
@@ -152,7 +186,7 @@ def getClusters():
 	if not clusterDict.has_key(cKey):
 	   clusterDict[cKey] = Cluster()
         clusterDict[cKey].clusterKey = cKey
-	clusterDict[cKey].source = 'hgnc'
+	clusterDict[cKey].source = 'HGNC'
 	m = Marker()
 	m.key = mKey
 	m.symbol = symbol
@@ -199,7 +233,7 @@ def getClusters():
         if not clusterDict.has_key(cKey):
            clusterDict[cKey] = Cluster()
         clusterDict[cKey].clusterKey = cKey
-	clusterDict[cKey].source = 'homologene'
+	clusterDict[cKey].source = 'HG'
 	m = Marker()
         m.key = mKey
         m.symbol = symbol
@@ -233,10 +267,9 @@ def closure(c): # c is Cluster object
     c.done = 1
     connectedComp.append(c)
     source = c.source
-    #print 'closure source: %s' % source
     for m in c.markers:
 	mKey = m.key
- 	if source == 'homologene' and hgncDict.has_key(mKey):
+ 	if source == 'HG' and hgncDict.has_key(mKey):
 	    c2 = hgncDict[mKey]
 	    closure(c2)
 	else:
@@ -248,7 +281,6 @@ def findComponents():
     global connectedComp, hybridClusterList, connCompDict
     ccCount = 0
     for c in allClustersList:
-	#print '\n' + c.toString()
 	if c.done == 0:
 	    connectedComp = []
             closure(c)
@@ -258,7 +290,13 @@ def findComponents():
 	    # add to dict
             ccCount += 1
 	    connCompDict[ccCount] = [connectedComp, hcList]
+	    writeLoadFile(hcList)
 
+def writeLoadFile(hcList): # h is list of Cluster objects from a given cc
+    for c in hcList:
+	fpLoadFile.write(c.toLoadFormat())
+
+# write my temp cc report
 def writeComponents():
     global fpCC
 
@@ -274,7 +312,8 @@ def writeComponents():
 	    fpCC.write('%s%s' % (c.toString(), CRT))
     fpCC.close()
 
-def writeHybrid():
+# write my temp hybrid report
+def writeMyHybrid():
     global fpH
 
     #for c in hybridClusterList:
@@ -286,6 +325,13 @@ def writeHybrid():
 	for c in hybridList:
 	    fpH.write('%s%s' % (c.toStringHybrid(), CRT))
     fpH.close()
+
+# sue's temp hybrid report
+def writeHybrid():
+    global fpRptFile
+
+    keyList = connCompDict.keys()
+    keyList.sort()
  
 def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
 
@@ -321,7 +367,7 @@ def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
 	if len(c.organisms) > 1:
 	    single = 0
 	    break
-	if c.source == 'homologene':
+	if c.source == 'HG':
 	    c.hybridSource = c.source
 	    c.conflict = 'none'
 	    c.rule = '3b'
@@ -341,12 +387,12 @@ def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
 	c.hybridSource = c.source
 	c.conflict = 'conflict'
 	c.rule = '3'
-	if c.source == 'homologene':
+	if c.source == 'HG':
 	    hgList.append(c)
 	else:
 	    hgncList.append(c)
 	if len(c.organisms) == 2:
-	    if c.source == 'homologene':
+	    if c.source == 'HG':
 		bothHG = 1
 	    else:
 		bothHGNC = 1
@@ -362,11 +408,9 @@ def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
 
     # both sources have M/H clusters
     # don't need this test - it is implied, test w/o later
-    #print 'bothHG: %s bothHGNC: %s' % (bothHG, bothHGNC)
     if bothHG == 1 and  bothHGNC == 1: 
 	# Rule 1 - only one M/H cluster from each source; keep one source=both,
 	# conflict=none
-	#print 'len(hgList): %s len(hgncList): %s' % (len(hgList), len(hgncList))
 	if len(hgList) == 1 and len(hgncList) == 1:
 	    hgMarkerList = []
 	    hgncMarkerList = []
@@ -378,12 +422,7 @@ def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
 		hgncMarkerList.append(m.key)
 	    hgMarkerSet = set(hgMarkerList)
 	    hgncMarkerSet = set(hgncMarkerList)
-	    #print CRT
-	    #print 'hg: %s' % hgMarkerSet
-	    #print 'hgnc: %s' % hgncMarkerSet
-	    #print CRT
 	    if not len(hgMarkerSet.difference(hgncMarkerSet)):
-		#print 'rule 1 sets are equal'
 		# both the same, arbitrarily pick hg
 
 		# update the default hybridSource, conflict and rule values
@@ -393,21 +432,28 @@ def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
 		return [hgCluster]
 	    else:
 		# Rule 4 sources disagree keep hgnc cluster
-		#print 'rule 4 one cluster each'
 		hgncCluster.rule = '4'
 		# hybridSource and conflict value remain the default
 		return [hgncCluster]
 	# Rule 4 both sources have disagreeing M/H cluster, keep hgnc clusters
 	# source=hgnc, conflict= conflict
 	else:
-	    #print 'rule 4 multi clusters'
 	    # update rule number from default to 4
 	    for c in hgncList:
 		c.rule = '4'
 	    # hybridSource and conflict value remain the default
 	    return hgncList
-    #print "we shouldn't get here"
     return
+
+def closeFiles():
+    fpLoadFile.close()
+    fpRptFile.close()
+
+    # close the database connection
+    db.useOneConnection(0)
+
+    return
+
 #####################################
 #
 # Main
@@ -418,4 +464,5 @@ init()
 getClusters()
 findComponents()
 writeComponents()
-writeHybrid()
+writeMyHybrid()
+closeFiles()
