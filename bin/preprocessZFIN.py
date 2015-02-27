@@ -80,7 +80,7 @@ print '%s' % mgi_utils.date()
 TAB= '\t'
 CRT = '\n'
 
-# EG ID/Human Marker associations from the database
+# EG ID/ZFIN Marker associations from the database
 # {egID:marker key, ...}
 egToMarkerDict = {}
 
@@ -181,7 +181,7 @@ def init():
 	and m._Marker_Status_key in (1,3)
 	and m._Organism_key = 84''', 'auto')
     #
-    # create Human egID to marker lookup from database
+    # create ZFIN egID to marker lookup from database
     #
     for r in results:
 	egId = r['egId']

@@ -23,16 +23,10 @@
 #
 #  Notes:  None
 #
-#	Hybrid Cluster conflict values:
-#	1. conflict
-#	2. reject
-#	3. none
-#
 #	Hybrid Cluster source values:
-#	1. HNGC
-#	2. HG
-#	3. both
-#	4. none
+#	1. HGNC
+#	2. HomoloGene
+#	3. HGNC and HomoloGene
 #
 ###########################################################################
 import db
@@ -57,7 +51,7 @@ keyToMarkerDict = {}
 allClustersList = []
 
 # list of all connected components
-#connCompList = []
+# {ccID: [ [the connected component], [the hybrid clusters]], ...}
 connCompDict = {}
 
 # List of the hybrid clusters
@@ -96,8 +90,6 @@ class Cluster:
         # Throws: nothing
         self.clusterKey = None
 
-	# comma separated key:value pairs e.g.
-	# 'secondary source':HG
   	self.source = None
 
 	self.done = 0
@@ -233,7 +225,7 @@ def getClusters():
         if not clusterDict.has_key(cKey):
            clusterDict[cKey] = Cluster()
         clusterDict[cKey].clusterKey = cKey
-	clusterDict[cKey].source = 'HG'
+	clusterDict[cKey].source = 'HomoloGene'
 	m = Marker()
         m.key = mKey
         m.symbol = symbol
@@ -269,7 +261,7 @@ def closure(c): # c is Cluster object
     source = c.source
     for m in c.markers:
 	mKey = m.key
- 	if source == 'HG' and hgncDict.has_key(mKey):
+ 	if source == 'HomoloGene' and hgncDict.has_key(mKey):
 	    c2 = hgncDict[mKey]
 	    closure(c2)
 	else:
@@ -283,12 +275,13 @@ def findComponents():
     for c in allClustersList:
 	if c.done == 0:
 	    connectedComp = []
+	    ccCount += 1
             closure(c)
 	    #connCompList.append(connectedComp) # replaced by dict below
 	    hcList = decideWhatToDo(connectedComp)
 	    hybridClusterList = hybridClusterList + hcList
+
 	    # add to dict
-            ccCount += 1
 	    connCompDict[ccCount] = [connectedComp, hcList]
 	    writeLoadFile(hcList)
 
@@ -326,26 +319,50 @@ def writeMyHybrid():
 	    fpH.write('%s%s' % (c.toStringHybrid(), CRT))
     fpH.close()
 
-# sue's temp hybrid report
+
 def writeHybrid():
     global fpRptFile
 
     keyList = connCompDict.keys()
     keyList.sort()
- 
+    for ccCount in keyList:
+	ccID = 'comp%s' % ccCount
+	ccClusterList = connCompDict[ccCount][0]
+	hgList = []
+	hgncList = []
+	hybridSource = ''
+	conflict = ''
+	rule = ''
+	compClustMarkerList = []
+	hybridClustMarkerList = []
+	for c in ccClusterList:
+	    markerList = []
+	    for m in c.markers:
+		markerList.append(m.symbol)
+	    markerString = '(%s)' % ', '.join(markerList)
+	    compClustMarkerList.append(markerString)
+	    if c.source == 'HomoloGene':
+		hgList.append(markerString)
+	    else:
+		hgncList.append(markerString)
+	hcList = connCompDict[ccCount][1]
+	for hc in hcList:
+	    hybridSource = hc.hybridSource
+	    conflict = hc.conflict
+	    rule = hc.rule
+	    hybridList = []
+	    for m in hc.markers:
+		hybridList.append(m.symbol)
+	    hString = '(%s)' % ', '.join(hybridList)
+	    hybridClustMarkerList.append(hString)
+	clusterString =  ', '.join(compClustMarkerList)
+	hgncString = ', '.join(hgncList)
+	hgString = ', '.join(hgList)
+	hybridString = ', '.join(hybridClustMarkerList)
+	fpRptFile.write('%s##%s##%s##%s##%s##%s##%s##%s%s' % (ccID, clusterString, hgncString, hgString, hybridString, hybridSource, conflict, rule, CRT))
+
 def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
 
-    #       Hybrid Cluster conflict values:
-    #       1. conflict
-    #       2. reject
-    #       3. none
-    #
-    #       Hybrid Cluster source values:
-    #       1. HNGC
-    #       2. HG
-    #       3. both
-    #       4. none
-    
     # Rule 2 - one cluster (so one source) --> keep it; conflict='none'
     if len(cc) == 1:
 	c = cc[0]
@@ -359,7 +376,7 @@ def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
     # multi sources
     #
 
-    # Rule 3b only sgl species clusters, keep all HG, source=HG
+    # Rule 3b only sgl species clusters, keep all HG, source=HomoloGene
     single = 1
     hgList = []
 
@@ -367,7 +384,7 @@ def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
 	if len(c.organisms) > 1:
 	    single = 0
 	    break
-	if c.source == 'HG':
+	if c.source == 'HomoloGene':
 	    c.hybridSource = c.source
 	    c.conflict = 'none'
 	    c.rule = '3b'
@@ -387,12 +404,12 @@ def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
 	c.hybridSource = c.source
 	c.conflict = 'conflict'
 	c.rule = '3'
-	if c.source == 'HG':
+	if c.source == 'HomoloGene':
 	    hgList.append(c)
 	else:
 	    hgncList.append(c)
 	if len(c.organisms) == 2:
-	    if c.source == 'HG':
+	    if c.source == 'HomoloGene':
 		bothHG = 1
 	    else:
 		bothHGNC = 1
@@ -426,7 +443,7 @@ def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
 		# both the same, arbitrarily pick hg
 
 		# update the default hybridSource, conflict and rule values
-		hgCluster.hybridSource = 'both'
+		hgCluster.hybridSource = 'HGNC and HomoloGene'
 		hgCluster.conflict = 'none'
 		hgCluster.rule = '1'
 		return [hgCluster]
@@ -465,4 +482,5 @@ getClusters()
 findComponents()
 writeComponents()
 writeMyHybrid()
+writeHybrid()
 closeFiles()
