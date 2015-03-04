@@ -1,0 +1,103 @@
+#format: sh
+#
+#  xenbaseload.config.default
+#
+#  This file sets up the common environment variables that are needed by
+#  the Xenbase homology load (Frog Model organism database)
+#
+###########################################################################
+
+# Full path to the logs, reports, and archive directories 
+FILEDIR=${DATALOADSOUTPUT}/homology/xenbaseload
+
+# Full path to the input, output, logs, reports and archive directories.
+#
+INPUTDIR=${FILEDIR}/input
+LOGDIR=${FILEDIR}/logs
+RPTDIR=${FILEDIR}/reports
+OUTPUTDIR=${FILEDIR}/output
+ARCHIVEDIR=${FILEDIR}/archive
+
+export INPUTDIR FILEDIR LOGDIR RPTDIR OUTPUTDIR ARCHIVEDIR
+
+# Full path name of the xenbase file we copy to INPUTDIR
+INPUT_FILE_EG_DEFAULT="${DATADOWNLOADS}/ftp.xenbase.org/GenePageTropicalisEntrezGeneUnigeneMapping.txt"
+INPUT_FILE_TRANS_DEFAULT="${DATADOWNLOADS}/ftp.xenbase.org/XenbaseGenepageToGeneIdMapping.txt"
+INPUT_FILE_ORTHO_DEFAULT="${DATADOWNLOADS}/ftp.xenbase.org/XenbaseGeneMouseOrthologMapping.txt"
+INPUT_FILE_DEFAULT="${DATADOWNLOADS}/ftp.xenbase.org/GeneExpression_tropicalis.txt"
+
+export INPUT_FILE_EG_DEFAULT INPUT_FILE_TRANS_DEFAULT 
+export INPUT_FILE_ORTHO_DEFAULT INPUT_FILE_DEFAULT
+
+# Full paths to the files we copy from INPUT_FILE_DEFAULT for use by the load
+INPUT_FILE_EG="${INPUTDIR}/GenePageTropicalisEntrezGeneUnigeneMapping.txt"
+INPUT_FILE_TRANS="${INPUTDIR}/XenbaseGenepageToGeneIdMapping.txt"
+INPUT_FILE_ORTHO="${INPUTDIR}/XenbaseGeneMouseOrthologMapping.txt"
+INPUT_FILE="${INPUTDIR}/GeneExpression_tropicalis.txt"
+
+export INPUT_FILE_EG INPUT_FILE_TRANS INPUT_FILE_ORTHO INPUT_FILE
+
+# Full path name of the load-ready file that is created
+# by the preprocessor
+INPUT_FILE_LOAD=${OUTPUTDIR}/xenbase_load.txt
+
+export INPUT_FILE_LOAD
+
+#  Full path name of the log files
+LOG_PROC=${LOGDIR}/xenbaseload.proc.log
+LOG_DIAG=${LOGDIR}/xenbaseload.diag.log
+LOG_CUR=${LOGDIR}/xenbaseload.cur.log
+LOG_VAL=${LOGDIR}/xenbaseload.val.log
+
+export LOG_PROC LOG_DIAG LOG_CUR LOG_VAL
+
+# Full path name of the sanity and QC reports
+SANITY_RPT=${RPTDIR}/sanity.rpt
+QC_RPT=${RPTDIR}/qc.rpt
+
+export SANITY_RPT QC_RPT
+
+# Pre-processor to use
+PREPROCESSOR=${HOMOLOGYLOAD}/bin/preprocessXenbase.sh
+LOADER=${HOMOLOGYLOAD}/bin/homologyload.py
+
+export PREPROCESSOR
+export LOADER
+
+# Number of columns expected for the input file (for sanity check).
+NUM_COLUMNS=1
+
+# minimum  number of lines in the file (for sanity check).
+# this is < full length of the shortest of the four input files - mouse ortholog
+MIN_LENGTH=13000
+
+# Version number of the Xenbase homology - there isn't one
+HOMOLOGY_VERSION=''
+
+export NUM_COLUMNS MIN_LENGTH HOMOLOGY_VERSION
+
+# Full path name of the BCP files
+CLUSTER_BCP=${OUTPUTDIR}/MRK_Cluster.bcp
+MEMBER_BCP=${OUTPUTDIR}/MRK_ClusterMember.bcp
+
+export CLUSTER_BCP MEMBER_BCP 
+
+CLUSTER_SRC_KEY=13611349
+
+export CLUSTER_SRC_KEY 
+
+# homology ldb key  - empty as there are no Xenbase cluster IDs
+HOM_LDB_KEY=''
+
+export HOM_LDB_KEY
+
+# this load's login value for DB table CreatedBy and ModifiedBy
+JOBSTREAM=xenbase_homologyload
+
+export JOBSTREAM
+
+#  The name of the load for the subject of an email notification
+# will be set by wrapper based on collection for each load
+MAIL_LOADNAME="Xenbase Homology Load"
+
+export MAIL_LOADNAME
