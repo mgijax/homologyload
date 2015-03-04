@@ -221,13 +221,11 @@ def deleteHomologies():
 # Main      
 #
 #############
-print 'initializing'
 init()
 
-print 'deleting homologies'
 deleteHomologies()
 
-print 'creating BCP files'
+print 'Creating BCP files'
 for line in fpInFile.readlines():
     tokens = string.split(line[:-1], TAB)
     id = tokens[0]

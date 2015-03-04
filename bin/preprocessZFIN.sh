@@ -1,10 +1,10 @@
 #!/bin/sh
 
 #
-# Convenience script to use during development to run the preprocessor
 #
-# This script is a wrapper around the process that QC's the ZFIN
-# input file and generates a load-ready input file
+# Wrapper to run the ZFIN preprocessor. It copies the two additional input
+# files and does sanity checks on them, then runs the python preprocessor
+#
 #
 # Usage:
 #

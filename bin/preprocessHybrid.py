@@ -10,10 +10,11 @@
 # Usage: preprocessHybrid.py
 #
 # Inputs:
-#	None
+#	The MGD database
 #
 # Outputs:
-#       List of connected components 
+#      1. load ready file
+#      2. QC report file
 #
 # Exit Codes:
 #      0:  Successful completion
@@ -21,18 +22,23 @@
 #
 #  Assumes:  Nothing
 #
-#  Notes:  None
+#  Notes: 
 #
-#	Hybrid Cluster source values:
+#	Hybrid Cluster source property values:
 #	1. HGNC
 #	2. HomoloGene
 #	3. HGNC and HomoloGene
+#
+#	Hybrid Cluster conflict values: 
+#	  This script reflects an outdated conflict algorithm as it 
+#	  was implemented, then decided we wouldn't load the conflict property
 #
 ###########################################################################
 import db
 import string
 import Set
 import os
+import mgi_utils
 
 CRT = '\n'
 TAB = '\t'
@@ -76,6 +82,7 @@ class Marker:
 	self.organism = None
     def toString(self):
 	return '''%s|%s|%s''' % (self.key, self.symbol, self.organism)
+
 
 class Cluster:
     # Is: data object  representing a homology cluster
@@ -127,7 +134,6 @@ class Cluster:
         for m in self.markers:
             mList.append(m.toString())
 	return 'originalClustkey: %s%srule:%s%ssource: %s%shybrid source: %s%sconflict: %s%smembers:%s%s%s' % (self.clusterKey, CRT, self.rule, CRT, self.source, CRT, self.hybridSource, CRT, self.conflict, CRT, CRT, string.join(mList, CRT ), CRT)
-
 
 def init():
     global fpCC, fpH, fpRptFile, fpLoadFile
@@ -195,8 +201,6 @@ def getClusters():
 	currentCluster = clusterDict[cKey]
 	for m in currentCluster.markers:
 	    hgncDict[m.key] = currentCluster
-    print '# HGNC Clusters: %s' % len(hgncDict)
-    print '# Markers found: %s' % len(keyToMarkerDict)
 
 
     #
@@ -241,13 +245,9 @@ def getClusters():
         currentCluster = clusterDict[cKey]
         for m in currentCluster.markers:
             homologeneDict[m.key] = currentCluster
-    print '# HG Clusters: %s' % len(homologeneDict)
-    print '# Markers found: %s' % len(keyToMarkerDict)
 
-    #
     # Create list of all clusters from both providers
     allClustersList = hgncDict.values() + homologeneDict.values()
-    print 'Total HGNC/HG clusters found: %s' % len(allClustersList)
 
 def closure(c): # c is Cluster object
     global connectedComp
@@ -290,12 +290,9 @@ def writeLoadFile(hcList): # h is list of Cluster objects from a given cc
 	fpLoadFile.write(c.toLoadFormat())
 
 # write my temp cc report
-def writeComponents():
+def writeMyComponents():
     global fpCC
 
-    #ccCount = 0
-    #for cc in connCompList:
-	#ccCount += 1
     keyList = connCompDict.keys()
     keyList.sort()
     for ccCount in keyList:
@@ -476,11 +473,23 @@ def closeFiles():
 # Main
 #
 #####################################
-
+print '%s' % mgi_utils.date()
+print 'initializing'
 init()
+
+print 'getting clusters from the database'
 getClusters()
+
+print 'processing clusters'
 findComponents()
-writeComponents()
+
+print 'writing reports'
+writeMyComponents()
 writeMyHybrid()
 writeHybrid()
+
+print 'closing files'
 closeFiles()
+
+print '%s' % mgi_utils.date()
+

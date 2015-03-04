@@ -14,12 +14,6 @@
 #           3. HGNC ID (sans the 'HGNC:')
 #
 #	2. Configuration - see hgncload.config
-#	  1. 
-#         2. INPUT_FILE - path to input file
-#         3. INPUT_FILE_LOAD - path to cleaned up load-ready file
-#         4. QC_RPT - path to QC report
-#         5. MGD_DBUSER - database user
-#	  6. MGD_DBPASSWORDFILE - database password
 #
 # Outputs:
 #	 1. load ready file
@@ -45,9 +39,6 @@ import mgi_utils
 import loadlib
 import db
 import clusterize
-
-print '%s' % mgi_utils.date()
-
 
 ####################################
 #
@@ -86,9 +77,9 @@ qcRptPath = os.environ['QC_RPT']
 
 # QC report descriptions and column headings
 sep = '--------------------------------------------------\n'
-head = 'Line#%sHuman egID%sMouse MGI IDs%s HGNC ID%s' % (TAB, TAB, TAB, CRT)
+head = 'Line#%sHuman EG ID%sMouse MGI IDs%s HGNC ID%s' % (TAB, TAB, TAB, CRT)
 
-rptOne = 'Lines where Human egID not in database%s%s%s%s' % (CRT, CRT, head, sep)
+rptOne = 'Lines where Human EG ID not in database%s%s%s%s' % (CRT, CRT, head, sep)
 
 rptTwo = '%s%sLines where a Mouse MGI ID not in database%s%s%s%s' % (CRT, CRT,CRT, CRT, head, sep)
 
@@ -286,6 +277,8 @@ def closeFiles():
 # Main
 #
 ###########################
+
+print '%s' % mgi_utils.date()
 
 print 'initializing'
 init()

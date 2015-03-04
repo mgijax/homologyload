@@ -37,12 +37,6 @@ touch ${TMP_FILE}
 trap "rm -f ${TMP_FILE}" 0 1 2 15
 
 #
-# BCP delimiters
-#
-COLDELIM="\t"
-LINEDELIM="\n"
-
-#
 # verify & source the configuration files
 #
 

@@ -1,16 +1,15 @@
 #!/bin/sh
 
 #
-# Convenience script to use during development to run the preprocessor
 #
-# This script is a wrapper around the process that QC's the GEISHA
-# input file and generates a load-ready input file
+# Wrapper to run the GEISHA preprocessor. It copies the  additional input
+# file and does sanity checks on them, then runs the python preprocessor
+#
 #
 # Usage:
 #
 #     preprocessGEISHA.sh
 #
-
 #
 # Create a temporary file and make sure that it is removed when this script
 # terminates.
@@ -94,7 +93,7 @@ fi
 # check each input file for proper number of columns
 #
 
-# orthology.txt - column 1: chicken NCBI ID, column 5: mouse NCBI ID
+# orthology.txt - column 1: chicken EG ID, column 5: mouse EG ID
 COLUMNS=5
 checkColumns ${INPUT_FILE_ORTHO} ${COLUMNS}
 if [ $? -ne 0 ]
@@ -105,8 +104,6 @@ fi
 #
 # If the input file had sanity errors exit
 #
-echo "Contents: "
-cat ${TMP2_FILE}
 if [ ${FILE_ERROR} -ne 0 ]
 then
     cat ${TMP2_FILE} >> ${SANITY_RPT}
@@ -124,7 +121,7 @@ fi
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
 echo 'Running Preprocessor' >> ${LOG_DIAG}
-${HOMOLOGYLOAD}/bin/preprocessGEISHA.py
+${HOMOLOGYLOAD}/bin/preprocessGEISHA.py 
 STAT=$?
 exit ${STAT}
 

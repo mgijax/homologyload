@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/sh
 
 #
 # This script is a wrapper around the process that QC's a homology
@@ -125,7 +125,7 @@ fi
 if [ "${INPUT_FILE_DEFAULT}" != "None" ]
 then
 
-    echo "copying ${INPUT_FILE_DEFAULT} to  ${INPUTDIR}"
+    echo "copying ${INPUT_FILE_DEFAULT} to ${INPUTDIR}" >> ${LOG_DIAG}
     # copy the latest file from /data/downloads to the input dir
     cp -p ${INPUT_FILE_DEFAULT} ${INPUTDIR}
 fi
@@ -213,20 +213,16 @@ cleanDir ${OUTPUTDIR}
 #
 # run sanity checks
 #
+echo "" >> ${LOG_DIAG}
+date >> ${LOG_DIAG}
+echo "Running Preprocessor ${PREPROCESSOR}" >> ${LOG_DIAG}
 if [ "${INPUT_FILE}" != "None" ]
 then
     runSanityChecks
-    ${PREPROCESSOR}
     STAT=$?
     checkStatus ${STAT} "runSanityChecks"
 fi
 
-#
-# Run preprocessor to QC and create load ready file
-#
-echo "" >> ${LOG_DIAG}
-date >> ${LOG_DIAG}
-echo "Running Preprocessor ${PREPROCESSOR}" >> ${LOG_DIAG}
 ${PREPROCESSOR}
 STAT=$?
 checkStatus ${STAT} "${PREPROCESSOR}"

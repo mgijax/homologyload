@@ -29,12 +29,6 @@ then
 fi
 
 #
-# BCP delimiters
-#
-COLDELIM="\t"
-LINEDELIM="\n"
-
-#
 # verify & source the configuration files
 #
 

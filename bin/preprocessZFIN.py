@@ -21,7 +21,7 @@
 #           1. ZFIN ID
 #           2. SO ID (not used)
 #           3. Symbol (not used)
-#           4. NCBI Gene ID
+#           4. EG ID
 #
 #	3. ZFIN Genes with Expression Assay Records file tab delimited:
 # 	    1. ZFIN ID 	
@@ -67,9 +67,6 @@ import loadlib
 import db
 import clusterize
 
-print '%s' % mgi_utils.date()
-
-
 ####################################
 #
 # Globals
@@ -104,7 +101,7 @@ loadFilePath = os.environ['INPUT_FILE_LOAD']
 # ZFIN gene IDs from the expression file
 exprSet = set([])
 
-# ZFIN gene IDs mapped to their NCBI IDs from gene file
+# ZFIN gene IDs mapped to their EG IDs from gene file
 geneDict = {}
 
 # XFIN gene IDs mapped to one or more mouse MGI IDs from orthology file
@@ -118,7 +115,7 @@ qcRptPath = os.environ['QC_RPT']
 sep = '--------------------------------------------------\n'
 
 rptOne = 'ZFIN IDs from expression file not in either gene or orthos file%s%s%s' % (CRT, CRT, sep)
-rptTwo = '%s%sZFIN NCBI ID not in database%s%s%s' % (CRT, CRT, CRT, CRT, sep)
+rptTwo = '%s%sZebra Fish EG ID not in database%s%s%s' % (CRT, CRT, CRT, CRT, sep)
 
 rptThree = '%s%sMouse MGI ID not in database%s%s%s' % (CRT, CRT,CRT, CRT, sep)
 
@@ -218,8 +215,8 @@ def processInputFiles():
 	tokens = string.split(line, TAB)
 	zfinID = string.strip(tokens[0])
 	if zfinID.startswith('ZDB-GENE'):
-	    ncbiID = string.strip(tokens[3])
-	    geneDict[zfinID] = ncbiID
+	    egID = string.strip(tokens[3])
+	    geneDict[zfinID] = egID
     for line in fpOrthoFile.readlines():
 	tokens = string.split(line, TAB)
 	zfinID = string.strip(tokens[0])
@@ -236,16 +233,16 @@ def process():
     # dictionary of id pairs to send to the clusterizer
     toClusterList = []
     zfinIdNotInSet = set([])
-    ncbiNotInDBSet = set([])
+    egNotInDBSet = set([])
     mgiNotInDBSet = set([])
 
     for zfinID in exprSet:
-	# Join to gene and orthos to get ncbi and mgi IDs
-	ncbiID = ''
+	# Join to gene and orthos to get EG and MGI IDs
+	egID = ''
 	mgiID = ''
 	error = 0
 	if zfinID in geneDict.keys():
-	    ncbiID = geneDict[zfinID]
+	    egID = geneDict[zfinID]
 	else:
 	    error = 1
 	    zfinIdNotInSet.add(zfinID)
@@ -256,14 +253,14 @@ def process():
 	    zfinIdNotInSet.add(zfinID)
 	if error:
 	    continue
-	# verify zfin NCBI ID in database
-	if ncbiID not in egToMarkerDict.keys():
-	    ncbiNotInDBSet.add(ncbiID)
+	# verify zebra fish EG ID in database
+	if egID not in egToMarkerDict.keys():
+	    egNotInDBSet.add(egID)
 	    error = 1
 	# verify mouse mgiIDs in database
 	currentClusterList = []
 	for mgiID in mgiIdList:
-	    currentClusterList.append([ncbiID, mgiID])
+	    currentClusterList.append([egID, mgiID])
 	    if mgiID not in mgiToMarkerDict.keys():
 		mgiNotInDBSet.add(mgiID)
 		error = 1
@@ -293,9 +290,9 @@ def process():
 	rptOne = '%s%s%s' % (rptOne, id, CRT)
     rptOne = '%s%sTotal IDs: %s%s' % (rptOne, CRT, len(zfinIdNotInSet), CRT) 
 
-    for id in ncbiNotInDBSet:
+    for id in egNotInDBSet:
 	rptTwo =  '%s%s%s' % (rptTwo, id, CRT)
-    rptTwo = '%s%sTotal IDs: %s%s' % (rptTwo, CRT, len(ncbiNotInDBSet), CRT)
+    rptTwo = '%s%sTotal IDs: %s%s' % (rptTwo, CRT, len(egNotInDBSet), CRT)
 
     for id in mgiNotInDBSet:
 	rptThree = '%s%s%s' % (rptThree, id, CRT)
@@ -327,6 +324,7 @@ def closeFiles():
 # Main
 #
 ##########################
+print '%s' % mgi_utils.date()
 
 print 'initializing'
 init()
