@@ -68,7 +68,7 @@ TAB= '\t'
 CRT = '\n'
 
 # set to 1 for debug to stdout
-debug = 1
+debug = 0
 
 # EG ID/Xenopus Marker associations from the database
 # {egID:marker key, ...}
