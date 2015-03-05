@@ -60,6 +60,43 @@ See <A HREF="http://mgiwiki/mediawiki/index.php/Homologyload">Homology Load Wiki
 </UL>
 </UL>
 
+<H2>Hybrid HGNC/HomoloGene Load</H2>
+<UL>
+<H3>Input</H3>
+<UL>
+<LI>Input is HGNC and HomoloGen clusters from the database
+</UL>
+
+<H3>Logs</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/hybridload/logs/hybridload.proc.log">Process Log</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/hybridload/logs/hybridload.diag.log">Diagnostic Log</A>
+</UL>
+
+<H3>Reports</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/hybridload/reports/hybridCluster.rpt">Hybrid Cluster Report ## delimited</A>
+<LI> Columns:
+    <OL>
+    <LI> The connected component ID (arbitrary)
+    <LI> All clusters in the connected component
+    <LI> HGNC clusters in the connected component
+    <LI> HomoloGene clusters in the connected componenet
+    <LI> Secondary Source
+    <LI> Conflict value (dev use only)
+    <LI> Rule # from the Requirements wiki
+    </OL>
+</UL>
+
+<H3>Output Files</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/hybridload/output/MRK_Cluster.bcp">MRK_Cluster.bcp</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/hybridload/output/MRK_ClusterMember.bcp">MRK_ClusterMember.bcp
+</A>
+</UL>
+</UL>
+
+
 <H2>ZFIN Load</H2>
 <UL>
 <H3>Input</H3>
@@ -116,3 +153,34 @@ See <A HREF="http://mgiwiki/mediawiki/index.php/Homologyload">Homology Load Wiki
 <LI><A HREF="/data/loads/scrum-bob/homology/geishaload/output/MRK_ClusterMember.bcp">MRK_ClusterMember.bcp</A>
 </UL>
 </UL>
+
+<H2>Xenbase Load</H2>
+<UL>
+<H3>Input</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/input/GeneExpression_tropicalis.txt">Xenbase Expression Input File</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/input/XenbaseGeneMouseOrthologMapping.txt">Xenbase Ortholog Input File</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/input/GenePageTropicalisEntrezGeneUnigeneMapping.txt">Xenopus EntrezGene ID Input File</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/input/XenbaseGenepageToGeneIdMapping.txt">Xenbase Gene ID to Gene Page ID Mapping Input File</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/output/xenbase_load.txt">Load Ready Input File</A>
+</UL>
+
+<H3>Logs</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/logs/xenbaseload.proc.log">Process Log</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/logs/xenbaseload.diag.log">Diagnostic Log</A>
+</UL>
+
+<H3>Reports</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/reports/sanity.rpt">Input File Sanity Report</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/reports/qc.rpt">Input File QC Reports</A>
+</UL>
+
+<H3>Output Files</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/output/MRK_Cluster.bcp">MRK_Cluster.bcp</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/output/MRK_ClusterMember.bcp">MRK_ClusterMember.bcp</A>
+</UL>
+</UL>
+
