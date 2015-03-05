@@ -118,11 +118,11 @@ rptTwo = '%s%sXenbase Gene IDs from expression file not in Xenopus EG file%s%s%s
 
 rptThree = '%s%sXenbase Gene Page IDS from the translation file not in the Orthology File%s%s%s' % (CRT, CRT, CRT, CRT, sep)
 
-rptFour = '%s%sXenopus EG IDS that map to > 1 Xenbase Gene ID%s%s%s' % (CRT, CRT, CRT, CRT, sep)
+rptFour = '%s%sXenopus EG IDs that map to > 1 Xenbase Gene ID%s%s%s' % (CRT, CRT, CRT, CRT, sep)
 
-rptFive = '%s%sXenbase EG ID not in database%s%s%s' % (CRT, CRT, CRT, CRT, sep)
+rptFive = '%s%sXenopus EG IDs not in database%s%s%s' % (CRT, CRT, CRT, CRT, sep)
 
-rptSix = '%s%sMouse EG ID not in database%s%s%s' % (CRT, CRT,CRT, CRT, sep)
+rptSix = '%s%sMouse EG IDs not in database%s%s%s' % (CRT, CRT,CRT, CRT, sep)
 
 #
 # file descriptors
