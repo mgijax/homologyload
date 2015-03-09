@@ -8,7 +8,7 @@
 # Usage: preprocessXenbase.py
 #
 # Inputs:
-#	1. Xenbase mouse orthology file tab delimited:
+#	1. Xenbase expression file tab delimited:
 #	    1. Xenbase Gene ID 	
 # 	    2+ not used
 #
@@ -54,8 +54,19 @@ import Set
 
 import mgi_utils
 import loadlib
-import db
 import clusterize
+
+try:
+    if os.environ['DB_TYPE'] == 'postgres':
+        import pg_db
+        db = pg_db
+        db.setTrace()
+        db.setAutoTranslateBE()
+    else:
+        import db
+
+except:
+    import db
 
 ####################################
 #

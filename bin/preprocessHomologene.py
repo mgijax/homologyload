@@ -45,7 +45,18 @@ import string
 
 import mgi_utils
 import loadlib
-import db
+
+try:
+    if os.environ['DB_TYPE'] == 'postgres':
+        import pg_db
+        db = pg_db
+        db.setTrace()
+        db.setAutoTranslateBE()
+    else:
+        import db
+
+except:
+    import db
 
 print '%s' % mgi_utils.date()
 

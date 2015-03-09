@@ -52,12 +52,23 @@
 import sys
 import os
 import re
-import db
 import string
 import mgi_utils
 import loadlib
 import symbolsort
 import time
+
+try:
+    if os.environ['DB_TYPE'] == 'postgres':
+        import pg_db
+        db = pg_db
+        db.setTrace()
+        db.setAutoTranslateBE()
+    else:
+        import db
+
+except:
+    import db
 
 TAB = '\t'
 CRT = '\n'

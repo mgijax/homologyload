@@ -51,7 +51,6 @@ then
 fi
 
 . ${CONFIG_COMMON}
-
 if [ ! -r ${CONFIG_LOAD} ]
 then
     echo "Cannot read configuration file: ${CONFIG_LOAD}"

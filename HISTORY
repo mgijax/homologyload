@@ -1,9 +1,17 @@
+TAG: homologyload-tr11886-22
+DATE:03/09/2015
+STAFF: sc
+CHANGES: TR11888 - 
+1) US126 - change secondary source hgnc and hg text to hg and hgnc 
+    (reverse order)
+2) US101 - add postgres/sybase flipping code to all python scripts - tested for sybase only, US101 pulled from sprint 4 because of dependencies.
+
 TAG: homologyload-tr11886-21
 DATE:03/04/2015
 STAFF: sc
 CHANGES: TR11888 - Added:
 1) preprocessXenbase.py
-2) preprocessXenbase.s
+2) preprocessXenbase.sh
 3) xenbaseload.config
 
 TAG: homologyload-tr11886-20

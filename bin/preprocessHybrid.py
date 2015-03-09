@@ -34,11 +34,22 @@
 #	  was implemented, then decided we wouldn't load the conflict property
 #
 ###########################################################################
-import db
 import string
 import Set
 import os
 import mgi_utils
+
+try:
+    if os.environ['DB_TYPE'] == 'postgres':
+        import pg_db
+        db = pg_db
+        db.setTrace()
+        db.setAutoTranslateBE()
+    else:
+        import db
+
+except:
+    import db
 
 CRT = '\n'
 TAB = '\t'
@@ -438,9 +449,8 @@ def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
 	    hgncMarkerSet = set(hgncMarkerList)
 	    if not len(hgMarkerSet.difference(hgncMarkerSet)):
 		# both the same, arbitrarily pick hg
-
 		# update the default hybridSource, conflict and rule values
-		hgCluster.hybridSource = 'HGNC and HomoloGene'
+		hgCluster.hybridSource = 'HomoloGene and HGNC'
 		hgCluster.conflict = 'none'
 		hgCluster.rule = '1'
 		return [hgCluster]
