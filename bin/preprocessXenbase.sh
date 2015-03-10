@@ -113,7 +113,9 @@ echo ''
 len=`cat ${INPUT_FILE_EG} | wc -l | sed 's/ //g'`
 if [ ${len} -lt ${MIN_LENGTH} ]
 then
-   echo "\n\nInput file ${INPUT_FILE_EG} does not have minimum length. Required: ${MIN_LENGTH} Found: ${len}" | tee -a ${SANITY_RPT}
+   echo "" >> ${SANITY_RPT}
+   echo "" >> ${SANITY_RPT}
+   echo "Input file ${INPUT_FILE_EG} does not have minimum length. Required: ${MIN_LENGTH} Found: ${len}" | tee -a ${SANITY_RPT}
    FILE_ERROR=1
 fi
 
@@ -123,14 +125,18 @@ fi
 len=`cat ${INPUT_FILE_TRANS} | wc -l | sed 's/ //g'`
 if [ ${len} -lt ${MIN_LENGTH} ]
 then
-   echo "\n\nInput file ${INPUT_FILE_TRANS} does not have minimum length. Required: ${MIN_LENGTH} Found: ${len}" | tee -a ${SANITY_RPT}
+   echo "" >> ${SANITY_RPT}
+   echo "" >> ${SANITY_RPT}
+   echo "Input file ${INPUT_FILE_TRANS} does not have minimum length. Required: ${MIN_LENGTH} Found: ${len}" | tee -a ${SANITY_RPT}
    FILE_ERROR=1
 fi
 
 len=`cat ${INPUT_FILE_ORTHO} | wc -l | sed 's/ //g'`
 if [ ${len} -lt ${MIN_LENGTH} ]
 then
-   echo "\n\nInput file ${INPUT_FILE_ORTHO} does not have minimum length. Required: ${MIN_LENGTH} Found: ${len}" | tee -a ${SANITY_RPT}
+   echo "" >> ${SANITY_RPT}
+   echo "" >> ${SANITY_RPT}
+   echo "Input file ${INPUT_FILE_ORTHO} does not have minimum length. Required: ${MIN_LENGTH} Found: ${len}" | tee -a ${SANITY_RPT}
    FILE_ERROR=1
 fi
 

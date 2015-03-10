@@ -164,7 +164,9 @@ len=`cat ${INPUT_FILE} | wc -l | sed 's/ //g'`
 
 if [ ${len} -lt ${MIN_LENGTH} ] 
 then
-   echo "\n\nInput file does not have minimum length. Required: ${MIN_LENGTH} Found: ${len}" | tee -a ${SANITY_RPT}
+   echo "" >> ${SANITY_RPT}
+   echo "" >> ${SANITY_RPT}
+   echo "Input file does not have minimum length. Required: ${MIN_LENGTH} Found: ${len}" | tee -a ${SANITY_RPT}
    FILE_ERROR=1
 fi
 
