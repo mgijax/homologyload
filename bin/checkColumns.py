@@ -28,13 +28,12 @@
 #
 #      0:  Successful completion
 #      1:  An exception occurred
-#      2:  Discrepancy errors detected in the input files
+#
 #  Implementation:
 #
 #  Notes:  None
 #
 ###########################################################################
-
 
 import string
 import sys
@@ -47,14 +46,13 @@ fpInput = None
 numColumns = None
 errors = 0
 
-#
-# Purpose: Validate the arguments to the script.
-# Returns: Nothing
-# Assumes: Nothing
-# Effects: Sets global variables.
-# Throws: Nothing
-#
 def checkArgs ():
+    # Purpose: Validate the arguments to the script.
+    # Returns: 1 if input file has <> 3 columns
+    # Assumes: Nothing
+    # Effects: Sets global variables.
+    # Throws: Nothing
+
     global inputFile, numColumns
     if len(sys.argv) != 3:
         print USAGE
@@ -64,14 +62,13 @@ def checkArgs ():
     numColumns = int(sys.argv[2])
     return
 
-#
-# Purpose: Open the file for reading
-# Returns: Nothing
-# Assumes: Nothing
-# Effects: Sets global variables.
-# Throws: Nothing
-#
 def openFile ():
+    # Purpose: Open the file for reading
+    # Returns: 1 if file descriptor cannot be initialized
+    # Assumes: Nothing
+    # Effects: Sets global variables.
+    # Throws: Nothing
+
     global fpInput
 
     try:
@@ -81,14 +78,13 @@ def openFile ():
 	sys.exit(1)
     return
 
-#
-# Purpose: check the file for proper number of columns
-# Returns: Nothing
-# Assumes: Nothing
-# Effects: Sets global variables.
-# Throws: Nothing
-#
 def checkColumns ():
+    # Purpose: check the file for proper number of columns
+    # Returns: Nothing
+    # Assumes: Nothing
+    # Effects: Sets global variables.
+    # Throws: Nothing
+
     global errors
     lineNum = 0
     for line in fpInput.readlines():
@@ -104,14 +100,13 @@ def checkColumns ():
 	    continue
     return
 
-#
-# Purpose: Close the files.
-# Returns: Nothing
-# Assumes: Nothing
-# Effects: Nothing
-# Throws: Nothing
-#
 def closeFile():
+    # Purpose: Close the files.
+    # Returns: Nothing
+    # Assumes: Nothing
+    # Effects: Nothing
+    # Throws: Nothing
+
     global fpInput
 
     fpInput.close()

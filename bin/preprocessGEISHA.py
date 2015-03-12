@@ -41,16 +41,18 @@
 #
 #  Notes:  None
 #
+# sc   01/14/2015
+#       - initial implementation
 ###########################################################################
 
-import sys
 import os
 import string
 import Set
 
 import mgi_utils
-import loadlib
 import clusterize
+
+###--- sybase/postgres flipping ---###
 
 try:
     if os.environ['DB_TYPE'] == 'postgres':
@@ -64,11 +66,7 @@ try:
 except:
     import db
 
-####################################
-#
-# Globals
-#
-####################################
+###--- globals ---###
 
 # constants
 TAB= '\t'
@@ -124,15 +122,16 @@ fpExprFile = ''
 fpLoadFile = ''
 fpQcRpt = ''
 
-#
-# Purpose: initialize file descriptors and database lookups
-# Returns: 0
-# Assumes: fpImits2 exists
-# Effects: Nothing
-# Throws: Nothing
-#
+###--- functions ---###
 
 def init():
+    # Purpose: Initialization of  database connection and file descriptors,
+    #       create database lookup dictionaries
+    # Returns: 1 if file descriptors cannot be initialized
+    # Assumes: Nothing
+    # Effects: opens a database connection
+    # Throws: Nothing
+
     global egToChickenDict, egToMouseDict
     global fpOrthoFile, fpExprFile
     global fpLoadFile, fpQcRpt
@@ -198,6 +197,13 @@ def init():
     return
 
 def processInputFiles():
+    # Purpose: create dictionaries from the orthology input file and 
+    # a set of chicken EG IDs from the expression file
+    # Returns: 0
+    # Assumes: Nothing
+    # Effects: None
+    # Throws: Nothing
+
     global exprSet, mouseDict
 
     # remove header
@@ -229,6 +235,13 @@ def processInputFiles():
 	line = fpOrthoFile.readline()
 
 def process():
+    # Purpose: Create load ready file from Geisha files and the database
+    # Returns: 0
+    # Assumes: All lookup structures have been initialized
+    # Effects: Writes to the file system
+    # Throws: Nothing
+
+
     global rptOne, rptTwo, rptThree
     # dictionary of id pairs to send to the clusterizer
     toClusterList = []
@@ -300,6 +313,12 @@ def process():
     return
 
 def writeReports():
+    # Purpose: writes out all sections of the QC report
+    # Returns: 0
+    # Assumes: rptOne has been initialized
+    # Effects: Writes to the file system
+    # Throws: Nothing
+
     fpQcRpt.write(rptOne)
     fpQcRpt.write(rptTwo)
     fpQcRpt.write(rptThree)
@@ -307,6 +326,12 @@ def writeReports():
     return
 
 def closeFiles():
+    # Purpose: closes file descriptors and database connection
+    # Returns: 0
+    # Assumes: file descriptors have been initialized
+    # Effects:  None
+    # Throws: Nothing
+
     fpOrthoFile.close()
     fpExprFile.close()
     fpLoadFile.close()
@@ -317,11 +342,8 @@ def closeFiles():
     
     return
 
-###########################
-#
-# Main
-#
-###########################
+###--- main program ---###
+
 print '%s' % mgi_utils.date()
  
 print 'initializing'

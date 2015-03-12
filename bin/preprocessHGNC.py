@@ -28,16 +28,16 @@
 #
 #  Notes:  None
 #
+# sc   01/14/2015
+#       - initial implementation
 ###########################################################################
 
-import sys
 import os
 import string
-import Set
-
 import mgi_utils
-import loadlib
 import clusterize
+
+###--- sybase/postgres flipping ---###
 
 try:
     if os.environ['DB_TYPE'] == 'postgres':
@@ -51,11 +51,7 @@ try:
 except:
     import db
 
-####################################
-#
-# Globals
-#
-####################################
+###--- globals ---###
 
 # constants
 TAB= '\t'
@@ -77,6 +73,8 @@ mgiToMarkerDict = {}
 inFilePath = os.environ['INPUT_FILE']
 
 # path to the file to be clustered by the clusterizer
+# this was for debugging this first clustered load. I chose to leave this code
+# in for future debugging purposes
 clustererFilePath = os.environ['INPUT_FILE_CLUSTERER']
 
 # This is the cleaned up load-ready input file
@@ -99,12 +97,24 @@ rptTwo = '%s%sLines where a Mouse MGI ID not in database%s%s%s%s' % (CRT, CRT,CR
 #
 
 fpInFile = ''
-# idList replaces this file, but keeping for time being
+
+# idList replaces this file, but keeping for debugging purposes
 fpClustererFile = ''
 fpLoadFile = ''
 fpQcRpt = ''
 
+###--- functions ---###
+
 def init():
+    # Purpose: Initialization of  database connection and file descriptors,
+    #       create database lookup dictionaries; create dictionary from
+    #       input file
+    # Returns: 1 if file descriptors cannot be initialized
+    # Assumes: Nothing
+    # Effects: opens a database connection
+    # Throws: Nothing
+
+
     global egToMarkerDict, mgiToMarkerDict
     global fpInFile, fpClustererFile, fpLoadFile, fpQcRpt
 
@@ -171,6 +181,12 @@ def init():
     return
 
 def process():
+    # Purpose: Create load ready file from HGNC file and the database
+    # Returns: 0
+    # Assumes: All lookup structures have been initialized
+    # Effects: Writes to the file system
+    # Throws: Nothing
+
     global rptOne, rptTwo, hgncIdOnlyCount, mgiIdOnlyCount
     
     # dictionary of id pairs to send to the clusterizer
@@ -244,7 +260,7 @@ def process():
 	# if we get here, we the egId is in the database and ALL the
 	# mgiIds are in the database
 		
-    # idList replaces this file, but keeping for time being
+    # idList replaces this file, but keeping for debugging purposes
     fpClustererFile.close()
 
     # clusterDict = clusterize.cluster(clustererFilePath, 'HGNC')
@@ -268,12 +284,24 @@ def process():
     return
 
 def writeReports():
+    # Purpose: writes out all sections of the QC report
+    # Returns: 0
+    # Assumes: rptOneand rptTwo have been initialized
+    # Effects: Writes to the file system
+    # Throws: Nothing
+
     fpQcRpt.write(rptOne)
     fpQcRpt.write(rptTwo)
 
     return
 
 def closeFiles():
+    # Purpose: closes file descriptors and database connection
+    # Returns: 0
+    # Assumes: file descriptors have been initialized
+    # Effects:  None
+    # Throws: Nothing
+
     fpInFile.close()
     fpLoadFile.close()
     fpQcRpt.close()
@@ -283,11 +311,7 @@ def closeFiles():
     
     return
 
-###########################
-#
-# Main
-#
-###########################
+###--- main program ---###
 
 print '%s' % mgi_utils.date()
 

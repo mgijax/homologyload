@@ -28,15 +28,15 @@
 #
 #  Notes:  None
 #
+# sc   01/14/2015
+#       - initial implementation
 ###########################################################################
-import sys
 import os
-import re
 import string
 import mgi_utils
-import loadlib
 import time
 
+###--- sybase/postgres flipping ---###
 try:
     if os.environ['DB_TYPE'] == 'postgres':
         import pg_db
@@ -49,6 +49,9 @@ try:
 except:
     import db
 
+###--- globals ---###
+
+# constants
 TAB = '\t'
 CRT = '\n'
 
@@ -107,7 +110,17 @@ cdate = mgi_utils.date("%m/%d/%Y")
 ldbKey = os.environ['HOM_LDB_KEY']
 mgiTypeKey =  os.environ['CLUSTER_MGITYPE_KEY']
 
+###--- functions ---###
+
 def init():
+    # Purpose: Initialization of  database connection and file descriptors,
+    #       create database lookup dictionaries; create dictionary from
+    #       input file
+    # Returns: 1 if file descriptors cannot be initialized
+    # Assumes: Nothing
+    # Effects: opens a database connection
+    # Throws: Nothing
+
     global fpInFile, fpClusterBCP, fpMemberBCP, fpAccessionBCP
     global fpPropertyBCP, createdByKey, nextClusterKey, nextMemberKey
     global nextAccessionKey, nextPropertyKey, propertyDict
@@ -186,6 +199,8 @@ def init():
 	for r in results:
 	     propertyDict[r['term']] = r['_Term_key']
 
+    return
+
 def deleteHomologies():
     # Purpose: delete accession, cluster and member records
     # Returns: nothing
@@ -226,77 +241,100 @@ def deleteHomologies():
     db.sql('''delete MRK_Cluster
         from #todelete2 d, MRK_Cluster m
         where d._Cluster_key = m._Cluster_key''', None)
+    
+    return
 
-#############
-#
-# Main      
-#
-#############
+def createBCPFiles():
+    # Purpose: Create bcp files from the load ready file 
+    # Returns: 0
+    # Assumes: Nothing
+    # Effects: Writes to the file system
+    # Throws: Nothing
+
+    global nextClusterKey,  nextMemberKey, nextAccessionKey, nextPropertyKey
+    for line in fpInFile.readlines():
+	tokens = string.split(line[:-1], TAB)
+	id = tokens[0]
+	members = tokens[1]
+	memberList = string.split(members, ',')
+	properties = ''
+	if len(tokens) == 3:
+	    properties = tokens[2]
+
+	#
+	# create MRK_Cluster
+	#
+	if accessionBCP != '':
+	    # Has clusterID
+	    fpClusterBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextClusterKey, TAB, clusterTypeKey, TAB, clusterSource, TAB, id, TAB, TAB, clusterDate, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
+	else:
+	    # No clusterID
+	    fpClusterBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextClusterKey, TAB, clusterTypeKey, TAB, clusterSource, TAB, TAB, TAB, clusterDate, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
+
+	if accessionBCP != '':
+	    #
+	    # create ACC_Accession
+	    #
+	    fpAccessionBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextAccessionKey, TAB, id, TAB, TAB, id, TAB, ldbKey, TAB, nextClusterKey, TAB, mgiTypeKey, TAB, 0, TAB, 1, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT) )
+	    nextAccessionKey += 1
+
+	#
+	# create MRK_ClusterMember
+	#
+
+	# sort the list by organism and symbol
+	sequenceNum = 0
+	for markerKey in memberList:
+	    sequenceNum += 1
+	    fpMemberBCP.write('%s%s%s%s%s%s%s%s' % (nextMemberKey, TAB, nextClusterKey, TAB, markerKey, TAB, sequenceNum, CRT))
+	    nextMemberKey += 1
+
+	#
+	# create MGI_Property if there are any
+	#
+	# properties are comma delimited key:value pairs 
+	# e.g. source:HG, conflict:none 2/17 - not implementing conflict now
+
+	if propertyDict and properties != '':
+	    tokens = map(string.strip, string.split(properties, ','))
+	    for p in tokens:
+		propertyTerm, propertyValue = string.split(p, ':')
+		if not propertyDict.has_key(propertyTerm):
+		    exit(1, 'Invalid property term: %s' % propertyTerm)
+		propertyTermKey = propertyDict[propertyTerm]
+		fpPropertyBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextPropertyKey, TAB, propertyTypeKey, TAB, propertyTermKey, TAB, nextClusterKey, TAB, mgiTypeKey, TAB, propertyValue, TAB, 1, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
+		nextPropertyKey += 1
+		
+	# now increment the cluster key
+	nextClusterKey += 1
+
+    return
+
+def closeFiles():
+    # Purpose: closes file descriptors and database connection
+    # Returns: 0
+    # Assumes: file descriptors have been initialized
+    # Effects:  None
+    # Throws: Nothing
+
+    db.useOneConnection(0)
+    fpClusterBCP.close()
+    fpMemberBCP.close()
+    if accessionBCP != '':
+	fpAccessionBCP.close()
+    if propertyBCP != '':
+	fpPropertyBCP.close()
+
+    return
+
+###--- main program ---###
+
+print '%s' % mgi_utils.date()
+
 init()
-
 deleteHomologies()
+createBCPFiles()
+closeFiles()
 
-print 'Creating BCP files'
-for line in fpInFile.readlines():
-    tokens = string.split(line[:-1], TAB)
-    id = tokens[0]
-    members = tokens[1]
-    memberList = string.split(members, ',')
-    properties = ''
-    if len(tokens) == 3:
-	properties = tokens[2]
+print '%s' % mgi_utils.date()
 
-    #
-    # create MRK_Cluster
-    #
-    if accessionBCP != '':
-	# Has clusterID
-	fpClusterBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextClusterKey, TAB, clusterTypeKey, TAB, clusterSource, TAB, id, TAB, TAB, clusterDate, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
-    else:
-	# No clusterID
-	fpClusterBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextClusterKey, TAB, clusterTypeKey, TAB, clusterSource, TAB, TAB, TAB, clusterDate, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
-
-    if accessionBCP != '':
-	#
-	# create ACC_Accession
-	#
-	fpAccessionBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextAccessionKey, TAB, id, TAB, TAB, id, TAB, ldbKey, TAB, nextClusterKey, TAB, mgiTypeKey, TAB, 0, TAB, 1, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT) )
-	nextAccessionKey += 1
-
-    #
-    # create MRK_ClusterMember
-    #
-
-    # sort the list by organism and symbol
-    sequenceNum = 0
-    for markerKey in memberList:
-        sequenceNum += 1
-        fpMemberBCP.write('%s%s%s%s%s%s%s%s' % (nextMemberKey, TAB, nextClusterKey, TAB, markerKey, TAB, sequenceNum, CRT))
-        nextMemberKey += 1
-
-    #
-    # create MGI_Property if there are any
-    #
-    # properties are comma delimited key:value pairs 
-    # e.g. source:HG, conflict:none 2/17 - not implementing conflict now
-
-    if propertyDict and properties != '':
-	tokens = map(string.strip, string.split(properties, ','))
-	for p in tokens:
-	    propertyTerm, propertyValue = string.split(p, ':')
-	    if not propertyDict.has_key(propertyTerm):
-		exit(1, 'Invalid property term: %s' % propertyTerm)
-	    propertyTermKey = propertyDict[propertyTerm]
-	    fpPropertyBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextPropertyKey, TAB, propertyTypeKey, TAB, propertyTermKey, TAB, nextClusterKey, TAB, mgiTypeKey, TAB, propertyValue, TAB, 1, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
-	    nextPropertyKey += 1
-	    
-    # now increment the cluster key
-    nextClusterKey += 1
-
-db.useOneConnection(0)
-fpClusterBCP.close()
-fpMemberBCP.close()
-if accessionBCP != '':
-    fpAccessionBCP.close()
-if propertyBCP != '':
-    fpPropertyBCP.close()

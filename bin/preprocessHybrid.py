@@ -10,7 +10,8 @@
 # Usage: preprocessHybrid.py
 #
 # Inputs:
-#	The MGD database
+#	1. the MGD database
+#       2. Configuration - see hybridload.config
 #
 # Outputs:
 #      1. load ready file
@@ -27,17 +28,21 @@
 #	Hybrid Cluster source property values:
 #	1. HGNC
 #	2. HomoloGene
-#	3. HGNC and HomoloGene
+#	3. HomoloGene and HGNC
 #
 #	Hybrid Cluster conflict values: 
 #	  This script reflects an outdated conflict algorithm as it 
 #	  was implemented, then decided we wouldn't load the conflict property
 #
+# sc   01/14/2015
+#       - initial implementation
 ###########################################################################
-import string
-import Set
 import os
+import string
 import mgi_utils
+import Set
+
+###--- sybase/postgres flipping ---###
 
 try:
     if os.environ['DB_TYPE'] == 'postgres':
@@ -51,6 +56,9 @@ try:
 except:
     import db
 
+###--- globals ---###
+
+# constants
 CRT = '\n'
 TAB = '\t'
 
@@ -77,28 +85,28 @@ hybridClusterList = []
 # load-ready input file
 loadFilePath = os.environ['INPUT_FILE_LOAD']
 
+###--- classes ---###
+
 class Marker:
-    # Is: data object  representing a Marker
-    # Is: data object  representing a marker attributes
-    # Does: provides direct access to its attributes
+    # Is: a single marker from the database
+    # Has: a marker key, symbol and organism
+    # Does: provides direct access to its attributes, provides a toString method
     #
     def __init__ (self):
-        # Purpose: constructor
-        # Returns: nothing
-        # Assumes: nothing
-        # Effects: nothing
-        # Throws: nothing
+        # constructor
 	self.key = None
 	self.symbol = None
 	self.organism = None
+
     def toString(self):
 	return '''%s|%s|%s''' % (self.key, self.symbol, self.organism)
 
 
 class Cluster:
-    # Is: data object  representing a homology cluster
+    # Is: a homology cluster
     # Has: a set of cluster attributes
-    # Does: provides direct access to its attributes
+    # Does: provides direct access to its attributes; toString and toLoadFormat
+    #	methods for writing to the homologyload-ready input file
     #
     def __init__ (self):
         # Purpose: constructor
@@ -146,13 +154,23 @@ class Cluster:
             mList.append(m.toString())
 	return 'originalClustkey: %s%srule:%s%ssource: %s%shybrid source: %s%sconflict: %s%smembers:%s%s%s' % (self.clusterKey, CRT, self.rule, CRT, self.source, CRT, self.hybridSource, CRT, self.conflict, CRT, CRT, string.join(mList, CRT ), CRT)
 
+###--- functions ---###
+
 def init():
+    # Purpose: Initialization of  database connection and file descriptors
+    # Returns: 1 if file descriptors cannot be initialized
+    # Assumes: Nothing
+    # Effects: opens a database connection
+    # Throws: Nothing
+
     global fpCC, fpH, fpRptFile, fpLoadFile
+
     user = os.environ['MGD_DBUSER']
     passwordFileName = os.environ['MGD_DBPASSWORDFILE']
     db.useOneConnection(1)
     db.set_sqlUser(user)
     db.set_sqlPasswordFromFile(passwordFileName)
+
     # temp report
     fpCC = open('connComp.rpt', 'w')
     # temp report
@@ -165,9 +183,15 @@ def init():
     except:
         exit('Could not open file for writing %s\n' % loadFilePath)
 
-    return 0
+    return
 
 def getClusters():
+    # Purpose: create database lookup dictionaries from the database
+    # Returns: Nothing
+    # Assumes: database connection has been created
+    # Effects: Nothing
+    # Throws: Nothing
+
     global hgncDict, homologeneDict, keyToMarkerDict, allClustersList
 
     #
@@ -175,7 +199,7 @@ def getClusters():
     #
    
     # HGNC is only human and mouse 
-    results = db.sql('''select mcm._Cluster_key, mcm._Marker_key, m.symbol,
+    results = db.sql('''select mcm._Cluster_key, mcm._Marker_key, m.symbol, 
 	    o.commonName
 	from MRK_Cluster mc, MRK_ClusterMember mcm, MRK_Marker m, MGI_Organism o
 	where mc._ClusterType_key = 9272150
@@ -206,13 +230,11 @@ def getClusters():
 	    o = 'h'
         clusterDict[cKey].organisms.add(o)
 	     
-
     # now map the markers in each cluster to its cluster
     for cKey in clusterDict.keys():
 	currentCluster = clusterDict[cKey]
 	for m in currentCluster.markers:
 	    hgncDict[m.key] = currentCluster
-
 
     #
     # Create HomoloGene Clusters
@@ -260,8 +282,18 @@ def getClusters():
     # Create list of all clusters from both providers
     allClustersList = hgncDict.values() + homologeneDict.values()
 
+    return
+
 def closure(c): # c is Cluster object
+    # Purpose: find connected components between the two cluster sets
+    #    HomoloGene and HGNC
+    # Returns: Nothing
+    # Assumes: Nothing
+    # Effects: Nothing
+    # Throws: Nothing
+
     global connectedComp
+
     # do depth first search starting at cluster c
     # and set connectedComponent to the set of clusters in the connected 
     # component containing c
@@ -280,7 +312,14 @@ def closure(c): # c is Cluster object
 		c2 = homologeneDict[mKey]
 		closure(c2)
 
-def findComponents():
+def findHybrid():
+    # Purpose: Find the hybrid cluster set from a given connected component
+    #	write the hybrid clusters to the load ready input file       
+    # Returns: Nothing
+    # Assumes: Nothing
+    # Effects: writes to the file system
+    # Throws: Nothing
+
     global connectedComp, hybridClusterList, connCompDict
     ccCount = 0
     for c in allClustersList:
@@ -295,10 +334,18 @@ def findComponents():
 	    # add to dict
 	    connCompDict[ccCount] = [connectedComp, hcList]
 	    writeLoadFile(hcList)
+    return 
 
 def writeLoadFile(hcList): # h is list of Cluster objects from a given cc
+    # Purpose: write a list of clusters to the load ready file
+    # Returns: Nothing
+    # Assumes: Nothing
+    # Effects: writes to the file system
+    # Throws: Nothing
+
     for c in hcList:
 	fpLoadFile.write(c.toLoadFormat())
+    return
 
 # write my temp cc report
 def writeMyComponents():
@@ -312,6 +359,7 @@ def writeMyComponents():
 	for c in connCompList:
 	    fpCC.write('%s%s' % (c.toString(), CRT))
     fpCC.close()
+    return
 
 # write my temp hybrid report
 def writeMyHybrid():
@@ -326,7 +374,7 @@ def writeMyHybrid():
 	for c in hybridList:
 	    fpH.write('%s%s' % (c.toStringHybrid(), CRT))
     fpH.close()
-
+    return
 
 def writeHybrid():
     global fpRptFile
@@ -368,8 +416,15 @@ def writeHybrid():
 	hgString = ', '.join(hgList)
 	hybridString = ', '.join(hybridClustMarkerList)
 	fpRptFile.write('%s##%s##%s##%s##%s##%s##%s##%s%s' % (ccID, clusterString, hgncString, hgString, hybridString, hybridSource, conflict, rule, CRT))
+    return
 
 def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
+    # Purpose: Choose the clusters to load. Encapsulate the logic for 
+    #	choosing which set of clusters to load
+    # Returns:  A list of the hybrid clusters chosen to load
+    # Assumes: Nothing
+    # Effects: None
+    # Throws: Nothing
 
     # Rule 2 - one cluster (so one source) --> keep it; conflict='none'
     if len(cc) == 1:
@@ -470,6 +525,12 @@ def decideWhatToDo(cc): # c is a connected componente; a list of Cluster objects
     return
 
 def closeFiles():
+    # Purpose: closes file descriptors and database connection
+    # Returns: 0
+    # Assumes: file descriptors have been initialized
+    # Effects:  None
+    # Throws: Nothing
+
     fpLoadFile.close()
     fpRptFile.close()
 
@@ -478,12 +539,10 @@ def closeFiles():
 
     return
 
-#####################################
-#
-# Main
-#
-#####################################
+###--- main program ---###
+
 print '%s' % mgi_utils.date()
+
 print 'initializing'
 init()
 
@@ -491,7 +550,7 @@ print 'getting clusters from the database'
 getClusters()
 
 print 'processing clusters'
-findComponents()
+findHybrid()
 
 print 'writing reports'
 writeMyComponents()
@@ -502,4 +561,3 @@ print 'closing files'
 closeFiles()
 
 print '%s' % mgi_utils.date()
-

@@ -36,11 +36,6 @@
 # 	    10 Probe Quality (optiona 0 - 5 rating) (not used)
 #
 #	4. Configuration - see zfinload.config
-#	  . INPUT_FILE_* - path to file in load input file directory
-#         . INPUT_FILE_LOAD - path to load-ready file
-#         . QC_RPT - path to QC report
-#         . MGD_DBUSER - database user
-#	  . MGD_DBPASSWORDFILE - database password
 #
 # Outputs:
 #	 1. load ready file
@@ -55,16 +50,18 @@
 #
 #  Notes:  None
 #
+# sc   01/14/2015
+#       - initial implementation
 ###########################################################################
 
-import sys
 import os
 import string
 import Set
 
 import mgi_utils
-import loadlib
 import clusterize
+
+###--- sybase/postgres flipping ---###
 
 try:
     if os.environ['DB_TYPE'] == 'postgres':
@@ -78,11 +75,7 @@ try:
 except:
     import db
 
-####################################
-#
-# Globals
-#
-####################################
+###--- globals ---###
 
 # constants
 TAB= '\t'
@@ -142,7 +135,17 @@ fpExprFile = ''
 fpLoadFile = ''
 fpQcRpt = ''
 
+###--- functions ---###
+
 def init():
+    # Purpose: Initialization of  database connection and file descriptors,
+    #       create database lookup dictionaries; create dictionary from
+    #       input file
+    # Returns: 1 if file descriptors cannot be initialized
+    # Assumes: Nothing
+    # Effects: opens a database connection
+    # Throws: Nothing
+
     global egToMarkerDict, mgiToMarkerDict
     global fpGeneFile, fpOrthoFile, fpExprFile
     global fpLoadFile, fpQcRpt
@@ -216,7 +219,14 @@ def init():
     return
 
 def processInputFiles():
+    # Purpose: create data structures from the input files
+    # Returns: 0
+    # Assumes: Nothing
+    # Effects: None
+    # Throws: Nothing
+
     global exprSet, geneDict, mouseDict
+
     for line in fpExprFile.readlines():
 	tokens = string.split(line, TAB)
 	zfinID = string.strip(tokens[0])
@@ -237,9 +247,17 @@ def processInputFiles():
 		mouseDict[zfinID] = []
 	    mouseDict[zfinID].append(mgiID)
 
+    return
+
 def process():
+    # Purpose: Create load ready file and  QC reports from Zfin files
+    #   and the database
+    # Returns: 0
+    # Assumes: All lookup structures have been initialized
+    # Effects: Writes to the file system
+    # Throws: Nothing
+
     global rptOne, rptTwo, rptThree
-    # egToMarkerDict, mgiToMarkerDict
 
     # dictionary of id pairs to send to the clusterizer
     toClusterList = []
@@ -312,6 +330,12 @@ def process():
     return
 
 def writeReports():
+    # Purpose: writes out all sections of the QC report
+    # Returns: 0
+    # Assumes: rptOne - rptThree has been initialized
+    # Effects: Writes to the file system
+    # Throws: Nothing
+
     fpQcRpt.write(rptOne)
     fpQcRpt.write(rptTwo)
     fpQcRpt.write(rptThree)
@@ -319,6 +343,12 @@ def writeReports():
     return
 
 def closeFiles():
+    # Purpose: closes file descriptors and database connection
+    # Returns: 0
+    # Assumes: file descriptors have been initialized
+    # Effects:  None
+    # Throws: Nothing
+
     fpGeneFile.close()
     fpOrthoFile.close()
     fpExprFile.close()
@@ -330,11 +360,8 @@ def closeFiles():
     
     return
 
-##########################
-#
-# Main
-#
-##########################
+###--- main program ---###
+
 print '%s' % mgi_utils.date()
 
 print 'initializing'

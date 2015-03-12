@@ -5,7 +5,7 @@
 # Purpose:
 #       Create HomoloGene (HG) bcp files for the MRK_Cluster* tables
 #
-# Usage: homologyload.py
+# Usage: homologeneload.py
 #
 # Inputs:
 #       1. load-ready HG file tab-delimited in following format:
@@ -15,24 +15,7 @@
 #           4. Marker symbol
 #           5. MGI ID - NCBI identifier for the RefSeq
 #           6. Protein sequence ID - RefSeq
-#       2. Configuration - see homologyload.config
-#           1. INPUT_FILE_DEFAULT - Full path name HG file we copy to 
-#		the load input directory
-#	    2. INPUT_FILE_LOAD - Full path name of the load-ready file that is
-#		created by this script
-#	    3. CLUSTER_BCP - MRK_Cluster bcp file
-#	    4. MEMBER_BCP - MRK_ClusterMember bcp file
-#	    5. ACCESSION_BCP - ACC_Accession bcp file  ( HG ID assoc to cluster)
-#	    6. CLUSTER_TYPE_KEY - MRK_Cluster._ClusterType_key
-#	    7. CLUSTER_SRC_KEY - MRK_Cluster._ClusterSource_key
-#	    8. RELEASE_NO_TEXT - Text to be prepended tO the HG release number
-#	    9. HOMOLOGY_VERSION - HG release number stored with RELEASE_NO_TEXT
-#		in MRK_Cluster.version
-#	    10. HOM_LDB_KEY - HG logicalDB key for association HG ID with 
-#		MRK_Cluster objects
-#	    11. CLUSTER_MGITYPE_KEY - MGI Type key for MRK_Cluster
-#	    12. MGD_DBUSER - database user loading this data
-#	    13. MGD_DBPASSWORDFILE - pass work file containing pw for MGD_DBUSER
+#       2. Configuration - see homologeneload.config
 #
 # Outputs:
 #        1. MRK_Cluster.bcp
@@ -46,17 +29,28 @@
 #
 #  Assumes:  Nothing
 #
-#  Notes:  None
+#  Notes: With the scrum-bob Misc project TR11886, we added 5 new homology 
+#    loads to this product. This is the original script 
+#    (formerly called homologyload.py) that ran the homologeneload. We 
+#    renamed it and continue to use it to run the homologene load (see LOADER 
+#    in the homologeneload.config) because it has many HomoloGene specific 
+#    attributes.
 #
+#  We then wrote a generic	homologyload.py which all other homology 
+#    loads use (see LOADER in individual load configs)
+#
+# History:
+#
+# sc   01/14/2015
+#       - initial implementation
 ###########################################################################
-import sys
 import os
-import re
 import string
 import mgi_utils
-import loadlib
 import symbolsort
 import time
+
+###--- sybase/postgres flipping ---###
 
 try:
     if os.environ['DB_TYPE'] == 'postgres':
@@ -69,6 +63,8 @@ try:
 
 except:
     import db
+
+###--- globals ---###
 
 TAB = '\t'
 CRT = '\n'
@@ -115,51 +111,64 @@ cdate = mgi_utils.date("%m/%d/%Y")
 ldbKey = os.environ['HOM_LDB_KEY']
 mgiTypeKey =  os.environ['CLUSTER_MGITYPE_KEY']
 
-# create file descriptors for input/output files
-try:
-    fpInFile = open(inFile, 'r')
-except:
-    exit(1, 'Could not open file %s\n' % inFile)
+def init():
+    # Purpose: Initialization of  database connection and file descriptors,
+    #       and next available database keys
+    # Returns: 1 if file descriptors cannot be initialized
+    # Assumes: Nothing
+    # Effects: opens a database connection
+    # Throws: Nothing
 
-try:
-    fpClusterBCP = open(clusterBCP, 'w')
-except:
-    exit(1, 'Could not open file %s\n' % clusterBCP)
+    global fpInFile, fpClusterBCP, fpMemberBCP, fpAccessionBCP 
+    global nextClusterKey, nextMemberKey, nextAccessionKey
 
-try:
-    fpMemberBCP = open(memberBCP, 'w')
-except:
-    exit(1, 'Could not open file %s\n' % memberBCP)
+    # create file descriptors for input/output files
+    try:
+	fpInFile = open(inFile, 'r')
+    except:
+	exit(1, 'Could not open file %s\n' % inFile)
 
-try:
-    fpAccessionBCP = open(accessionBCP, 'w')
-except:
-    exit(1, 'Could not open file %s\n' % accessionBCP)
+    try:
+	fpClusterBCP = open(clusterBCP, 'w')
+    except:
+	exit(1, 'Could not open file %s\n' % clusterBCP)
 
-# get next ACC_Accession, MRK_Cluster and MRK_ClusterMember key
-user = os.environ['MGD_DBUSER']
-passwordFileName = os.environ['MGD_DBPASSWORDFILE']
-db.useOneConnection(1)
-db.set_sqlUser(user)
-db.set_sqlPasswordFromFile(passwordFileName)
+    try:
+	fpMemberBCP = open(memberBCP, 'w')
+    except:
+	exit(1, 'Could not open file %s\n' % memberBCP)
 
-results = db.sql('''select max(_Cluster_key) + 1 as nextKey
-        from MRK_Cluster''', 'auto')
-if results[0]['nextKey'] is None:
-    nextClusterKey = 1000
-else:
-    nextClusterKey = results[0]['nextKey']
+    try:
+	fpAccessionBCP = open(accessionBCP, 'w')
+    except:
+	exit(1, 'Could not open file %s\n' % accessionBCP)
 
-results = db.sql('''select max(_ClusterMember_key) + 1 as nextKey
-        from MRK_ClusterMember''', 'auto')
-if results[0]['nextKey'] is None:
-    nextMemberKey = 1000
-else:
-    nextMemberKey = results[0]['nextKey']
+    # get next ACC_Accession, MRK_Cluster and MRK_ClusterMember key
+    user = os.environ['MGD_DBUSER']
+    passwordFileName = os.environ['MGD_DBPASSWORDFILE']
+    db.useOneConnection(1)
+    db.set_sqlUser(user)
+    db.set_sqlPasswordFromFile(passwordFileName)
 
-results = db.sql('''select max(_Accession_key) + 1 as nextKey
-        from ACC_Accession''', 'auto')
-nextAccessionKey = results[0]['nextKey']
+    results = db.sql('''select max(_Cluster_key) + 1 as nextKey
+	    from MRK_Cluster''', 'auto')
+    if results[0]['nextKey'] is None:
+	nextClusterKey = 1000
+    else:
+	nextClusterKey = results[0]['nextKey']
+
+    results = db.sql('''select max(_ClusterMember_key) + 1 as nextKey
+	    from MRK_ClusterMember''', 'auto')
+    if results[0]['nextKey'] is None:
+	nextMemberKey = 1000
+    else:
+	nextMemberKey = results[0]['nextKey']
+
+    results = db.sql('''select max(_Accession_key) + 1 as nextKey
+	    from ACC_Accession''', 'auto')
+    nextAccessionKey = results[0]['nextKey']
+
+    return
 
 def deleteHomologies():
     # Purpose: delete accession, cluster and member records
@@ -197,7 +206,16 @@ def deleteHomologies():
         from #todelete2 d, MRK_Cluster m
         where d._Cluster_key = m._Cluster_key''', None)
 
+    return
+
 def byOrganismAndSymbol (a, b):
+    # Purpose: function to pass to python list sort to sort 
+    # cluster members so they get the proper sequence number
+    # Returns: 1 if file descriptors cannot be initialized
+    # Assumes: a and b have at least two elements
+    # Effects: Nothing
+    # Throws: Nothing
+
      global x
 
      [aOrg, aSym] = a[:2]
@@ -233,53 +251,71 @@ def byOrganismAndSymbol (a, b):
 
      return cmp(aOrg, bOrg)
 
-#############
-# Main      #
-#############
+def process():
+    # Purpose: Create bcp files from the load ready HomoloGene file  created
+    #   by the preprocessor
+    # Returns: 0
+    # Assumes: All lookup structures have been initialized
+    # Effects: Writes to the file system
+    # Throws: Nothing
+
+    global hgIdToMemberDict, nextClusterKey, nextAccessionKey, nextMemberKey
+
+    # load input file into memory organizing by HG ID
+    for line in fpInFile.readlines():
+	tokens = string.split(line[:-1], TAB)
+	hgId = tokens[2]
+	if not hgIdToMemberDict.has_key(hgId):
+	    hgIdToMemberDict[hgId] = []
+	hgIdToMemberDict[hgId].append(tokens)
+
+    print "Creating BCP files"
+    for hgId in hgIdToMemberDict.keys():
+	# lineList is list of lists [ [line1], [line2], ... ]
+	lineList = hgIdToMemberDict[hgId]
+	#    
+	# create MRK_Cluster
+	#
+	fpClusterBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextClusterKey, TAB, clusterTypeKey, TAB, clusterSource, TAB, hgId, TAB, clusterVersion, TAB, clusterDate, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
+
+	#
+	# create ACC_Accession
+	#
+	fpAccessionBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextAccessionKey, TAB, hgId, TAB, TAB, hgId, TAB, ldbKey, TAB, nextClusterKey, TAB, mgiTypeKey, TAB, 0, TAB, 1, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT) )
+	nextAccessionKey += 1
+
+	#
+	# create MRK_ClusterMember
+	#
+
+	# sort the list by organism and symbol
+	lineList.sort(byOrganismAndSymbol)
+	sequenceNum = 0
+	for line in lineList:
+	    sequenceNum += 1
+	    markerKey = line[4]
+	    fpMemberBCP.write('%s%s%s%s%s%s%s%s' % \
+		(nextMemberKey, TAB, nextClusterKey, TAB, markerKey, TAB, sequenceNum, CRT))
+	    nextMemberKey += 1
+
+	# now increment the cluster key
+	nextClusterKey += 1
+
+    return
+
+def closeFiles():
+
+    fpInFile.close()
+    fpClusterBCP.close()
+    fpMemberBCP.close()
+    fpAccessionBCP.close()
+    db.useOneConnection(0)
+
+    return
+
+###--- main program ---###
+
+init()
 deleteHomologies()
+process()
 
-# load input file into memory organizing by HG ID
-for line in fpInFile.readlines():
-    tokens = string.split(line[:-1], TAB)
-    hgId = tokens[2]
-    if not hgIdToMemberDict.has_key(hgId):
-	hgIdToMemberDict[hgId] = []   
-    hgIdToMemberDict[hgId].append(tokens)
-
-fpInFile.close()
-
-print "Creating BCP files"
-for hgId in hgIdToMemberDict.keys():
-    # lineList is list of lists [ [line1], [line2], ... ]
-    lineList = hgIdToMemberDict[hgId]
-    #    
-    # create MRK_Cluster
-    #
-    fpClusterBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextClusterKey, TAB, clusterTypeKey, TAB, clusterSource, TAB, hgId, TAB, clusterVersion, TAB, clusterDate, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
-
-    #
-    # create ACC_Accession
-    #
-    fpAccessionBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextAccessionKey, TAB, hgId, TAB, TAB, hgId, TAB, ldbKey, TAB, nextClusterKey, TAB, mgiTypeKey, TAB, 0, TAB, 1, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT) )
-    nextAccessionKey += 1
-
-    #
-    # create MRK_ClusterMember
-    #
-
-    # sort the list by organism and symbol
-    lineList.sort(byOrganismAndSymbol)
-    sequenceNum = 0
-    for line in lineList:
-	sequenceNum += 1
-	markerKey = line[4]
-	fpMemberBCP.write('%s%s%s%s%s%s%s%s' % (nextMemberKey, TAB, nextClusterKey, TAB, markerKey, TAB, sequenceNum, CRT))
-	nextMemberKey += 1
-
-    # now increment the cluster key
-    nextClusterKey += 1
-
-db.useOneConnection(0)
-fpClusterBCP.close()
-fpMemberBCP.close()
-fpAccessionBCP.close()

@@ -24,13 +24,24 @@
 #
 #  Notes:  None
 #
+# sc   01/14/2015
+#       - initial implementation
 ###########################################################################
 
 import string
 import Set
 
-#def cluster(inputFile, idPrefix):
+###--- functions ---###
+
 def cluster(toClusterList, idPrefix):
+    # Purpose: finds clusters of related elements in toClusterList, 
+    # a list of two-element lists
+    # Returns: A dictionary mapping an auto-generated ID (using idPrefix)
+    # to a cluster (tuple) of IDs
+    # Assumes: toClusterList is a list of two-element lists
+    # Effects: Nothing
+    # Throws: Nothing
+
     #fpCF = open(inputFile, 'r')
     
     # read file into two data structures representing column 1 and column 2

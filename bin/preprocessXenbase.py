@@ -26,11 +26,6 @@
 #           2. Xenbase GenePage ID
 #
 #	5. Configuration - see zfinload.config
-#	  . INPUT_FILE_* - path to file in load input file directory
-#         . INPUT_FILE_LOAD - path to load-ready file
-#         . QC_RPT - path to QC report
-#         . MGD_DBUSER - database user
-#	  . MGD_DBPASSWORDFILE - database password
 #
 # Outputs:
 #	 1. load ready file
@@ -45,16 +40,17 @@
 #
 #  Notes:  None
 #
+# sc   01/14/2015
+#       - initial implementation
 ###########################################################################
 
-import sys
 import os
 import string
 import Set
-
 import mgi_utils
-import loadlib
 import clusterize
+
+###--- sybase/postgres flipping ---###
 
 try:
     if os.environ['DB_TYPE'] == 'postgres':
@@ -68,11 +64,7 @@ try:
 except:
     import db
 
-####################################
-#
-# Globals
-#
-####################################
+###--- globals ---###
 
 # constants
 TAB= '\t'
@@ -148,7 +140,17 @@ fpExprFile = ''
 fpLoadFile = ''
 fpQcRpt = ''
 
+###--- functions ---###
+
 def init():
+    # Purpose: Initialization of  database connection and file descriptors,
+    #       create database lookup dictionaries; create dictionary from
+    #       input file
+    # Returns: 1 if file descriptors cannot be initialized
+    # Assumes: Nothing
+    # Effects: opens a database connection
+    # Throws: Nothing
+
     global egToXenMarkerDict, egToMouseMarkerDict
     global fpEgFile, fpTransFile, fpOrthoFile, fpExprFile
     global fpLoadFile, fpQcRpt, mouseEgMultiGeneIdSet
@@ -228,6 +230,12 @@ def init():
     return
 
 def processInputFiles():
+    # Purpose: create data structures from the input files
+    # Returns: 0
+    # Assumes: Nothing
+    # Effects: None
+    # Throws: Nothing
+
     global exprSet, egDict, mouseDict, transDict
     global xenEgToGeneIdDict
 
@@ -303,6 +311,13 @@ def processInputFiles():
 	    print 'gpId: %s mouseEgId: %s' % (key, mouseDict[key])
 
 def process():
+    # Purpose: Create load ready file and  QC reports from Xenbase files 
+    #	and the database
+    # Returns: 0
+    # Assumes: All lookup structures have been initialized
+    # Effects: Writes to the file system
+    # Throws: Nothing
+
     global noTransSet, noXenEgSet, noOrthSet, mouseNotInDbSet, xenNotInDbSet
     global rptOne, rptTwo, rptThree, rptFour, rptFive, rptSix
     # database lookups
@@ -412,6 +427,12 @@ def process():
     return
 
 def writeReports():
+    # Purpose: writes out all sections of the QC report
+    # Returns: 0
+    # Assumes: rptOne - rptSix has been initialized
+    # Effects: Writes to the file system
+    # Throws: Nothing
+
     fpQcRpt.write(rptOne)
     fpQcRpt.write(rptTwo)
     fpQcRpt.write(rptThree)
@@ -422,6 +443,12 @@ def writeReports():
     return
 
 def closeFiles():
+    # Purpose: closes file descriptors and database connection
+    # Returns: 0
+    # Assumes: file descriptors have been initialized
+    # Effects:  None
+    # Throws: Nothing
+
     fpEgFile.close()
     fpOrthoFile.close()
     fpExprFile.close()
@@ -433,11 +460,8 @@ def closeFiles():
     
     return
 
-##########################
-#
-# Main
-#
-##########################
+###--- main program ---###
+
 print '%s' % mgi_utils.date()
 
 print 'initializing'

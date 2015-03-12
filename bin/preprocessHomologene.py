@@ -17,12 +17,6 @@
 #           6. Protein sequence ID - RefSeq
 #
 #	2. Configuration - see homologyload.config
-#	  1. LOADED_TAXIDS - list of organisms we are loadin
-#         2. INPUT_FILE - path to input file
-#         3. INPUT_FILE_LOAD - path to cleaned up load-ready file
-#         4. QC_RPT - path to QC report
-#         5. MGD_DBUSER - database user
-#	  6. MGD_DBPASSWORDFILE - database password
 #
 # Outputs:
 #	 1. load ready file
@@ -37,14 +31,17 @@
 #
 #  Notes:  None
 #
+# History:
+#
+# sc   01/14/2015
+#       - initial implementation
 ###########################################################################
 
-import sys
 import os
 import string
-
 import mgi_utils
-import loadlib
+
+###--- sybase/postgres flipping ---###
 
 try:
     if os.environ['DB_TYPE'] == 'postgres':
@@ -58,28 +55,18 @@ try:
 except:
     import db
 
-print '%s' % mgi_utils.date()
-
-
-####################################
-#
-# Globals
-#
-####################################
+###--- globals ---###
 
 # constants
 TAB= '\t'
 CRT = '\n'
 
-#
 # get the tax IDs we are loading homologies for
-#
 ids = os.environ['LOADED_TAXIDS']
 taxIds = ids.split(',')
 taxIdList = []
 for id in taxIds:	# remove any spaces
     taxIdList.append(id.strip())
-
 
 # EG ID/Marker associations from the database
 # {egID:[list of Marker instances], ...}
@@ -120,203 +107,239 @@ rptThree = '\n\nEG IDs in the input file associated with >1 marker in MGI\n\n%s%
 
 rptFour = '\n\nMarkers associated with input EG ID and also associated with other EG IDs in MGI\n\n%s%s' % (head3, sep)
 
-#
 # file descriptors
-#
 
 fpInFile = ''
 fpOutFile = ''
 fpQcRpt = ''
 
-#
-# class to hold information about an MGI marker
-#
+###--- classes ---###
+
 class Marker:
+    # Is: a single marker from the database
+    # Has: a marker key, symbol and organism and an EntrezGene ID
+    # Does: provides direct access to its attributes, provides a toString method
+    #
+
     def __init__(self, markerKey, egId, symbol, organism):
 	self.k = markerKey
-	self.e = egId
 	self.s = symbol
 	self.o = organism
+	self.e = egId
 
-####################################
-#
-# create database connection
-#
-####################################
+###--- functions ---###
 
-user = os.environ['MGD_DBUSER']
-passwordFileName = os.environ['MGD_DBPASSWORDFILE']
-db.useOneConnection(1)
-db.set_sqlUser(user)
-db.set_sqlPasswordFromFile(passwordFileName)
+def init():
+    # Purpose: Initialization of  database connection and file descriptors,
+    #       create database lookup dictionaries; create dictionary from
+    #       input file
+    # Returns: 1 if file descriptors cannot be initialized
+    # Assumes: Nothing
+    # Effects: opens a database connection
+    # Throws: Nothing
 
-####################################
-#
-# Initialize file descriptors
-#
-####################################
+    global fpInFile, fpOutFile, fpQcRpt
+    global mrkToMultiEGDict, egToMarkerDict
 
-try:
-    fpInFile = open(inFilePath, 'r')
-except:
-    exit('Could not open file for reading %s\n' % inFilePath)
+    user = os.environ['MGD_DBUSER']
+    passwordFileName = os.environ['MGD_DBPASSWORDFILE']
+    db.useOneConnection(1)
+    db.set_sqlUser(user)
+    db.set_sqlPasswordFromFile(passwordFileName)
 
-try:
-    fpOutFile = open(outFilePath, 'w')
-except:
-    exit('Could not open file for writing %s\n' % outFilePath)
+    try:
+	fpInFile = open(inFilePath, 'r')
+    except:
+	exit('Could not open file for reading %s\n' % inFilePath)
 
-try:
-    fpQcRpt = open(qcRptPath, 'w')
-except:
-    exit('Could not open file for writing %s\n' % qcRptPath)
+    try:
+	fpOutFile = open(outFilePath, 'w')
+    except:
+	exit('Could not open file for writing %s\n' % outFilePath)
+
+    try:
+	fpQcRpt = open(qcRptPath, 'w')
+    except:
+	exit('Could not open file for writing %s\n' % qcRptPath)
 
 
-####################################
-#
-# Load all Lookup dictionaries
-#
-####################################
+    #
+    # create lookup from the database of all markers that map to multiple
+    # EG IDs
+    #
 
-#
-# create mrkToMultiEGDict
-#
+    # get all markers that are associated with egIds, all organisms
+    db.sql('''select distinct a.accid as egId, m._Marker_key, m.symbol, 
+		o.commonName
+	    into #eg
+	    from ACC_Accession a, MRK_Marker m, MGI_Organism o
+	    where a._MGIType_key = 2
+	    and a._LogicalDB_key = 55
+	    and a.preferred = 1
+	    and a._Object_key = m._Marker_key
+	    and m._Marker_Status_key in (1,3)
+	    and m._Organism_key = o._Organism_key''', None)
 
-# get all markers that are associated with egIds, all organisms
-db.sql('''select distinct a.accid as egId, m._Marker_key, m.symbol, o.commonName
-	into #eg
-	from ACC_Accession a, MRK_Marker m, MGI_Organism o
-	where a._MGIType_key = 2
-	and a._LogicalDB_key = 55
-	and a.preferred = 1
-	and a._Object_key = m._Marker_key
-	and m._Marker_Status_key in (1,3)
-	and m._Organism_key = o._Organism_key''', None)
+    results = db.sql('''select * from #eg
+	    group by _Marker_key having count(*) > 1''', 'auto')
 
-results = db.sql('''select * from #eg
-	group by _Marker_key having count(*) > 1''', 'auto')
+    for r in results:
+	egId = r['egId']
+	markerKey = r['_Marker_key']
+	symbol = r['symbol']
+	organism = r['commonName']
+	if not mrkToMultiEGDict.has_key(markerKey):
+	    mrkToMultiEGDict[markerKey] = []
+	mrkToMultiEGDict[markerKey].append( Marker(markerKey, egId, symbol, organism) )
 
-for r in results:
-    egId = r['egId']
-    markerKey = r['_Marker_key']
-    symbol = r['symbol']
-    organism = r['commonName']
-    if not mrkToMultiEGDict.has_key(markerKey):
-	mrkToMultiEGDict[markerKey] = []
-    mrkToMultiEGDict[markerKey].append( Marker(markerKey, egId, symbol, organism) )
+    #
+    # create lookup from the database mapping EG IDs to Marker instances
+    #
 
-#
-# create egToMarkerDict
-#
+    results = db.sql('''select * from #eg''', 'auto')
 
-results = db.sql('''select * from #eg''', 'auto')
+    for r in results:
+	egId = r['egId']
+	markerKey = r['_Marker_key']
+	symbol = r['symbol']
+	organism = r['commonName']
+	if not egToMarkerDict.has_key(egId):
+	    egToMarkerDict[egId] = []
+	egToMarkerDict[egId].append( Marker(markerKey, egId, symbol, organism) )
 
-for r in results:
-    egId = r['egId']
-    markerKey = r['_Marker_key']
-    symbol = r['symbol']
-    organism = r['commonName']
-    if not egToMarkerDict.has_key(egId):
-	egToMarkerDict[egId] = []
-    egToMarkerDict[egId].append( Marker(markerKey, egId, symbol, organism) )
+    #
+    # create lookup from the input file mapping EG ID to the line in the file
+    for line in fpInFile.readlines():
 
-for line in fpInFile.readlines():
+	(hgId, taxId, egId, junk1, junk2, junk3) = string.split(line[:-1], TAB)
 
-    (hgId, taxId, egId, junk1, junk2, junk3) = string.split(line[:-1], TAB)
+	hgId = string.strip(hgId)
+	taxId = string.strip(taxId)
+	egId = string.strip(egId)
+	if taxId not in taxIdList:
+	    continue
+	if not egIdToLineDict.has_key(egId):
+	    egIdToLineDict[egId] = []
+	egIdToLineDict[egId].append(line)
 
-    hgId = string.strip(hgId)
-    taxId = string.strip(taxId)
-    egId = string.strip(egId)
-    if taxId not in taxIdList:
-        continue
-    if not egIdToLineDict.has_key(egId):
-        egIdToLineDict[egId] = []
-    egIdToLineDict[egId].append(line)
+    return
 
-#
-# Process
-#
-
-for egId in egIdToLineDict.keys():
-    lineList = egIdToLineDict[egId]
+def process():
+    # Purpose: Create load ready file from HomoloGene file and the database
+    # Returns: 0
+    # Assumes: All lookup structures have been initialized
+    # Effects: Writes to the file system
+    # Throws: Nothing
     
-    #
-    # if EG IDs found in > 1 class in the input file - report and skip 
-    # 
-    if len(lineList) > 1:
-	rptOne = rptOne + 'egID: %s\n' % (egId)
-	for line in lineList:
-	    rptOne = rptOne + '    %s\n' % \
-		(string.strip(string.join(line, ',')).split('\t'))
-	continue
+    global rptOne, rptTwo, rptThree, rptFour
 
-    # we have only one class, format  the line
-    line = (string.strip(string.join(lineList, ',')).split('\t'))
-
-    #
-    # EG ID not in MGI, therefore will not participate in a class
-    # Report. All other members of class will be loaded
-    # 
-    if not egToMarkerDict.has_key(egId):
-	rptTwo = rptTwo + '%s%s%s%s%s%s' % \
-	    (line[0], TAB, line[1], TAB, egId, CRT)
-
-    else: # EG ID in MGI and not found in > 1 class in the input
-	markerList = egToMarkerDict[egId]
+    # iterate through the input file dictionary
+    for egId in egIdToLineDict.keys():
+	lineList = egIdToLineDict[egId]
+	
 	#
-	# EG ID in the input associated with > 1 marker in MGI - report and skip
+	# if EG IDs found in > 1 class in the input file - report and skip 
+	# 
+	if len(lineList) > 1:
+	    rptOne = rptOne + 'egID: %s\n' % (egId)
+	    for line in lineList:
+		rptOne = rptOne + '    %s\n' % \
+		    (string.strip(string.join(line, ',')).split('\t'))
+	    continue
+
+	# we have only one class, format  the line
+	line = (string.strip(string.join(lineList, ',')).split('\t'))
+
 	#
-	if len(markerList) > 1:	# egId associated with > 1 marker in MGI
-	    symbols = ''
-	    for m in markerList:
-		symbols = symbols + '%s|%s ' % (m.s, m.o)
-	    rptThree = rptThree + '%s%s%s%s%s%s%s%s' % \
-		(line[0], TAB, line[1], TAB, egId, TAB, symbols, CRT)
-	else: # there is only one marker in the db for this egId
-	    m = egToMarkerDict[egId][0]
+	# EG ID not in MGI, therefore will not participate in a class
+	# Report. All other members of class will be loaded
+	# 
+	if not egToMarkerDict.has_key(egId):
+	    rptTwo = rptTwo + '%s%s%s%s%s%s' % \
+		(line[0], TAB, line[1], TAB, egId, CRT)
+
+	else: # EG ID in MGI and not found in > 1 class in the input
+	    markerList = egToMarkerDict[egId]
 	    #
-	    # Markers associated with input EG ID and also associated with 
-	    # other EG IDs in MGI - report and skip
+	    # EG ID in the input associated with > 1 marker in MGI - report 
+	    # and skip
 	    #
-	    if mrkToMultiEGDict.has_key(m.k):
-		mDbList = mrkToMultiEGDict[m.k]
-		otherEgIds = ''
-		for mDb in mDbList:
-                        otherEgIds = otherEgIds +  '%s ' % mDb.e
-		rptFour = rptFour + '%s%s%s%s%s%s%s%s' % \
-		    (line[0], TAB, line[1], TAB, egId, TAB, otherEgIds, CRT)
-	    # All QC checks passed - write out to the load-ready file
-	    else:
-		hgId = line[0]
-		taxId = line[1]
-		symbol =  m.s
-		markerKey = m.k
-		organism = m.o
-		fpOutFile.write('%s%s%s%s%s%s%s%s%s%s%s%s' % \
-		    ( organism, TAB, symbol, TAB, hgId, TAB, egId, TAB, markerKey, TAB, taxId, CRT))
-   
-#####################################
-# 
-# postprocess
-#
-#####################################
+	    if len(markerList) > 1:	# egId associated with > 1 marker in MGI
+		symbols = ''
+		for m in markerList:
+		    symbols = symbols + '%s|%s ' % (m.s, m.o)
+		rptThree = rptThree + '%s%s%s%s%s%s%s%s' % \
+		    (line[0], TAB, line[1], TAB, egId, TAB, symbols, CRT)
+	    else: # there is only one marker in the db for this egId
+		m = egToMarkerDict[egId][0]
+		#
+		# Markers associated with input EG ID and also associated with 
+		# other EG IDs in MGI - report and skip
+		#
+		if mrkToMultiEGDict.has_key(m.k):
+		    mDbList = mrkToMultiEGDict[m.k]
+		    otherEgIds = ''
+		    for mDb in mDbList:
+			    otherEgIds = otherEgIds +  '%s ' % mDb.e
+		    rptFour = rptFour + '%s%s%s%s%s%s%s%s' % \
+			(line[0], TAB, line[1], TAB, egId, TAB, otherEgIds, CRT)
+		# All QC checks passed - write out to the load-ready file
+		else:
+		    hgId = line[0]
+		    taxId = line[1]
+		    symbol =  m.s
+		    markerKey = m.k
+		    organism = m.o
+		    fpOutFile.write('%s%s%s%s%s%s%s%s%s%s%s%s' % \
+			( organism, TAB, symbol, TAB, hgId, TAB, egId, TAB, \
+				markerKey, TAB, taxId, CRT))
+    return
 
-#
-# write out all QC reports
-#
-fpQcRpt.write(rptOne)
-fpQcRpt.write(rptTwo)
-fpQcRpt.write(rptThree)
-fpQcRpt.write(rptFour)
+def writeReports():       
+    # Purpose: writes out all sections of the QC report
+    # Returns: 0
+    # Assumes: rptOne has been initialized
+    # Effects: Writes to the file system
+    # Throws: Nothing
 
-#
-# close all file descriptors
-#
-fpInFile.close()
-fpOutFile.close()
-fpQcRpt.close()
+    fpQcRpt.write(rptOne)
+    fpQcRpt.write(rptTwo)
+    fpQcRpt.write(rptThree)
+    fpQcRpt.write(rptFour)
 
-# close the database connection
-db.useOneConnection(0)
+    return
+
+def closeFiles():
+    # Purpose: closes file descriptors and database connection
+    # Returns: 0
+    # Assumes: file descriptors have been initialized
+    # Effects:  None
+    # Throws: Nothing
+
+    fpInFile.close()
+    fpOutFile.close()
+    fpQcRpt.close()
+
+    # close the database connection
+    db.useOneConnection(0)
+
+    return
+
+###--- main program ---###
 
 print '%s' % mgi_utils.date()
+
+print 'initializing'
+init()
+
+print 'processing clusters'
+process()
+
+print 'writing reports'
+writeReports()
+
+print 'closing files'
+closeFiles()
+
+print '%s' % mgi_utils.date()
+

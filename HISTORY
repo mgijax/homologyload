@@ -1,3 +1,11 @@
+TAG: homologyload-tr11886-24
+DATE:03/12/2015
+STAFF: sc
+CHANGES:US101 finalize
+1) exit 0 at end of Install script
+2) removed these scripts: preprocessHomologene.sh preprocessHGNC.sh preprocessHybrid.sh
+3) made preprocess scripts consistent; all python script comments consistent
+
 TAG: homologyload-tr11886-23
 DATE:03/10/2015
 STAFF: sc

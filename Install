@@ -3,11 +3,6 @@
 #
 # Installation script
 #
-# 1) cp homologeneload.config.default homologeneload.config
-# 2) Install 
-# 3) cp hgncload.config.default hgncload.config
-# 4) Install
-#
 
 Usage=Install
 
@@ -73,3 +68,4 @@ then
 fi
 done
 
+exit 0
