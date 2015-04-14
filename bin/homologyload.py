@@ -256,7 +256,7 @@ def createBCPFiles():
 	tokens = string.split(line[:-1], TAB)
 	id = tokens[0]
 	members = tokens[1]
-	memberList = string.split(members, ',')
+	memberList = map(string.strip, string.split(members, ','))
 	properties = ''
 	if len(tokens) == 3:
 	    properties = tokens[2]
