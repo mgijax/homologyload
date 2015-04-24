@@ -1,0 +1,98 @@
+#format: sh
+#
+#  geishaload.config.default
+#
+#  This file sets up the common environment variables that are needed by
+#  the GEISHA homology load (Gallus Expression in Situ Hybridization Analysis)
+#
+###########################################################################
+
+# Full path to the logs, reports, and archive directories 
+FILEDIR=${DATALOADSOUTPUT}/homology/geishaload
+
+# Full path to the input, output, logs, reports and archive directories.
+#
+INPUTDIR=${FILEDIR}/input
+LOGDIR=${FILEDIR}/logs
+RPTDIR=${FILEDIR}/reports
+OUTPUTDIR=${FILEDIR}/output
+ARCHIVEDIR=${FILEDIR}/archive
+
+export INPUTDIR FILEDIR LOGDIR RPTDIR OUTPUTDIR ARCHIVEDIR
+
+# Full path name of the geisha file we copy to INPUTDIR
+INPUT_FILE_ORTHO_DEFAULT="${DATADOWNLOADS}/geisha.arizona.edu/geisha/orthology.txt"
+INPUT_FILE_DEFAULT="${DATADOWNLOADS}/geisha.arizona.edu/geisha/expression.txt"
+
+export INPUT_FILE_ORTHO_DEFAULT INPUT_FILE_DEFAULT
+
+# Full path name of the file we copy from INPUT_FILE_DEFAULT for use by the load
+INPUT_FILE_ORTHO="${INPUTDIR}/orthology.txt"
+INPUT_FILE="${INPUTDIR}/expression.txt"
+
+export INPUT_FILE_ORTHO INPUT_FILE
+
+# Full path name of the load-ready file that is created
+# by the preprocessor
+INPUT_FILE_LOAD=${OUTPUTDIR}/geisha_load.txt
+
+export INPUT_FILE_LOAD
+
+#  Full path name of the log files
+LOG_PROC=${LOGDIR}/geishaload.proc.log
+LOG_DIAG=${LOGDIR}/geishaload.diag.log
+LOG_CUR=${LOGDIR}/geishaload.cur.log
+LOG_VAL=${LOGDIR}/geishaload.val.log
+
+export LOG_PROC LOG_DIAG LOG_CUR LOG_VAL
+
+# Full path name of the sanity and QC reports
+SANITY_RPT=${RPTDIR}/sanity.rpt
+QC_RPT=${RPTDIR}/qc.rpt
+
+export SANITY_RPT QC_RPT
+
+# Pre-processor to use
+PREPROCESSOR=${HOMOLOGYLOAD}/bin/preprocessGEISHA.sh
+LOADER=${HOMOLOGYLOAD}/bin/homologyload.py
+
+export PREPROCESSOR
+export LOADER
+
+# Number of columns expected for the input file (for sanity check).
+NUM_COLUMNS=1
+
+# minimum  number of lines in the file (for sanity check).
+# this is < full length of the shortest of the two files (expression.txt)
+MIN_LENGTH=4000
+
+# Version number of the GEISHA homology - there isn't one
+HOMOLOGY_VERSION=''
+
+export NUM_COLUMNS MIN_LENGTH HOMOLOGY_VERSION
+
+# Full path name of the BCP files
+CLUSTER_BCP=${OUTPUTDIR}/MRK_Cluster.bcp
+MEMBER_BCP=${OUTPUTDIR}/MRK_ClusterMember.bcp
+
+export CLUSTER_BCP MEMBER_BCP
+
+CLUSTER_SRC_KEY=13575998
+
+export CLUSTER_SRC_KEY 
+
+# homology ldb key  - empty as there are no GEISHA cluster IDs
+HOM_LDB_KEY=''
+
+export HOM_LDB_KEY
+
+# this load's login value for DB table CreatedBy and ModifiedBy
+JOBSTREAM=geisha_homologyload
+
+export JOBSTREAM
+
+#  The name of the load for the subject of an email notification
+# will be set by wrapper based on collection for each load
+MAIL_LOADNAME="GEISHA Homology Load"
+
+export MAIL_LOADNAME

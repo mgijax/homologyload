@@ -1,35 +1,186 @@
-<TITLE>Homology Load</TITLE>
+<TITLE>Homology Loads</TITLE>
 
-<H1>Homology Load</H1>
+<H1>Homology Loads</H1>
 
 See <A HREF="http://mgiwiki/mediawiki/index.php/Homologyload">Homology Load Wiki </A> for input file format, report descriptions, processing algorithms, etc.
 
+<H2>HomoloGene Load</H2>
 <UL>
-<H2>Data</H4>
+<H3>Input</H3>
 <UL>
-<LI><A HREF="/data/loads/homologene/homologyload/output/homologyload_load.txt">Input File</A> 
+<LI><A HREF="/data/loads/scrum-bob/homology/homologeneload/input/homologene.data">Homologene Input File</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/homologeneload/output/homologeneload_load.txt">Load Ready Input File</A> 
 </UL>
 
-<H2>Logs</H4>
+<H3>Logs</H3>
 <UL>
-
-<LI><A HREF="/data/loads/homologene/homologyload/logs/homologyload.proc.log">Process Log</A>
-<LI><A HREF="/data/loads/homologene/homologyload/logs/homologyload.diag.log">Diagnostic Log</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/homologeneload/logs/homologyload.proc.log">Process Log</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/homologeneload/logs/homologyload.diag.log">Diagnostic Log</A>
 
 </UL>
 
-<H2>Reports</H4>
+<H3>Reports</H3>
 <UL>
-
-<LI><A HREF="/data/loads/homologene/homologyload/reports/sanity.rpt">Input File Sanity Report</A>
-<LI><A HREF="/data/loads/homologene/homologyload/reports/qc.rpt">Input File QC Reports</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/homologeneload/reports/sanity.rpt">Input File Sanity Report</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/homologeneload/reports/qc.rpt">Input File QC Reports</A>
 </UL>
 
-<H2>Output Files</H4>
+<H3>Output Files</H3>
 <UL>
-    <LI><A HREF="/data/loads/homologene/homologyload/output/ACC_Accession.bcp">ACC_Accession.bcp</A>
-<LI><A HREF="/data/loads/homologene/homologyload/output/MRK_Cluster.bcp">MRK_Cluster.bcp</A>
-<LI><A HREF="/data/loads/homologene/homologyload/output/MRK_ClusterMember.bcp">MRK_ClusterMember.bcp</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/homologeneload/output/ACC_Accession.bcp">ACC_Accession.bcp</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/homologeneload/output/MRK_Cluster.bcp">MRK_Cluster.bcp</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/homologeneload/output/MRK_ClusterMember.bcp">MRK_ClusterMember.bcp</A>
+</UL>
 </UL>
 
+<H2>HGNC Load</H2>
+<UL>
+<H3>Input</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/hgncload/input/hgnc.tsv">HGNC Input File</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/hgncload/output/hgnc_load.txt">Load Ready Input File</A>
 </UL>
+
+<H3>Logs</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/hgncload/logs/hgncload.proc.log">Process Log</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/hgncload/logs/hgncload.diag.log">Diagnostic Log</A>
+</UL>
+
+<H3>Reports</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/hgncload/reports/sanity.rpt">Input File Sanity Report</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/hgncload/reports/qc.rpt">Input File QC Reports</A>
+</UL>
+
+<H3>Output Files</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/hgncload/output/MRK_Cluster.bcp">MRK_Cluster.bcp</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/hgncload/output/MRK_ClusterMember.bcp">MRK_ClusterMember.bcp</A>
+</UL>
+</UL>
+
+<H2>Hybrid HGNC/HomoloGene Load</H2>
+<UL>
+<H3>Input</H3>
+<UL>
+<LI>Input is HGNC and HomoloGen clusters from the database
+</UL>
+
+<H3>Logs</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/hybridload/logs/hybridload.proc.log">Process Log</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/hybridload/logs/hybridload.diag.log">Diagnostic Log</A>
+</UL>
+
+<H3>Reports</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/hybridload/reports/hybridCluster.rpt">Hybrid Cluster Report ## delimited</A>
+<LI> Columns:
+    <OL>
+    <LI> The connected component ID (arbitrary)
+    <LI> All clusters in the connected component
+    <LI> HGNC clusters in the connected component
+    <LI> HomoloGene clusters in the connected componenet
+    <LI> Secondary Source
+    <LI> Conflict value (dev use only)
+    <LI> Rule # from the Requirements wiki
+    </OL>
+</UL>
+
+<H3>Output Files</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/hybridload/output/MRK_Cluster.bcp">MRK_Cluster.bcp</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/hybridload/output/MRK_ClusterMember.bcp">MRK_ClusterMember.bcp
+</A>
+</UL>
+</UL>
+
+
+<H2>ZFIN Load</H2>
+<UL>
+<H3>Input</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/zfinload/input/xpat.txt">ZFIN Expression Input File</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/zfinload/input/gene.txt">ZFIN Gene Input File</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/zfinload/input/mouse_orthos.txt">ZFIN Mouse Ortholog Input File</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/zfinload/output/zfin_load.txt">Load Ready Input File</A>
+</UL>
+
+<H3>Logs</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/zfinload/logs/zfinload.proc.log">Process Log</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/zfinload/logs/zfinload.diag.log">Diagnostic Log</A>
+</UL>
+
+<H3>Reports</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/zfinload/reports/sanity.rpt">Input File Sanity Report</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/zfinload/reports/qc.rpt">Input File QC Reports</A>
+</UL>
+
+<H3>Output Files</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/zfinload/output/MRK_Cluster.bcp">MRK_Cluster.bcp</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/zfinload/output/MRK_ClusterMember.bcp">MRK_ClusterMember.bcp</A>
+</UL>
+</UL>
+
+<H2>GEISHA Load</H2>
+<UL>
+<H3>Input</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/geishaload/input/expression.txt">GEISHA Expression Input File</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/geishaload/input/orthology.txt">GEISHA Ortholog Input File</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/geishaload/output/geisha_load.txt">Load Ready Input File</A>
+</UL>
+
+<H3>Logs</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/geishaload/logs/geishaload.proc.log">Process Log</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/geishaload/logs/geishaload.diag.log">Diagnostic Log</A>
+</UL>
+
+<H3>Reports</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/geishaload/reports/sanity.rpt">Input File Sanity Report</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/geishaload/reports/qc.rpt">Input File QC Reports</A>
+</UL>
+
+<H3>Output Files</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/geishaload/output/MRK_Cluster.bcp">MRK_Cluster.bcp</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/geishaload/output/MRK_ClusterMember.bcp">MRK_ClusterMember.bcp</A>
+</UL>
+</UL>
+
+<H2>Xenbase Load</H2>
+<UL>
+<H3>Input</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/input/GeneExpression_tropicalis.txt">Xenbase Expression Input File</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/input/XenbaseGeneMouseOrthologMapping.txt">Xenbase Ortholog Input File</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/input/GenePageTropicalisEntrezGeneUnigeneMapping.txt">Xenopus EntrezGene ID Input File</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/input/XenbaseGenepageToGeneIdMapping.txt">Xenbase Gene ID to Gene Page ID Mapping Input File</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/output/xenbase_load.txt">Load Ready Input File</A>
+</UL>
+
+<H3>Logs</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/logs/xenbaseload.proc.log">Process Log</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/logs/xenbaseload.diag.log">Diagnostic Log</A>
+</UL>
+
+<H3>Reports</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/reports/sanity.rpt">Input File Sanity Report</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/reports/qc.rpt">Input File QC Reports</A>
+</UL>
+
+<H3>Output Files</H3>
+<UL>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/output/MRK_Cluster.bcp">MRK_Cluster.bcp</A>
+<LI><A HREF="/data/loads/scrum-bob/homology/xenbaseload/output/MRK_ClusterMember.bcp">MRK_ClusterMember.bcp</A>
+</UL>
+</UL>
+

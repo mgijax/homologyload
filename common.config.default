@@ -1,0 +1,43 @@
+#format: sh
+#
+#  Configuration for HomoloGene homologyload
+#
+#  This file sets up the common environment variables that are needed by
+#  all homology loads
+#
+###########################################################################
+
+#
+#  If the MGICONFIG environment variable does not have a local override,
+#  use the default "live" settings.
+#
+if [ "${MGICONFIG}" = "" ]
+then
+    MGICONFIG=/usr/local/mgi/live/mgiconfig
+    export MGICONFIG
+fi
+
+CONFIG_MASTER=${MGICONFIG}/master.config.sh
+
+export CONFIG_MASTER
+
+. ${CONFIG_MASTER}
+
+CLUSTER_TYPE_KEY=9272150
+
+export CLUSTER_TYPE_KEY
+
+# MRK_Cluster MGI Type key
+CLUSTER_MGITYPE_KEY=39
+
+export CLUSTER_MGITYPE_KEY
+
+#  Recipient list for mailing the curation log file (comma-separated)
+#MAIL_LOG_CUR="mgiadmin"
+
+#export MAIL_LOG_CUR
+
+#  INSTALLDIR expected by dlautils/DLAInstall
+INSTALLDIR=${HOMOLOGYLOAD}
+
+export INSTALLDIR

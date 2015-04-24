@@ -3,11 +3,10 @@
 #
 # Installation script
 #
-# 1) cp homologyload.config.default homologyload.config
-# 2) Install 
-#
 
 Usage=Install
+
+cd `dirname $0`
 
 #
 #  Function called when the install fails.
@@ -30,39 +29,43 @@ fi
 #
 # Make sure config files exist
 #
-cd `dirname $0`
 
-# establish the config files
-MAIN_CONFIG=homologyload.config
+#
+# Common
+#
 
-# Make sure config file exists and source it
-if [ -r ${MAIN_CONFIG} ]
+COMMON_CONFIG=common.config
+
+if [ ! -r ${COMMON_CONFIG} ]
 then
-    echo "Source ${MAIN_CONFIG}"
-    . ${MAIN_CONFIG}
-else
-    echo "Cannot source configuration file: ${MAIN_CONFIG}"
+    echo "Missing configuration file: ${COMMON_CONFIG}"
     installFailed
 fi
 
-# Check to see if this is a development installation
 #
-DEV=""
-if [ "${INSTALL_TYPE}" = "dev" ]
-then
-    DEV="-d"
-fi
+# Source the common configuration file.
+#
+. ${COMMON_CONFIG}
 
 #
 # run DLAInstall for each configuration file
 #
-echo 'running DLAINSTALL'
-${DLAINSTALL} ${DEV}
-
-#
-# Create the input directory.
-#
-if [ ! -d ${INPUTDIR} ]
+echo "HOMOLOGYLOAD: ${HOMOLOGYLOAD}"
+for c in ${HOMOLOGYLOAD}/[a-z]*config 
+do
+if [ "${c}" != "${HOMOLOGYLOAD}/common.config" ]
 then
-    mkdir -p ${INPUTDIR}
+    echo 'running DLAINSTALL:' ${c}
+    . ${c}
+    ${DLAINSTALL} ${DEV}
+    #
+    # Create the input directory if it doesn't exist.
+    #
+    if [ ! -d ${INPUTDIR} ]
+    then
+	mkdir -p ${INPUTDIR}
+    fi
 fi
+done
+
+exit 0

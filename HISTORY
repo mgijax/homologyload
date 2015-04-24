@@ -1,14 +1,224 @@
+TAG: homologyload-5-2-2-1
+DATE: 04/24/2015
+STAFF: sc
+CHANGES: TR11886 - merge to trunk
+
+TAG: homologyload-tr11886-26
+DATE:04/14/2015
+STAFF: sc
+CHANGES: US107 - test homologyload against postgres/new linux
+* added postgres versions of four scripts
+
+TAG: homologyload-tr11886-25
+DATE:04/14/2015
+STAFF: sc
+CHANGES:
+1) homologyload.py - sybase/pg testing revealed leading space in MRK_ClusterMember.bcp
+   when > 1 member. No effect in db, however DID affect the file diffs
+
+TAG: homologyload-tr11886-24
+DATE:03/12/2015
+STAFF: sc
+CHANGES:US101 finalize
+1) exit 0 at end of Install script
+2) removed these scripts: preprocessHomologene.sh preprocessHGNC.sh preprocessHybrid.sh
+3) made preprocess scripts consistent; all python script comments consistent
+
+TAG: homologyload-tr11886-23
+DATE:03/10/2015
+STAFF: sc
+CHANGES: Replace all echo '\n' with echo "" for linux in all *.sh
+
+TAG: homologyload-tr11886-22
+DATE:03/09/2015
+STAFF: sc
+CHANGES: TR11888 - 
+1) US126 - change secondary source hgnc and hg text to hg and hgnc 
+    (reverse order)
+2) US101 - add postgres/sybase flipping code to all python scripts - tested for sybase only, US101 pulled from sprint 4 because of dependencies.
+
+TAG: homologyload-tr11886-21
+DATE:03/04/2015
+STAFF: sc
+CHANGES: TR11888 - Added:
+1) preprocessXenbase.py
+2) preprocessXenbase.sh
+3) xenbaseload.config
+
+TAG: homologyload-tr11886-20
+DATE:03/04/2015
+STAFF: sc
+CHANGES: code cleanup - debug removal - convert all NCBI references to EG
+	for consistency
+
+TAG: homologyload-tr11886-19
+DATE:02/27/2015
+STAFF: sc
+CHANGES: HGNC/HG hybrid homology
+1) preprocessHybrid.py - change property values
+2) write temp report for Sue
+
+TAG: homologyload-tr11886-18
+DATE:02/17/2015
+STAFF: sc
+CHANGES: HGNC/HG hybrid homology
+1) homologyload.py - added deletion of MGI_Property records
+
+TAG: homologyload-tr11886-17
+DATE:02/17/2015
+STAFF: sc
+CHANGES: HGNC/HG hybrid homology
+1) All configs -  removed references to LOAD_ACCESSION 
+2) removed ACCESSION_BCP  from configs where not applicable
+
+TAG: homologyload-tr11886-16
+DATE:02/17/2015
+STAFF: sc
+CHANGES: HGNC/HG hybrid homology 
+1) hybrid.config.default - new
+2) homologyload.sh - factored code out inot runSanityChecks()
+     Added bcp of MGI_Property.bcp if it exists
+3) homologyload.py - added handling of properties when property attributes
+    are configured, factored out init() function
+4) preprocessGEISHA.* - removed debug, comments
+5) preprocessHGNC.* - removed debug, comments
+6) preprocessHomologene.* - removed debug, comments
+7) preprocessHybrid.py - added Cluster.toLoadFormat method
+    added closeFiles function, removed debug, added handling of properties
+8) preprocessZFIN.* - removed debug, comments
+9) preprocessHybrid.sh - added, development testing script
+
+TAG: homologyload-tr11886-15
+DATE:01/28/2015
+STAFF: sc
+CHANGES: documenation tweaks
+1) zfinload.config.default - replaced www.zfin.org with zfin.org
+2) index.html - added geisha as it was forgotten
+
+TAG: homologyload-tr11886-14
+DATE:01/20/2015
+STAFF: sc
+CHANGES: renamed geishaload.config.default go geisha.config.default
+and removed some debug from the geisha preprocessor
+
+TAG: homologyload-tr11886-13
+DATE:01/20/2015
+STAFF: sc
+CHANGES: adding geisha
+1) Install - updated to loop through all config files and run install
+2) common.config.default - commented out MAIL_LOG_CUR - log not being used
+3) geisha.config.default - new
+4) bin/homologyload.sh - added USAGE
+5) bin/preprocessHGNC.py and bin/preprocessZFIN.py - removed class Marker
+6) bin/preprocessGEISHA.sh and bin/preprocessGEISHA.py - new
+
+TAG: homologyload-tr11886-12
+DATE:
+STAFF: sc
+CHANGES: 
+1) zfinload.config.default - updated cluster source key to correct value
+
+TAG: homologyload-tr11886-11
+DATE: 01/12/2015
+STAFF: sc
+CHANGES: final checkin zfin stuff
+1) zfin.config.default - xpat as 'INPUT_FILE_DEFAULT' file handled by 
+    homologyload.sh. gene.txt and mouse_orthos.txt handled by preprocessZFIN.sh
+    NUM_COLUMNS updated to 1 (only column required for INPUT_FILE_DEFAULT
+2) common.config.default - commented out MAIL_LOG_CUR as nothing going to that 
+    log as of yet
+3) index.html - restructured to three section HomoloGene, HGNC, ZFIN
+4) checkColumns.py - commented out print statement
+5) bin/homologyload.sh - removed debug echo's, updated call to checkColumns.py
+    echo 'No Sanity Errors' when none found to the sanity report
+6) bin/preprocessZFIN.py - removed debug print statements, 
+	changed INPUT_FILE_EXPR INPUT_FILE
+7) bin/preprocessZFIN.sh - changed from a 'convenience script to use while
+    developing' to the PREPROCESSOR for ZFIN as ZFIN must handle three input
+    files
+
+TAG: homologyload-tr11886-10
+DATE:
+STAFF: sc
+CHANGES: Initial check in of zfin stuff and misc other stuff
+1) homologyload.sh - removed extra check for RELEASE_NO_FILE
+2) Install - added zfin
+3) checkColumns.py - changed num of args
+4) hgncload.config.default - comments only
+5) added - zfinload.config.default bin/preprocessZFIN.py bin/preprocessZFIN.sh
+
+TAG: homologyload-tr11886-9
+DATE: 01/05/2015
+STAFF: sc
+CHANGES:
+1) hgncload.config.default - added LOADER settings
+2) homologeneload.config.default - added LOADER and PREPROCESSOR settings
+3) homologyload.sh - updated to run any preprocessor or loader based on
+    LOADER and PREPROCESSOR settings. Also set HOMOLOGY_VERSION if 
+    RELEASE_NO_FILE exists in the environment
+4) preprocessHGNC.py - removed some debug print statements and commented out
+    blocks of code
+5) homologeneload.sh - removed
+
+TAG: homologyload-tr11886-8
+DATE: 01/02/2015
+STAFF: sc
+CHANGES: homologyload.py
+
+TAG: homologyload-tr11886-7 ( this tag missing homologyload.py)
+TAG: homologyload-tr11886-6 (this tag has bug)
+TAG: homologyload-tr11886-5
+DATE: 12/24/2014
+STAFF: sc
+CHANGES:
+1) common.config.default - added
+2) homologeneload.config.default - factored common settings out
+3) hgncload.config.default - factored common settings out
+4) Install, all .sh wrappers added sourcing of common.config
+5) Added bin/homologyload.sh, this is now the wrapper that runs the NON
+   HomoloGene loads
+6) Added preprocessHomologene.sh, convenience script to run HomoloGene
+   pre processor
+
+TAG: homologyload-tr11886-4
+DATE: 12/24/2014
+STAFF: sc
+CHANGES:
+1) homologeneload.config.default - updated  *homology* to *homologene*
+2) bin/homologeneload.sh - updated runQC.sh to preprocessHomologene.sh, 
+	updated homologyload.config to homologeneload.config
+	updated homologyload.py to homologeneload.py
+
+TAG: homologyload-tr11886-3
+TAG: homologyload-tr11886-2
+DATE: 12/24/2014
+STAFF: sc
+CHANGES: 
+1) preprocessHGNC.py - removed cluster function (factored out in last tag)
+    also create list of list to pass to clusterizer rather than file
+2) clusterize.py - take list of list as parameter rather than file, return
+    a dictionary
+
+TAG: homologyload-tr11886-1
+DATE: 12/24/2014
+STAFF: sc
+CHANGES: Initial tag with
+1) preprocessHGNC.py/sh - renamed from runHGNCQC.py/sh
+2) new clusterer.py
+3) config for hgnc
+4) Install - hgnc added
+
+TAG: homologyload-tr11886-BP
+DATE: 12/22/2014
+STAFF: sc
+CHANGES: TR11886 - M&M
+
 TAG: homologyload-5-2-1-1
 DATE: 12/29/2014
 STAFF: sc
 CHANGES: TR11886 - M&M project
 1) homologyload.config.default - updated JOBSTREAM=homologyload
    to JOBSTREAM=homologeneload as we are adding new homology loads
-
-TAG: homologyload-tr11886-BP
-DATE: 12/22/2014
-STAFF: sc
-CHANGES: TR11886 - M&M
 
 TAG: homologyload-5-1-9-1
 DATE: 7/31/2014
