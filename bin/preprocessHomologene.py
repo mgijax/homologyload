@@ -179,9 +179,13 @@ def init():
 	    and a._Object_key = m._Marker_key
 	    and m._Marker_Status_key in (1,3)
 	    and m._Organism_key = o._Organism_key''', None)
-
-    results = db.sql('''select * from #eg
-	    group by _Marker_key having count(*) > 1''', 'auto')
+    db.sql('''select _Marker_key
+	into #mrk
+	from #eg
+	group by _Marker_key having count(*) > 1''', None)
+    results = db.sql('''select e.egId, e._Marker_key, e.symbol, e.commonName
+	    from #eg e, #mrk m
+	    where e._Marker_key = m._Marker_key''', 'auto')
 
     for r in results:
 	egId = r['egId']

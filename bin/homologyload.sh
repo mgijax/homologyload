@@ -126,7 +126,7 @@ then
 
     echo "copying ${INPUT_FILE_DEFAULT} to ${INPUTDIR}" >> ${LOG_DIAG}
     # copy the latest file from /data/downloads to the input dir
-    cp ${INPUT_FILE_DEFAULT} ${INPUTDIR}
+    cp -p ${INPUT_FILE_DEFAULT} ${INPUTDIR}
 fi
 
 #
@@ -253,13 +253,13 @@ then
     echo 'BCP data into MRK_Cluster'  >> ${LOG_DIAG}
 
     # Drop indexes
-    ${MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
+    ${PG_MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
 
     # BCP new data 
-    ${MGI_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
+    ${PG_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
 
     # Create indexes
-    ${MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
+    ${PG_MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
 fi
 
 TABLE=MRK_ClusterMember
@@ -273,13 +273,13 @@ then
 
 
     # Drop indexes
-    ${MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
+    ${PG_MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
 
     # BCP new data 
-    ${MGI_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
+    ${PG_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
 
     # Create indexes
-    ${MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
+    ${PG_MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
 
 fi
 
@@ -293,13 +293,13 @@ then
     echo 'BCP data into ACC_Accession'  >> ${LOG_DIAG}
 
     # Drop indexes
-    ${MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
+    ${PG_MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
 
     # BCP new data
-    ${MGI_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
+    ${PG_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
 
     # Create indexes
-    ${MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
+    ${PG_MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
 fi
 
 TABLE=MGI_Property
@@ -312,13 +312,13 @@ then
     echo 'BCP data into MGI_Property'  >> ${LOG_DIAG}
 
     # Drop indexes
-    ${MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
+    ${PG_MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG}
 
     # BCP new data
-    ${MGI_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
+    ${PG_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
 
     # Create indexes
-    ${MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
+    ${PG_MGD_DBSCHEMADIR}/index/${TABLE}_create.object >> ${LOG_DIAG}
 fi
 
 #

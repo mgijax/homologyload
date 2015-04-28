@@ -177,34 +177,19 @@ def deleteHomologies():
     # Effects: queries a database, deletes records from a database
     # Throws:  db.error, db.connection_exc
 
-    print 'Deleting Homology Cluster Accessions'
-    db.sql('''select _Accession_key
-    into #todelete1
-    from ACC_Accession
-    where _CreatedBy_key = %s''' % createdByKey, None)
-
-    db.sql('create index idx1 on #todelete1(_Accession_key)', None)
-
-    db.sql('''delete ACC_Accession
-        from #todelete1 d, ACC_Accession a
-        where d._Accession_key = a._Accession_key''', None)
-
     db.sql('''select _Cluster_key
     into #todelete2
     from MRK_Cluster
     where _CreatedBy_key = %s''' % createdByKey, None)
 
-    db.sql('create index idx1 on #todelete2(_Cluster_key)', None)
+    db.sql('create index todelete2_idx1 on #todelete2(_Cluster_key)', None)
    
-    print 'Deleting Homology Cluster Members' 
-    db.sql('''delete MRK_ClusterMember
-        from #todelete2 d, MRK_ClusterMember m
+    print 'Deleting Homology Clusters and Members; any Properties and Accessions'
+    db.sql('''delete from MRK_Cluster m
+        using #todelete2 d
         where d._Cluster_key = m._Cluster_key''', None)
 
-    print 'Deleting Homology Clusters'
-    db.sql('''delete MRK_Cluster
-        from #todelete2 d, MRK_Cluster m
-        where d._Cluster_key = m._Cluster_key''', None)
+    db.commit()
 
     return
 
