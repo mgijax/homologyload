@@ -1,3 +1,19 @@
+TAG: homologyload-tr11750-MP
+DATE: 07/01/2015
+STAFF: lec
+CHANGES: merge  point tag for TR11750 Infrastructure II
+
+TAG: homologyload-tr11750-1
+DATE: 04/28/2015
+STAFF: sc
+CHANGES: copied *.postgres to *, rm *.postgres
+specifically:
+cp homologeneload.py.postgres homologeneload.py
+cp homologyload.py.postgres homologyload.py
+cp homologyload.sh.postgres homologyload.sh
+cp preprocessHomologene.py.postgres preprocessHomologene.py
+rm homologeneload.py.postgres homologyload.py.postgres homologyload.sh.postgres preprocessHomologene.py.postgres
+
 TAG: homologyload-tr11750-BP
 DATE: 04/28/2015
 STAFF: sc
