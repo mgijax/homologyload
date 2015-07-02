@@ -40,20 +40,10 @@
 import os
 import string
 import mgi_utils
+import db
 
-###--- sybase/postgres flipping ---###
-
-try:
-    if os.environ['DB_TYPE'] == 'postgres':
-        import pg_db
-        db = pg_db
-        db.setTrace()
-        db.setAutoTranslateBE()
-    else:
-        import db
-
-except:
-    import db
+db.setAutoTranslate(False)
+db.setAutoTranslateBE(False)
 
 ###--- globals ---###
 

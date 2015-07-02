@@ -52,19 +52,10 @@ import Set
 import mgi_utils
 import clusterize
 
-###--- sybase/postgres flipping ---###
+import db
 
-try:
-    if os.environ['DB_TYPE'] == 'postgres':
-        import pg_db
-        db = pg_db
-        db.setTrace()
-        db.setAutoTranslateBE()
-    else:
-        import db
-
-except:
-    import db
+db.setAutoTranslate(False)
+db.setAutoTranslateBE(False)
 
 ###--- globals ---###
 
