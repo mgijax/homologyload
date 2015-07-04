@@ -39,7 +39,7 @@ import clusterize
 import db
 
 db.setAutoTranslate(False)
-db.setAutoTranslateBE(False)
+#db.setAutoTranslateBE(False)
 
 ###--- globals ---###
 

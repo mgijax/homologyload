@@ -51,8 +51,8 @@ import mgi_utils
 import clusterize
 import db
 
-db.setAutoTranslate(False)
-db.setAutoTranslateBE(False)
+#db.setAutoTranslate(False)
+#db.setAutoTranslateBE(False)
 
 ###--- globals ---###
 

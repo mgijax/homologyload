@@ -51,8 +51,8 @@ import symbolsort
 import time
 import db
 
-db.setAutoTranslate(False)
-db.setAutoTranslateBE(False)
+#db.setAutoTranslate(False)
+#db.setAutoTranslateBE(False)
 
 ###--- globals ---###
 
