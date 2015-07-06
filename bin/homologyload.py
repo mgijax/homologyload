@@ -37,8 +37,8 @@ import mgi_utils
 import time
 import db
 
-#db.setAutoTranslate(False)
-#db.setAutoTranslateBE(False)
+db.setAutoTranslate()
+db.setAutoTranslateBE()
 
 ###--- globals ---###
 
