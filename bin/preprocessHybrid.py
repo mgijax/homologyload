@@ -43,9 +43,6 @@ import mgi_utils
 import Set
 import db
 
-db.setAutoTranslate()
-db.setAutoTranslateBE()
-
 ###--- globals ---###
 
 # constants

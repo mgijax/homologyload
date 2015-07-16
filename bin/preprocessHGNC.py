@@ -38,9 +38,6 @@ import mgi_utils
 import clusterize
 import db
 
-db.setAutoTranslate()
-db.setAutoTranslateBE()
-
 ###--- globals ---###
 
 # constants

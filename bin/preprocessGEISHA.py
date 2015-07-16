@@ -54,9 +54,6 @@ import clusterize
 
 import db
 
-db.setAutoTranslate()
-db.setAutoTranslateBE()
-
 ###--- globals ---###
 
 # constants

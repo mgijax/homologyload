@@ -37,8 +37,6 @@ import mgi_utils
 import time
 import db
 
-db.setAutoTranslate()
-db.setAutoTranslateBE()
 
 ###--- globals ---###
 
@@ -200,15 +198,15 @@ def deleteHomologies():
     # Throws:  db.error, db.connection_exc
 
     db.sql('''select _Cluster_key
-    into #todelete2
+    into temp todelete2
     from MRK_Cluster
     where _CreatedBy_key = %s''' % createdByKey, None)
 
-    db.sql('create index todelete2_idx2 on #todelete2(_Cluster_key)', None)
+    db.sql('create index todelete2_idx2 on todelete2(_Cluster_key)', None)
    
     print 'Deleting Homology Clusters, Members, Properties and Accessions' 
     db.sql('''delete from MRK_Cluster m
-        using #todelete2 d
+        using todelete2 d
         where d._Cluster_key = m._Cluster_key''', None)
 
     db.commit()

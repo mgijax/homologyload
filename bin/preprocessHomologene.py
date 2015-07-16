@@ -42,9 +42,6 @@ import string
 import mgi_utils
 import db
 
-db.setAutoTranslate()
-db.setAutoTranslateBE()
-
 ###--- globals ---###
 
 # constants
@@ -161,7 +158,7 @@ def init():
     # get all markers that are associated with egIds, all organisms
     db.sql('''select distinct a.accid as egId, m._Marker_key, m.symbol, 
 		o.commonName
-	    into #eg
+	    into temp eg
 	    from ACC_Accession a, MRK_Marker m, MGI_Organism o
 	    where a._MGIType_key = 2
 	    and a._LogicalDB_key = 55
@@ -170,11 +167,11 @@ def init():
 	    and m._Marker_Status_key in (1,3)
 	    and m._Organism_key = o._Organism_key''', None)
     db.sql('''select _Marker_key
-	into #mrk
-	from #eg
+	into temp mrk
+	from eg
 	group by _Marker_key having count(*) > 1''', None)
     results = db.sql('''select e.egId, e._Marker_key, e.symbol, e.commonName
-	    from #eg e, #mrk m
+	    from eg e, mrk m
 	    where e._Marker_key = m._Marker_key''', 'auto')
 
     for r in results:
@@ -190,7 +187,7 @@ def init():
     # create lookup from the database mapping EG IDs to Marker instances
     #
 
-    results = db.sql('''select * from #eg''', 'auto')
+    results = db.sql('''select * from eg''', 'auto')
 
     for r in results:
 	egId = r['egId']
