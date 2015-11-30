@@ -1,3 +1,11 @@
+TAG: homologyload-6-0-1-1
+DATE: 11/30/2015
+STAFF: dbm
+CHANGES: TR11904 & TR12199
+1) common.config.default: Clean up log mailing
+2) homologeneload.config.default: Clean up log mailing
+3) homologyload.config.default: Clean up log mailing
+
 TAG: homologyload-6-0-0-1
 DATE: 07/24/2015
 STAFF: lec
