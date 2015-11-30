@@ -122,10 +122,7 @@ export JOBSTREAM
 # will be set by wrapper based on collection for each load
 MAIL_LOADNAME="Homology Load"
 
-#  Recipient list for mailing the curation log file (comma-separated)
-MAIL_LOG_CUR="mgiadmin"
-
-export MAIL_LOADNAME MAIL_LOG_CUR
+export MAIL_LOADNAME
 
 #  INSTALLDIR expected by dlautils/DLAInstall
 INSTALLDIR=${HOMOLOGYLOAD}

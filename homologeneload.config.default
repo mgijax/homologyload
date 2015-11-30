@@ -101,4 +101,4 @@ export JOBSTREAM
 # will be set by wrapper based on collection for each load
 MAIL_LOADNAME="HomoloGene Homology Load"
 
-export MAIL_LOADNAME MAIL_LOG_CUR
+export MAIL_LOADNAME
