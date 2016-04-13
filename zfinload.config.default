@@ -23,14 +23,14 @@ export INPUTDIR FILEDIR LOGDIR RPTDIR OUTPUTDIR ARCHIVEDIR
 # Full path name of the zfin file we copy to INPUTDIR
 INPUT_FILE_GENE_DEFAULT="${DATADOWNLOADS}/zfin.org/downloads/gene.txt"
 INPUT_FILE_ORTHO_DEFAULT="${DATADOWNLOADS}/zfin.org/downloads/mouse_orthos.txt"
-INPUT_FILE_DEFAULT="${DATADOWNLOADS}/zfin.org/downloads/xpat.txt"
+INPUT_FILE_DEFAULT="${DATADOWNLOADS}/zfin.org/downloads/xpat_fish.txt"
 
 export INPUT_FILE_GENE_DEFAULT INPUT_FILE_ORTHO_DEFAULT INPUT_FILE_DEFAULT
 
 # Full path name of the file we copy from INPUT_FILE_DEFAULT for use by the load
 INPUT_FILE_GENE="${INPUTDIR}/gene.txt"
 INPUT_FILE_ORTHO="${INPUTDIR}/mouse_orthos.txt"
-INPUT_FILE="${INPUTDIR}/xpat.txt"
+INPUT_FILE="${INPUTDIR}/xpat_fish.txt"
 
 export INPUT_FILE_GENE INPUT_FILE_ORTHO INPUT_FILE
 
