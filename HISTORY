@@ -1,3 +1,9 @@
+TAG: homologyload-6-0-3-1
+DATE: 04/13/2016
+STAFF: dbm
+CHANGES: TR12322
+1) zfinload.config.default: Input file name changed (xpat.txt -> xpat_fish.txt)
+
 TAG: homologyload-6-0-1-1
 DATE: 11/30/2015
 STAFF: dbm
