@@ -1,0 +1,6 @@
+*.pyc
+*.config 
+/*.config
+connComp.rpt
+homologyload.log
+hybridCluster.rpt
