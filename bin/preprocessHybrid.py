@@ -42,6 +42,8 @@ import string
 import mgi_utils
 import Set
 import db
+db.setAutoTranslate(False)
+db.setAutoTranslateBE(False)
 
 ###--- globals ---###
 

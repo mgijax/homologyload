@@ -36,6 +36,8 @@ import string
 import mgi_utils
 import time
 import db
+db.setAutoTranslate(False)
+db.setAutoTranslateBE(False)
 
 
 ###--- globals ---###
@@ -151,7 +153,7 @@ def init():
 
     results = db.sql('''select _User_key
 	    from MGI_User
-	    where login = "%s"''' % createdBy, 'auto')
+	    where login = '%s' ''' % createdBy, 'auto')
 
     createdByKey = results[0]['_User_key']
     #print 'createdByKey: %s' % createdByKey
