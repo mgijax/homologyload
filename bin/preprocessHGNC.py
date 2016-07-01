@@ -46,6 +46,10 @@ db.setAutoTranslateBE(False)
 TAB= '\t'
 CRT = '\n'
 
+# Human EG ID/Mouse MGI ID associations from the file
+# {egID:[list of mouse MGI IDs], ...}
+humanEgToMouseMgiDict = {}
+
 # EG ID/Human Marker associations from the database
 # {egID:marker key, ...}
 egToMarkerDict = {}
@@ -75,19 +79,18 @@ qcRptPath = os.environ['QC_RPT']
 
 # QC report descriptions and column headings
 sep = '--------------------------------------------------\n'
-head = 'Line#%sHuman EG ID%sMouse MGI IDs%s HGNC ID%s' % (TAB, TAB, TAB, CRT)
+head = 'Line#%sHuman EG ID%sMouse MGI IDs%s' % (TAB, TAB, CRT)
 
-rptOne = 'Lines where Human EG ID not in database%s%s%s%s' % (CRT, CRT, head, sep)
+rptOne = 'Lines where Human EG ID not in database (excludes skipped lines)%s%s%s%s' % (CRT, CRT, head, sep)
 
-rptTwo = '%s%sLines where a Mouse MGI ID not in database%s%s%s%s' % (CRT, CRT,CRT, CRT, head, sep)
-
+rptTwo = '%s%sLines where a Mouse MGI ID not in database (excludes skipped lines)%s%s%s%s' % (CRT, CRT,CRT, CRT, head, sep)
+rptDebug = '%s%sInput resolved to keys%s%s' % (CRT, CRT, CRT, sep)
 #
 # file descriptors
 #
 
 fpInFile = ''
 
-# idList replaces this file, but keeping for debugging purposes
 fpClustererFile = ''
 fpLoadFile = ''
 fpQcRpt = ''
@@ -117,7 +120,6 @@ def init():
 	fpInFile = open(inFilePath, 'r')
     except:
 	exit('Could not open file for reading %s\n' % inFilePath)
-    # idList replaces this file, but keeping for time being
     try:
 	fpClustererFile = open(clustererFilePath, 'w')
     except:
@@ -133,8 +135,8 @@ def init():
 	exit('Could not open file for writing %s\n' % qcRptPath)
 
 
-    # get all human markers that are associated with egIds
-    results = db.sql('''select distinct a.accid as egId, m._Marker_key
+    # get all human markers that are associated with egIDs
+    results = db.sql('''select distinct a.accid as egID, m._Marker_key
 	from ACC_Accession a, MRK_Marker m
 	where a._MGIType_key = 2
 	and a._LogicalDB_key = 55
@@ -146,9 +148,9 @@ def init():
     # create Human egID to marker lookup from database
     #
     for r in results:
-	egId = r['egId']
+	egID = r['egID']
 	markerKey = r['_Marker_key']
-	egToMarkerDict[egId] = markerKey
+	egToMarkerDict[egID] = markerKey
 
     # get all mouse markers
     results = db.sql('''select distinct a.accID as mgiId, m._Marker_key
@@ -169,6 +171,54 @@ def init():
 
     return
 
+def parseFile():
+    # Purpose: parse file into dictionary because new file has one line/MGI ID
+    # Returns: 0
+    # Assumes: humanEgToMouseMgiDict has been initialized
+    # Effects: Reads file in file system
+    # Throws: Nothing
+
+    global humanEgToMouseMgiDict, hgncIdOnlyCount, mgiIdOnlyCount, egIdOnlyCount
+
+    # These will be ignored by the load
+    hgncIdOnlyCount = 0
+
+    # These will be ignored by the load until we determine how to
+    # cluster them in the absence of mouse MGI IDs
+    mgiIdOnlyCount = 0
+
+    # These will be ignored by the load
+    egIdOnlyCount = 0
+
+    # ignore header
+    header = fpInFile.readline()
+
+    for line in fpInFile.readlines():
+	# 6/30 - file is no longer one line per cluster
+	(hgncID, mgiID, egID) =  map(string.strip, string.split(line, TAB))
+	#print 'egID: %s mgiID: %s' % (egID, mgiID) 
+
+	# if both egID and mgiId columns are blank, skip and don't
+        # report
+        if egID == '' and mgiID == '':
+            hgncIdOnlyCount += 1
+            continue
+
+        # if mgiId, and no egID skip and don't report
+        elif egID == '':
+            mgiIdOnlyCount += 1
+            continue
+	# if egId and no mgiID
+	elif mgiID == '':
+	    egIdOnlyCount += 1
+	    continue
+	if not egID in humanEgToMouseMgiDict:
+	    humanEgToMouseMgiDict[egID] = []
+
+	# add the homology to the dictionary
+	humanEgToMouseMgiDict[egID].append(mgiID)
+    return
+
 def process():
     # Purpose: Create load ready file from HGNC file and the database
     # Returns: 0
@@ -176,80 +226,66 @@ def process():
     # Effects: Writes to the file system
     # Throws: Nothing
 
-    global rptOne, rptTwo, hgncIdOnlyCount, mgiIdOnlyCount
-    
+    global rptOne, rptTwo, rptDebug
+
+    # parse the file into a data structure
+    parseFile()
+
     # dictionary of id pairs to send to the clusterizer
     toClusterList = []
     lineCt = 0
-    # These will be ignored by the load
-    hgncIdOnlyCount = 0
 
-    # These will be ignored by the load until we determine how to 
-    # cluster them in the absence of mouse MGI IDs
-    mgiIdOnlyCount = 0
+    # for reporting - the actual line in the file including the header
+    lineCt =  1  
 
-    for line in fpInFile.readlines():
+    for egID in humanEgToMouseMgiDict:
+	mgiIDList = humanEgToMouseMgiDict[egID]
+
 	lineCt += 1
 	
-	(egId, mgiIDs, junk1) = string.split(line[:-1], TAB)
-	egId = string.strip(egId)
-
-	# if both egId and mgiId columns are blank, skip and don't
-	# report
-	if egId == '' and mgiIDs == '':
-	    hgncIdOnlyCount += 1
-	    continue
-
-	# if mgiId, and no egID skip and don't report
-	elif egId == '':
-	    mgiIdOnlyCount += 1
-	    continue
-	elif mgiIDs == '':
-	    mgiIDs = 'None'
-
 	# 1 means error on this line
 	error = 0
 
-	# idList replaces this file, but keeping for time being
 	clusterFileLine = ''
 
 	# current cluster - if there are no errors it will be added to
         # 'toClusterList'
         currentClusterList = []
-
-	# report and skip lines with egId not in the database
-	if egId and egId not in egToMarkerDict.keys():
-	    rptOne = '%s%s%s%s' % (rptOne, lineCt, TAB, line)
-	    # if egId not in database continue to next input line
+	# report and skip lines where egID not in the database
+	if egID and egID not in egToMarkerDict.keys():
+	    toReport = '%s%s%s%s' % (egID, TAB, string.join(mgiIDList), CRT)
+	    rptOne = '%s%s%s%s' % (rptOne, lineCt, TAB, toReport)
+	    # if egID not in database continue to next input line
 	    continue
-	mgiIDList = map(string.strip, string.split(mgiIDs, ','))
 
+	# egID is in the database; check the mgi IDs
 	for id in mgiIDList:
 	    id = string.strip(id)
 	    # report and skip lines with mgiId not in the database
-	    if id != 'None' and id not in mgiToMarkerDict.keys(): 
+	    if id not in mgiToMarkerDict.keys(): 
 		error = 1
-		rptTwo = '%s%s%s%s' % (rptTwo, lineCt, TAB, line)
+	        toReport = '%s%s%s%s' % (egID, TAB, id, CRT)
+		rptTwo = '%s%s%s%s' % (rptTwo, lineCt, TAB, toReport)
 		# No need to check any more ids, get out of the loop
 		break
 	    else:
-		currentClusterList.append([egId, id])
-	    # idList replaces this file, but keeping for time being
+		currentClusterList.append([egID, id])
 	    clusterFileLine = ('%s%s%s%s%s' % \
-		(clusterFileLine, egId, TAB, id, CRT))
+		(clusterFileLine, egID, TAB, id, CRT))
+
 	# if any mgi IDs not in database continue to next input line
 	if error == 1:
 		continue
 
-	# no errors so append the next cluster
-	toClusterList = toClusterList + currentClusterList
+	# if we have a cluster add it to the cluster list and to the file
+	if currentClusterList != []:
+	    # no errors so append the next cluster
+	    toClusterList = toClusterList + currentClusterList
 
-	# idList replaces this file, but keeping for time being
-	fpClustererFile.write(clusterFileLine)
-	# if we get here, we the egId is in the database and ALL the
-	# mgiIds are in the database
+	    fpClustererFile.write(clusterFileLine)
+	    # if we get here, we the egID is in the database and ALL the
+	    # mgiIds are in the database
 		
-    # idList replaces this file, but keeping for debugging purposes
     fpClustererFile.close()
 
     # clusterDict = clusterize.cluster(clustererFilePath, 'HGNC')
@@ -268,6 +304,8 @@ def process():
 	# we want human before mouse for cluster member sequence numbering
 	keyList = humanKeyList + mouseKeyList
 	keyString = ', '.join(keyList)
+	# write debug to qc rpt
+	rptDebug = '%s%s%s%s%s%s%s' % (rptDebug, idTuple, TAB, humanKeyList, TAB, mouseKeyList, CRT)
 	fpLoadFile.write('%s%s%s%s' % (clusterId, TAB, keyString, CRT))
 
     return
@@ -279,9 +317,16 @@ def writeReports():
     # Effects: Writes to the file system
     # Throws: Nothing
 
+    fpQcRpt.write('The following lines in the input are skipped\n')
+    fpQcRpt.write(sep)
+    fpQcRpt.write('Count of lines with only an HGNC ID: %s' % hgncIdOnlyCount)
+    fpQcRpt.write('\nCount of lines with MGI ID, but no EG ID: %s' % mgiIdOnlyCount)
+    fpQcRpt.write('\nCount of lines with EG ID, but no MGI ID: %s\n\n\n' % egIdOnlyCount)
+
     fpQcRpt.write(rptOne)
     fpQcRpt.write(rptTwo)
 
+    fpQcRpt.write(rptDebug)
     return
 
 def closeFiles():
