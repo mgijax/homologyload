@@ -1,3 +1,8 @@
+TAG: homologyload-TR12044-2
+DATE: 07/06/2016
+STAFF: sc
+preprocessHGNC.py -  fixed bug where no singletons were being loaded
+
 TAG: homologyload-TR12044-1
 DATE: 07/01/2016
 STAFF: sc
@@ -5,7 +10,6 @@ STAFF: sc
 * added parseFile method - create data structure because now one line per MGI ID 
 * updated process method to iterate thru data structure rather than file
 * added temp debug to qc report
-2) fixed bug where no singletons were being loaded
 
 TAG: homologyload-tr12044-BP
 DATE: 07/01/2016
