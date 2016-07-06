@@ -321,11 +321,9 @@ def writeReports():
     # Effects: Writes to the file system
     # Throws: Nothing
 
-    fpQcRpt.write('The following lines in the input are skipped\n')
-    fpQcRpt.write(sep)
-    fpQcRpt.write('Count of lines with only an HGNC ID: %s' % hgncIdOnlyCount)
-    fpQcRpt.write('\nCount of lines with MGI ID, but no EG ID: %s' % mgiIdOnlyCount)
-    fpQcRpt.write('\nCount of lines with EG ID, but no MGI ID: %s\n\n\n' % egIdOnlyCount)
+    fpQcRpt.write('Count of lines with only an HGNC ID: %s (skipped)' % hgncIdOnlyCount)
+    fpQcRpt.write('\nCount of lines with MGI ID, but no EG ID: %s (skipped)' % mgiIdOnlyCount)
+    fpQcRpt.write('\nCount of lines with EG ID, but no MGI ID: %s (loaded; human singletons)\n\n\n' % egIdOnlyCount)
 
     fpQcRpt.write(rptOne)
     fpQcRpt.write(rptTwo)
