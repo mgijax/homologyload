@@ -208,15 +208,16 @@ def parseFile():
         elif egID == '':
             mgiIdOnlyCount += 1
             continue
-	# if egId and no mgiID
-	elif mgiID == '':
-	    egIdOnlyCount += 1
-	    continue
+	# if no mouse homology add to the count and mgiID value should be 'None'
+        if mgiID == '':
+             mgiID = 'None'
+             egIdOnlyCount += 1
+	# value  of humanEgToMouseMgiDict will be empty list if no mouse homology
 	if not egID in humanEgToMouseMgiDict:
 	    humanEgToMouseMgiDict[egID] = []
-
-	# add the homology to the dictionary
+	# add the mouse homology to the dictionary
 	humanEgToMouseMgiDict[egID].append(mgiID)
+	
     return
 
 def process():
@@ -240,7 +241,6 @@ def process():
 
     for egID in humanEgToMouseMgiDict:
 	mgiIDList = humanEgToMouseMgiDict[egID]
-
 	lineCt += 1
 	
 	# 1 means error on this line
@@ -258,11 +258,15 @@ def process():
 	    # if egID not in database continue to next input line
 	    continue
 
+	#
 	# egID is in the database; check the mgi IDs
+	#
+
+	# add clusters with mouse to the list
 	for id in mgiIDList:
 	    id = string.strip(id)
 	    # report and skip lines with mgiId not in the database
-	    if id not in mgiToMarkerDict.keys(): 
+	    if id != 'None' and id not in mgiToMarkerDict.keys(): 
 		error = 1
 	        toReport = '%s%s%s%s' % (egID, TAB, id, CRT)
 		rptTwo = '%s%s%s%s' % (rptTwo, lineCt, TAB, toReport)
