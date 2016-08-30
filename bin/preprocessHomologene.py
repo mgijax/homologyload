@@ -166,7 +166,7 @@ def init():
 	    and a._LogicalDB_key = 55
 	    and a.preferred = 1
 	    and a._Object_key = m._Marker_key
-	    and m._Marker_Status_key in (1,3)
+	    and m._Marker_Status_key = 1
 	    and m._Organism_key = o._Organism_key''', None)
     db.sql('''select _Marker_key
 	into temp mrk
