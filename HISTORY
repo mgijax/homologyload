@@ -1,9 +1,9 @@
-TAG: homology-6-0-6-?
-DATE: 08/30/2016
+TAG: homology-no tag
+DATE: 09/01/2016
 STAFF: lec
 CHANGES:
 TR11083/Retire/Archive Nomenclature Table (NOM_Marker)
- _Marker_Status_key in (1,3) changed to "= 1"
+ _Marker_Status_key in (1,3) changed to = 1
 
 TAG: homologyload-tr12044-BP
 DATE: 07/01/2016
