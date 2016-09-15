@@ -55,7 +55,6 @@ def cluster(toClusterList, idPrefix):
 
     #for line in fpCF.readlines():
     for pair in toClusterList:
-	#idOne, idTwo = string.split(line)
 	idOne = pair[0]
 	idTwo = pair[1]
 	if not idOneToIdTwoDict.has_key(idOne):
@@ -65,9 +64,6 @@ def cluster(toClusterList, idPrefix):
 	    if not idTwoToIdOneDict.has_key(idTwo):
 		idTwoToIdOneDict[idTwo] = []
 	    idTwoToIdOneDict[idTwo].append(idOne)
-    #fpCF.close()
-    #print idOneToIdTwoDict
-    #print idTwoToIdOneDict
     # set of all clusters (uniq set of tuples)
     clusterSet = set()
 
@@ -82,20 +78,24 @@ def cluster(toClusterList, idPrefix):
 	currentList.append(idOne)
 	# add all column 2 IDs to the cluster
 	for idTwo in idOneToIdTwoDict[idOne]:
-	    if idTwo != 'None':
+	    if idTwo != 'None' and idTwo not in currentList:
 		currentList.append(idTwo)
 	    # add all column 1 IDs to the cluster
 	    if idTwoToIdOneDict.has_key(idTwo):
 		for hId in idTwoToIdOneDict[idTwo]:
 		    if hId not in currentList:
 			currentList.append(hId)
-
+		    # check idOneToTwoDict for hId and add it's values if found and not already in the list
+		    if hId in idOneToIdTwoDict:
+			iList = idOneToIdTwoDict[hId]
+			for i in iList:
+			    if i not in currentList:
+				currentList.append(i)
 	# sort the list so dups will not be created in clusterSet
 	currentList.sort()
 
 	# add list converted to tuple to clusterSet
 	clusterSet.add(tuple(currentList))
-
     # now assign ids to the clusters creating a dict to return
     # we'll remove IDs when we change the schema and simply return a list
     # of tuples
