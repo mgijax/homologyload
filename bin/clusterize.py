@@ -85,7 +85,8 @@ def cluster(toClusterList, idPrefix):
 		for hId in idTwoToIdOneDict[idTwo]:
 		    if hId not in currentList:
 			currentList.append(hId)
-		    # check idOneToTwoDict for hId and add it's values if found and not already in the list
+		    # check idOneToTwoDict for hId and add it's values if 
+		    # found and not already in the list
 		    if hId in idOneToIdTwoDict:
 			iList = idOneToIdTwoDict[hId]
 			for i in iList:
