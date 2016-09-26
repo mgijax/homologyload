@@ -33,6 +33,36 @@ import Set
 
 ###--- functions ---###
 
+# getRoots from:
+# http://stackoverflow.com/questions/10301000/python-connected-components
+def getRoots(aNeigh):
+    def findRoot(aNode,aRoot):
+        while aNode != aRoot[aNode][0]:
+            aNode = aRoot[aNode][0]
+        return (aNode,aRoot[aNode][1])
+    myRoot = {}
+    for myNode in aNeigh.keys():
+        myRoot[myNode] = (myNode,0)
+    for myI in aNeigh:
+        for myJ in aNeigh[myI]:
+            (myRoot_myI,myDepthMyI) = findRoot(myI,myRoot)
+            (myRoot_myJ,myDepthMyJ) = findRoot(myJ,myRoot)
+            if myRoot_myI != myRoot_myJ:
+                myMin = myRoot_myI
+                myMax = myRoot_myJ
+                if  myDepthMyI > myDepthMyJ:
+                    myMin = myRoot_myJ
+                    myMax = myRoot_myI
+                myRoot[myMax] = (myMax,max(myRoot[myMin][1]+1,myRoot[myMax][1]))
+                myRoot[myMin] = (myRoot[myMax][0],-1)
+    myToRet = {}
+    for myI in aNeigh:
+        if myRoot[myI][0] == myI:
+            myToRet[myI] = []
+    for myI in aNeigh:
+        myToRet[findRoot(myI,myRoot)[0]].append(myI)
+    return myToRet
+
 def cluster(toClusterList, idPrefix):
     # Purpose: finds clusters of related elements in toClusterList, 
     # a list of two-element lists
@@ -55,58 +85,38 @@ def cluster(toClusterList, idPrefix):
 
     #for line in fpCF.readlines():
     for pair in toClusterList:
-	idOne = pair[0]
-	idTwo = pair[1]
+	idOne = pair[0] # egID
+	idTwo = pair[1] # MGI ID
+	#
 	if not idOneToIdTwoDict.has_key(idOne):
 	    idOneToIdTwoDict[idOne] = []
-	idOneToIdTwoDict[idOne].append(idTwo)
 	if idTwo != 'None':
+	    idOneToIdTwoDict[idOne].append(idTwo)
 	    if not idTwoToIdOneDict.has_key(idTwo):
 		idTwoToIdOneDict[idTwo] = []
 	    idTwoToIdOneDict[idTwo].append(idOne)
-    # set of all clusters (uniq set of tuples)
-    clusterSet = set()
+	         
+    # concatenate the dicts together
+    allDict = dict(idOneToIdTwoDict.items() + idTwoToIdOneDict.items())
+    print 'allDict:'
+    for key in allDict:
+	print 'key: %s value: %s' % (key, allDict[key])
 
-    # current number of clusters created, for generating cluster ID
-    clusterCt = 0
-
-    # iterate through column 1 ids
-    for idOne in idOneToIdTwoDict.keys():
-	# current cluster
-	currentList = []
-	# this includes input rows where idOne exists, but no idTwo
-	currentList.append(idOne)
-	# add all column 2 IDs to the cluster
-	for idTwo in idOneToIdTwoDict[idOne]:
-	    if idTwo != 'None' and idTwo not in currentList:
-		currentList.append(idTwo)
-	    # add all column 1 IDs to the cluster
-	    if idTwoToIdOneDict.has_key(idTwo):
-		for hId in idTwoToIdOneDict[idTwo]:
-		    if hId not in currentList:
-			currentList.append(hId)
-		    # check idOneToTwoDict for hId and add it's values if 
-		    # found and not already in the list
-		    if hId in idOneToIdTwoDict:
-			iList = idOneToIdTwoDict[hId]
-			for i in iList:
-			    if i not in currentList:
-				currentList.append(i)
-	# sort the list so dups will not be created in clusterSet
-	currentList.sort()
-
-	# add list converted to tuple to clusterSet
-	clusterSet.add(tuple(currentList))
-    # now assign ids to the clusters creating a dict to return
-    # we'll remove IDs when we change the schema and simply return a list
-    # of tuples
+    #print getRoots(allDict)
+    clusterDict = getRoots(allDict)
+    print 'clusterDict'
+    for key in clusterDict:
+	print 'key: %s value: %s' % (key, clusterDict[key])
+    #print clusterDict
     # {clusterID:(id1, ..., idn), ...} 
-    clusterDict = {}
+    namedDict = {}
     clusterCt = 0
-    for c in clusterSet:
+    for c in clusterDict:
+	cluster = clusterDict[c]
+	
 	clusterCt += 1
 	nextId = '%s:%s' % (idPrefix, clusterCt)
 	#clusterDict[nextId] = ', '.join(c)
-	clusterDict[nextId] = c
+	namedDict[nextId] = cluster
 	
-    return clusterDict
+    return namedDict
