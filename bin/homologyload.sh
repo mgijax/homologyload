@@ -126,7 +126,7 @@ then
 
     echo "copying ${INPUT_FILE_DEFAULT} to ${INPUTDIR}" >> ${LOG_DIAG}
     # copy the latest file from /data/downloads to the input dir
-    cp -p ${INPUT_FILE_DEFAULT} ${INPUTDIR}
+    cp ${INPUT_FILE_DEFAULT} ${INPUTDIR}
 fi
 
 #

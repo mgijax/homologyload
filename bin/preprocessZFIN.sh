@@ -57,8 +57,8 @@ then
 fi
 
 # copy the additional two files from /data/downloads to the input dir
-cp -p ${INPUT_FILE_GENE_DEFAULT} ${INPUTDIR}
-cp -p ${INPUT_FILE_ORTHO_DEFAULT} ${INPUTDIR}
+cp ${INPUT_FILE_GENE_DEFAULT} ${INPUTDIR}
+cp ${INPUT_FILE_ORTHO_DEFAULT} ${INPUTDIR}
 
 #
 # FUNCTION: Check for lines with missing columns and data in input file and

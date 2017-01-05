@@ -50,8 +50,6 @@ import mgi_utils
 import symbolsort
 import time
 import db
-db.setAutoTranslate(False)
-db.setAutoTranslateBE(False)
 
 ###--- globals ---###
 
