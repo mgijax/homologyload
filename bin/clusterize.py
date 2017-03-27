@@ -98,15 +98,15 @@ def cluster(toClusterList, idPrefix):
 	         
     # concatenate the dicts together
     allDict = dict(idOneToIdTwoDict.items() + idTwoToIdOneDict.items())
-    print 'allDict:'
-    for key in allDict:
-	print 'key: %s value: %s' % (key, allDict[key])
+    #print 'allDict:'
+    #for key in allDict:
+	#print 'key: %s value: %s' % (key, allDict[key])
 
     #print getRoots(allDict)
     clusterDict = getRoots(allDict)
-    print 'clusterDict'
-    for key in clusterDict:
-	print 'key: %s value: %s' % (key, clusterDict[key])
+    #print 'clusterDict'
+    #for key in clusterDict:
+	#print 'key: %s value: %s' % (key, clusterDict[key])
     #print clusterDict
     # {clusterID:(id1, ..., idn), ...} 
     namedDict = {}
