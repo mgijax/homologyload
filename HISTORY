@@ -5,6 +5,12 @@ download_package ftp.ncbi.nih.gov.homologene
 download_package ftp.xenbase.org.downloads
 download_package zfin.org.downloads
 
+TAG: homologyload-6-0-8-1
+DATE: 03/27/2017
+STAFF: dbm 
+CHANGES:
+1) bin/clusterize.py: disable debug statements
+
 TAG: homologyload-6-0-7-1
 DATE: 01/05/2017
 STAFF: lec 
