@@ -5,6 +5,13 @@ download_package ftp.ncbi.nih.gov.homologene
 download_package ftp.xenbase.org.downloads
 download_package zfin.org.downloads
 
+TAG: homologyload-6-0-11-1
+DATE: 02/14/2018
+STAFF: dbm 
+CHANGES:
+1) bin/preprocessXenbase.py: fixed parsing of translation file because the
+                             format changed
+
 TAG: homologyload-6-0-8-1
 DATE: 03/27/2017
 STAFF: dbm 
