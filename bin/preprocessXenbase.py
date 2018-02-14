@@ -270,10 +270,9 @@ def processInputFiles():
         tokens = string.split(line, TAB)
 	# get the Xenbase Gene Page ID
         gpId = string.strip(tokens[0])
-	# get the Xenbase Gene ID
-        gIdList = map(string.strip, string.split(tokens[1], ','))
-	# many xen gId to one gpId
-	for gId in gIdList:
+	# get the Xenbase Gene IDs from every other field, ignoring
+	# the gene symbols
+	for gId in tokens[2::2]:
 	    transDict[gId] = gpId
     if debug:
 	print 'Xenbase Gene ID to Gene Page ID translation file'
