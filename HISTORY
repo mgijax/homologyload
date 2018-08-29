@@ -5,6 +5,11 @@ download_package ftp.ncbi.nih.gov.homologene
 download_package ftp.xenbase.org.downloads
 download_package zfin.org.downloads
 
+TAG: homologyload-6-0-12-1
+DATE: 08/29/2018
+STAFF: sc
+CHANGES: TR12044 Homology load HGNC biomart changes
+
 TAG: homologyload-6-0-11-1
 DATE: 02/14/2018
 STAFF: dbm 

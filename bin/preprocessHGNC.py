@@ -193,12 +193,10 @@ def parseFile():
 
     for line in fpInFile.readlines():
 	# 6/30 - file is no longer one line per cluster
-	(hgncID, mgiID, egID) =  map(string.strip, string.split(line, TAB))
-	#print 'egID: %s mgiID: %s' % (egID, mgiID) 
-
+	(hgncID, mgiIDstring, egID) =  map(string.strip, string.split(line, TAB))
 	# if both egID and mgiId columns are blank, skip and don't
         # report
-        if egID == '' and mgiID == '':
+        if egID == '' and mgiIDstring == '':
             hgncIdOnlyCount += 1
             continue
 
@@ -207,15 +205,17 @@ def parseFile():
             mgiIdOnlyCount += 1
             continue
 	# if no mouse homology add to the count and mgiID value should be 'None'
-        if mgiID == '':
-             mgiID = 'None'
+        if mgiIDstring == '':
+             mgiIDstring = 'None'
              egIdOnlyCount += 1
 	# value  of humanEgToMouseMgiDict will be empty list if no mouse homology
+
 	if not egID in humanEgToMouseMgiDict:
 	    humanEgToMouseMgiDict[egID] = []
 	# add the mouse homology to the dictionary
-	humanEgToMouseMgiDict[egID].append(mgiID)
-	
+	ids = string.split(mgiIDstring, ', ')
+	for id in ids:
+	    humanEgToMouseMgiDict[egID].append(id)
     return
 
 def process():
@@ -253,6 +253,7 @@ def process():
 	if egID and egID not in egToMarkerDict.keys():
 	    toReport = '%s%s%s%s' % (egID, TAB, string.join(mgiIDList), CRT)
 	    rptOne = '%s%s%s%s' % (rptOne, lineCt, TAB, toReport)
+	
 	    # if egID not in database continue to next input line
 	    continue
 
