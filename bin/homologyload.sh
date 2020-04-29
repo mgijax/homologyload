@@ -138,7 +138,7 @@ checkColumns ()
     FILE=$1         # The input file to check
     REPORT=$2       # The sanity report to write to
     NUM_COLUMNS=$3  # The number of columns expected in each input record
-    ${HOMOLOGYLOAD}/bin/checkColumns.py ${FILE} ${NUM_COLUMNS}
+    ${PYTHON} ${HOMOLOGYLOAD}/bin/checkColumns.py ${FILE} ${NUM_COLUMNS}
     cat ${TMP_FILE} | tee -a ${REPORT}
     if [ `cat ${TMP_FILE} | wc -l` -eq 0 ]
     then
@@ -225,7 +225,7 @@ then
     checkStatus ${STAT} "runSanityChecks"
 fi
 
-${PREPROCESSOR}
+${PYTHON} ${PREPROCESSOR}
 STAT=$?
 checkStatus ${STAT} "${PREPROCESSOR}"
 
@@ -235,7 +235,7 @@ checkStatus ${STAT} "${PREPROCESSOR}"
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
 echo 'Running loader ${LOADER}' >> ${LOG_DIAG}
-${LOADER}
+${PYTHON} ${LOADER}
 STAT=$?
 checkStatus ${STAT} "${LOADER}"
 

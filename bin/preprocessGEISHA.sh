@@ -52,7 +52,7 @@ checkColumns ()
 {
     FILE=$1         # The input file to check
     NUM_COLUMNS=$2  # The number of columns expected in each input record
-    ${HOMOLOGYLOAD}/bin/checkColumns.py ${FILE} ${NUM_COLUMNS} >>  ${TMP2_FILE}
+    ${PYTHON} ${HOMOLOGYLOAD}/bin/checkColumns.py ${FILE} ${NUM_COLUMNS} >>  ${TMP2_FILE}
     if [ `cat ${TMP2_FILE} | wc -l` -eq 0 ]
     then
         return 0
@@ -123,7 +123,7 @@ fi
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
 echo 'Running Preprocessor' >> ${LOG_DIAG}
-${HOMOLOGYLOAD}/bin/preprocessGEISHA.py 
+${PYTHON} ${HOMOLOGYLOAD}/bin/preprocessGEISHA.py 
 STAT=$?
 exit ${STAT}
 
