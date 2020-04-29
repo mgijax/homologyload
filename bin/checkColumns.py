@@ -54,7 +54,7 @@ def checkArgs ():
 
     global inputFile, numColumns
     if len(sys.argv) != 3:
-        print USAGE
+        print(USAGE)
         sys.exit(1)
 
     inputFile = sys.argv[1]
@@ -73,7 +73,7 @@ def openFile ():
     try:
         fpInput = open(inputFile, 'r')
     except:
-        print 'Cannot open input file: ' + inputFile
+        print('Cannot open input file: ' + inputFile)
         sys.exit(1)
     return
 
@@ -89,13 +89,13 @@ def checkColumns ():
     for line in fpInput.readlines():
         colError = 0
         lineNum = lineNum + 1
-        columns = string.split(line, TAB)
+        columns = str.split(line, TAB)
         # remove newline from last column
         last = columns[-1].strip()
         columns[-1] = last
         nc = len(columns) 
         if nc < numColumns:
-            print 'Missing Column(s) in %s on line %s: %s ' % (inputFile, lineNum, columns)
+            print('Missing Column(s) in %s on line %s: %s ' % (inputFile, lineNum, columns))
             continue
     return
 

@@ -170,7 +170,7 @@ def deleteHomologies():
 
     db.sql('create index todelete2_idx1 on todelete2(_Cluster_key)', None)
    
-    print 'Deleting Homology Clusters and Members; any Properties and Accessions'
+    print('Deleting Homology Clusters and Members; any Properties and Accessions')
     db.sql('''delete from MRK_Cluster m
         using todelete2 d
         where d._Cluster_key = m._Cluster_key''', None)
@@ -234,14 +234,14 @@ def process():
 
     # load input file into memory organizing by HG ID
     for line in fpInFile.readlines():
-        tokens = string.split(line[:-1], TAB)
+        tokens = str.split(line[:-1], TAB)
         hgId = tokens[2]
-        if not hgIdToMemberDict.has_key(hgId):
+        if hgId not in hgIdToMemberDict:
             hgIdToMemberDict[hgId] = []
         hgIdToMemberDict[hgId].append(tokens)
 
-    print "Creating BCP files"
-    for hgId in hgIdToMemberDict.keys():
+    print("Creating BCP files")
+    for hgId in list(hgIdToMemberDict.keys()):
         # lineList is list of lists [ [line1], [line2], ... ]
         lineList = hgIdToMemberDict[hgId]
         #    

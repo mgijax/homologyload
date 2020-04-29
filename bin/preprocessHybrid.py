@@ -132,13 +132,13 @@ class Cluster:
         mList = []
         for m in self.markers:
             mList.append(m.toString())
-        return 'cKey: %s%ssource: %s%smembers:%s%s%s' % (self.clusterKey, CRT, self.source, CRT, CRT, string.join(mList, CRT ), CRT)
+        return 'cKey: %s%ssource: %s%smembers:%s%s%s' % (self.clusterKey, CRT, self.source, CRT, CRT, str.join(mList, CRT ), CRT)
 
     def toStringHybrid(self):
         mList = []
         for m in self.markers:
             mList.append(m.toString())
-        return 'originalClustkey: %s%srule:%s%ssource: %s%shybrid source: %s%sconflict: %s%smembers:%s%s%s' % (self.clusterKey, CRT, self.rule, CRT, self.source, CRT, self.hybridSource, CRT, self.conflict, CRT, CRT, string.join(mList, CRT ), CRT)
+        return 'originalClustkey: %s%srule:%s%ssource: %s%shybrid source: %s%sconflict: %s%smembers:%s%s%s' % (self.clusterKey, CRT, self.rule, CRT, self.source, CRT, self.hybridSource, CRT, self.conflict, CRT, CRT, str.join(mList, CRT ), CRT)
 
 ###--- functions ---###
 
@@ -202,7 +202,7 @@ def getClusters():
         symbol = r['symbol']
         keyToMarkerDict[mKey] = symbol
 
-        if not clusterDict.has_key(cKey):
+        if cKey not in clusterDict:
            clusterDict[cKey] = Cluster()
         clusterDict[cKey].clusterKey = cKey
         clusterDict[cKey].source = 'HGNC'
@@ -217,7 +217,7 @@ def getClusters():
         clusterDict[cKey].organisms.add(o)
              
     # now map the markers in each cluster to its cluster
-    for cKey in clusterDict.keys():
+    for cKey in list(clusterDict.keys()):
         currentCluster = clusterDict[cKey]
         for m in currentCluster.markers:
             hgncDict[m.key] = currentCluster
@@ -245,7 +245,7 @@ def getClusters():
         symbol = r['symbol']
         keyToMarkerDict[mKey] = symbol
 
-        if not clusterDict.has_key(cKey):
+        if cKey not in clusterDict:
            clusterDict[cKey] = Cluster()
         clusterDict[cKey].clusterKey = cKey
         clusterDict[cKey].source = 'HomoloGene'
@@ -260,13 +260,13 @@ def getClusters():
         clusterDict[cKey].organisms.add(o)
 
     # now map the markers in each cluster to its cluster
-    for cKey in clusterDict.keys():
+    for cKey in list(clusterDict.keys()):
         currentCluster = clusterDict[cKey]
         for m in currentCluster.markers:
             homologeneDict[m.key] = currentCluster
 
     # Create list of all clusters from both providers
-    allClustersList = hgncDict.values() + homologeneDict.values()
+    allClustersList = list(hgncDict.values()) + list(homologeneDict.values())
 
     return
 
@@ -290,11 +290,11 @@ def closure(c): # c is Cluster object
     source = c.source
     for m in c.markers:
         mKey = m.key
-        if source == 'HomoloGene' and hgncDict.has_key(mKey):
+        if source == 'HomoloGene' and mKey in hgncDict:
             c2 = hgncDict[mKey]
             closure(c2)
         else:
-           if homologeneDict.has_key(mKey):
+           if mKey in homologeneDict:
                 c2 = homologeneDict[mKey]
                 closure(c2)
 
@@ -337,7 +337,7 @@ def writeLoadFile(hcList): # h is list of Cluster objects from a given cc
 def writeMyComponents():
     global fpCC
 
-    keyList = connCompDict.keys()
+    keyList = list(connCompDict.keys())
     keyList.sort()
     for ccCount in keyList:
         connCompList = connCompDict[ccCount][0]
@@ -352,7 +352,7 @@ def writeMyHybrid():
     global fpH
 
     #for c in hybridClusterList:
-    keyList = connCompDict.keys()
+    keyList = list(connCompDict.keys())
     keyList.sort()
     for ccCount in keyList:
         hybridList = connCompDict[ccCount][1]
@@ -365,7 +365,7 @@ def writeMyHybrid():
 def writeHybrid():
     global fpRptFile
 
-    keyList = connCompDict.keys()
+    keyList = list(connCompDict.keys())
     keyList.sort()
     for ccCount in keyList:
         ccID = 'comp%s' % ccCount
@@ -527,23 +527,23 @@ def closeFiles():
 
 ###--- main program ---###
 
-print '%s' % mgi_utils.date()
+print('%s' % mgi_utils.date())
 
-print 'initializing'
+print('initializing')
 init()
 
-print 'getting clusters from the database'
+print('getting clusters from the database')
 getClusters()
 
-print 'processing clusters'
+print('processing clusters')
 findHybrid()
 
-print 'writing reports'
+print('writing reports')
 writeMyComponents()
 writeMyHybrid()
 writeHybrid()
 
-print 'closing files'
+print('closing files')
 closeFiles()
 
-print '%s' % mgi_utils.date()
+print('%s' % mgi_utils.date())

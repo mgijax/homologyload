@@ -192,10 +192,10 @@ def parseFile():
 
     for line in fpInFile.readlines():
         # 6/30 - file is no longer one line per cluster
-        (hgncID, mgiIDstring, egID) =  map(string.strip, string.split(line, TAB))
+        (hgncID, mgiIDstr. egID) =  list(map(str.strip, str.split(line, TAB)))
         # if both egID and mgiId columns are blank, skip and don't
         # report
-        if egID == '' and mgiIDstring == '':
+        if egID == '' and mgiIDstr.== '':
             hgncIdOnlyCount += 1
             continue
 
@@ -204,15 +204,15 @@ def parseFile():
             mgiIdOnlyCount += 1
             continue
         # if no mouse homology add to the count and mgiID value should be 'None'
-        if mgiIDstring == '':
-             mgiIDstring = 'None'
+        if mgiIDstr.== '':
+             mgiIDstr.= 'None'
              egIdOnlyCount += 1
         # value  of humanEgToMouseMgiDict will be empty list if no mouse homology
 
         if not egID in humanEgToMouseMgiDict:
             humanEgToMouseMgiDict[egID] = []
         # add the mouse homology to the dictionary
-        ids = string.split(mgiIDstring, ', ')
+        ids = str.split(mgiIDstr. ', ')
         for id in ids:
             humanEgToMouseMgiDict[egID].append(id)
     return
@@ -249,8 +249,8 @@ def process():
         # 'toClusterList'
         currentClusterList = []
         # report and skip lines where egID not in the database
-        if egID and egID not in egToMarkerDict.keys():
-            toReport = '%s%s%s%s' % (egID, TAB, string.join(mgiIDList), CRT)
+        if egID and egID not in list(egToMarkerDict.keys()):
+            toReport = '%s%s%s%s' % (egID, TAB, str.join(mgiIDList), CRT)
             rptOne = '%s%s%s%s' % (rptOne, lineCt, TAB, toReport)
         
             # if egID not in database continue to next input line
@@ -262,9 +262,9 @@ def process():
 
         # add clusters with mouse to the list
         for id in mgiIDList:
-            id = string.strip(id)
+            id = str.strip(id)
             # report and skip lines with mgiId not in the database
-            if id != 'None' and id not in mgiToMarkerDict.keys(): 
+            if id != 'None' and id not in list(mgiToMarkerDict.keys()): 
                 error = 1
                 toReport = '%s%s%s%s' % (egID, TAB, id, CRT)
                 rptTwo = '%s%s%s%s' % (rptTwo, lineCt, TAB, toReport)
@@ -294,7 +294,7 @@ def process():
     clusterDict = clusterize.cluster(toClusterList, 'HGNC')
 
     # now resolve the ids to database keys; human and mouse gene keys
-    for clusterId in clusterDict.keys():
+    for clusterId in list(clusterDict.keys()):
         idTuple = clusterDict[clusterId]
         humanKeyList = []
         mouseKeyList = []
@@ -347,18 +347,18 @@ def closeFiles():
 
 ###--- main program ---###
 
-print '%s' % mgi_utils.date()
+print('%s' % mgi_utils.date())
 
-print 'initializing'
+print('initializing')
 init()
 
-print 'processing clusters'
+print('processing clusters')
 process()
 
-print 'writing reports'
+print('writing reports')
 writeReports()
 
-print 'closing files'
+print('closing files')
 closeFiles()
 
-print '%s' % mgi_utils.date()
+print('%s' % mgi_utils.date())

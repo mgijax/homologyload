@@ -195,23 +195,23 @@ def processInputFiles():
     header = fpExprFile.readline()
     line =  fpExprFile.readline()
     while line:
-        tokens = string.split(line, TAB)
-        egChickenID = string.strip(tokens[0])
+        tokens = str.split(line, TAB)
+        egChickenID = str.strip(tokens[0])
         exprSet.add(egChickenID)
         line =  fpExprFile.readline()
     # remove header
     header = fpOrthoFile.readline()
     line = fpOrthoFile.readline()
     while line:
-        tokens = string.split(line, TAB)
-        egChickenID = string.strip(tokens[0])
-        egMouseIDs = string.strip(tokens[4])
+        tokens = str.split(line, TAB)
+        egChickenID = str.strip(tokens[0])
+        egMouseIDs = str.strip(tokens[4])
         # skip if no mouse ID(s)  on this line
         if egMouseIDs == '':
             line = fpOrthoFile.readline()
             continue
         else:
-            mouseList = string.split(egMouseIDs, ',')
+            mouseList = str.split(egMouseIDs, ',')
             mouseDict[egChickenID] = mouseList
         #for id in mouseList:
         #    if not mouseDict.has_key(egChickenID):
@@ -239,7 +239,7 @@ def process():
         mouseID = ''
         error = 0
         # get the mouse orthology, if none report
-        if chickenID in mouseDict.keys():
+        if chickenID in list(mouseDict.keys()):
             mouseIdList = mouseDict[chickenID]
         else:
             error = 1
@@ -247,14 +247,14 @@ def process():
         if error:
             continue
         # verify chicken EG ID in database
-        if chickenID not in egToChickenDict.keys():
+        if chickenID not in list(egToChickenDict.keys()):
             chickenIdNotInDBSet.add(chickenID)
             error = 1
         # verify mouse EG ID in database
         currentClusterList = []
         for mouseID in mouseIdList:
             currentClusterList.append([chickenID, mouseID])
-            if mouseID not in egToMouseDict.keys():
+            if mouseID not in list(egToMouseDict.keys()):
                 mouseIdNotInDBSet.add(mouseID)
                 error = 1
         if error:
@@ -268,17 +268,17 @@ def process():
     # If we find we need for this load we will need to create a mouse and a 
     # chicken lookup by EG ID to determine which organism in order to 
     # order correctly (mouse first then chicken)
-    for clusterId in clusterDict.keys():
+    for clusterId in list(clusterDict.keys()):
         idTuple = clusterDict[clusterId]
         mouseKeyList = []
         chickenKeyList = []
         for id in idTuple:
-            if id in egToMouseDict.keys():
+            if id in list(egToMouseDict.keys()):
                 mouseKeyList.append(str(egToMouseDict[id]))
-            elif id in egToChickenDict.keys():
+            elif id in list(egToChickenDict.keys()):
                 chickenKeyList.append(str(egToChickenDict[id]))
             else:
-                print 'not chicken or mouse'
+                print('not chicken or mouse')
         keyList = mouseKeyList + chickenKeyList
         keyString = ', '.join(keyList)
         fpLoadFile.write('%s%s%s%s' % (clusterId, TAB, keyString, CRT))
@@ -329,21 +329,21 @@ def closeFiles():
 
 ###--- main program ---###
 
-print '%s' % mgi_utils.date()
+print('%s' % mgi_utils.date())
  
-print 'initializing'
+print('initializing')
 init()
 
-print 'processing input files'
+print('processing input files')
 processInputFiles()
 
-print 'processing clusters'
+print('processing clusters')
 process()
 
-print 'writing reports'
+print('writing reports')
 writeReports()
 
-print 'closing files'
+print('closing files')
 closeFiles()
 
-print '%s' % mgi_utils.date()
+print('%s' % mgi_utils.date())

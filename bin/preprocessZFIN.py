@@ -213,22 +213,22 @@ def processInputFiles():
     global exprSet, geneDict, mouseDict
 
     for line in fpExprFile.readlines():
-        tokens = string.split(line, TAB)
-        zfinID = string.strip(tokens[0])
+        tokens = str.split(line, TAB)
+        zfinID = str.strip(tokens[0])
         if zfinID.startswith('ZDB-GENE'):
             exprSet.add(zfinID)
     for line in fpGeneFile.readlines():
-        tokens = string.split(line, TAB)
-        zfinID = string.strip(tokens[0])
+        tokens = str.split(line, TAB)
+        zfinID = str.strip(tokens[0])
         if zfinID.startswith('ZDB-GENE'):
-            egID = string.strip(tokens[3])
+            egID = str.strip(tokens[3])
             geneDict[zfinID] = egID
     for line in fpOrthoFile.readlines():
-        tokens = string.split(line, TAB)
-        zfinID = string.strip(tokens[0])
+        tokens = str.split(line, TAB)
+        zfinID = str.strip(tokens[0])
         if zfinID.startswith('ZDB-GENE'):
-            mgiID = string.strip(tokens[5])
-            if not mouseDict.has_key(zfinID):
+            mgiID = str.strip(tokens[5])
+            if zfinID not in mouseDict:
                 mouseDict[zfinID] = []
             mouseDict[zfinID].append(mgiID)
 
@@ -255,12 +255,12 @@ def process():
         egID = ''
         mgiID = ''
         error = 0
-        if zfinID in geneDict.keys():
+        if zfinID in list(geneDict.keys()):
             egID = geneDict[zfinID]
         else:
             error = 1
             zfinIdNotInSet.add(zfinID)
-        if zfinID in mouseDict.keys():
+        if zfinID in list(mouseDict.keys()):
             mgiIdList = mouseDict[zfinID]
         else:
             error = 1
@@ -268,14 +268,14 @@ def process():
         if error:
             continue
         # verify zebra fish EG ID in database
-        if egID not in egToMarkerDict.keys():
+        if egID not in list(egToMarkerDict.keys()):
             egNotInDBSet.add(egID)
             error = 1
         # verify mouse mgiIDs in database
         currentClusterList = []
         for mgiID in mgiIdList:
             currentClusterList.append([egID, mgiID])
-            if mgiID not in mgiToMarkerDict.keys():
+            if mgiID not in list(mgiToMarkerDict.keys()):
                 mgiNotInDBSet.add(mgiID)
                 error = 1
         if error:
@@ -285,7 +285,7 @@ def process():
             toClusterList = toClusterList + currentClusterList
     clusterDict = clusterize.cluster(toClusterList, 'ZFIN')
     # now resolve the ids to database keys; zfin and mouse gene keys
-    for clusterId in clusterDict.keys():
+    for clusterId in list(clusterDict.keys()):
         idTuple = clusterDict[clusterId]
         zfinKeyList = []
         mouseKeyList = []
@@ -347,21 +347,21 @@ def closeFiles():
 
 ###--- main program ---###
 
-print '%s' % mgi_utils.date()
+print('%s' % mgi_utils.date())
 
-print 'initializing'
+print('initializing')
 init()
 
-print 'processing input files'
+print('processing input files')
 processInputFiles()
 
-print 'processing clusters'
+print('processing clusters')
 process()
 
-print 'writing reports'
+print('writing reports')
 writeReports()
 
-print 'closing files'
+print('closing files')
 closeFiles()
 
-print '%s' % mgi_utils.date()
+print('%s' % mgi_utils.date())

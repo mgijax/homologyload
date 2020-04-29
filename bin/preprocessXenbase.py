@@ -228,27 +228,27 @@ def processInputFiles():
     xenEgToGeneIdDict = {}
 
     for line in fpExprFile.readlines():
-        tokens = string.split(line, TAB)
+        tokens = str.split(line, TAB)
         # get the xbgid
-        exprSet.add(string.strip(tokens[0]))
+        exprSet.add(str.strip(tokens[0]))
 
     #
     # Xenopus tropicalis gene ID to EG ID file
     #
     for line in fpEgFile.readlines():
-        tokens = string.split(line, TAB)
+        tokens = str.split(line, TAB)
         # get the Xenbase Gene ID
-        gId = string.strip(tokens[0])
+        gId = str.strip(tokens[0])
         # get the Xenopus EG ID
-        egId = string.strip(tokens[2])
+        egId = str.strip(tokens[2])
         if egId == '':
             egId = 'None'
         egDict[gId] = egId
         if egId !='None':
-            if not xenEgToGeneIdDict.has_key(egId): 
+            if egId not in xenEgToGeneIdDict: 
                 xenEgToGeneIdDict[egId] = []
             xenEgToGeneIdDict[egId].append(gId)
-    for egId in xenEgToGeneIdDict.keys():
+    for egId in list(xenEgToGeneIdDict.keys()):
         if len(xenEgToGeneIdDict[egId]) > 1:
             # write to bad egId report
             geneIds = xenEgToGeneIdDict[egId]
@@ -258,42 +258,42 @@ def processInputFiles():
             for g in geneIds:
                 egDict.pop(g)
     if debug:
-        print 'Xenopus tropicalis gene ID to EG ID file'
+        print('Xenopus tropicalis gene ID to EG ID file')
         keys = sorted(egDict.keys())
         for key in keys:
-            print 'gId: %s egId: %s' % (key, egDict[key])
+            print('gId: %s egId: %s' % (key, egDict[key]))
     #
     # Xenbase Gene Page ID to list of Xenbase Gene IDs file
     #
     for line in fpTransFile.readlines():
-        tokens = string.split(line, TAB)
+        tokens = str.split(line, TAB)
         # get the Xenbase Gene Page ID
-        gpId = string.strip(tokens[0])
+        gpId = str.strip(tokens[0])
         # get the Xenbase Gene IDs from every other field, ignoring
         # the gene symbols
         for gId in tokens[2::2]:
             transDict[gId] = gpId
     if debug:
-        print 'Xenbase Gene ID to Gene Page ID translation file'
+        print('Xenbase Gene ID to Gene Page ID translation file')
         keys = sorted(transDict.keys())
         for key in keys:
-            print 'gId: %s gpId: %s' % (key, transDict[key])
+            print('gId: %s gpId: %s' % (key, transDict[key]))
     #
     # Xenopus Gene Page ID to mouse EG ID  file
     #
     for line in fpOrthoFile.readlines():
-        tokens = string.split(line, TAB)
+        tokens = str.split(line, TAB)
         # get the mouse EG ID
-        egID = string.strip(tokens[0])
+        egID = str.strip(tokens[0])
         # get the Xenbase Gene Page ID
-        gpId = string.strip(tokens[1])
+        gpId = str.strip(tokens[1])
         # one mouse egId to many genePage IDs
         mouseDict[gpId] = egID
     if debug:
-        print 'Xenopus Gene Page ID to mouse EG ID file'
+        print('Xenopus Gene Page ID to mouse EG ID file')
         keys = sorted(mouseDict.keys())
         for key in keys:
-            print 'gpId: %s mouseEgId: %s' % (key, mouseDict[key])
+            print('gpId: %s mouseEgId: %s' % (key, mouseDict[key]))
 
 def process():
     # Purpose: Create load ready file and  QC reports from Xenbase files 
@@ -332,12 +332,12 @@ def process():
 
     for geneId in exprSet:
         # Join to trans and eg file on geneId
-        if not  transDict.has_key(geneId):
+        if geneId not in transDict:
             noTransSet.add(geneId)
             continue
         gpId = transDict[geneId]
         skip = 0
-        if not egDict.has_key(geneId):
+        if geneId not in egDict:
             noXenEgSet.add(geneId)
             skip = 1
         elif egDict[geneId] == 'None':
@@ -347,15 +347,15 @@ def process():
             continue
         xenEg = egDict[geneId]
         # join from trans to orth file on genePageId
-        if not mouseDict.has_key(gpId):
+        if gpId not in mouseDict:
             noOrthSet.add(gpId)
             continue
         mouseEg = mouseDict[gpId]
         notInDb = 0
-        if not egToXenMarkerDict.has_key(xenEg):
+        if xenEg not in egToXenMarkerDict:
             xenNotInDbSet.add(xenEg)
             notInDb = 1
-        if not egToMouseMarkerDict.has_key(mouseEg):
+        if mouseEg not in egToMouseMarkerDict:
             mouseNotInDbSet.add(mouseEg)
             notInDb = 1
         if notInDb:
@@ -370,17 +370,17 @@ def process():
     # If we find we need for this load we will need to create a mouse and a
     # xenopus lookup by EG ID to determine which organism in order to
     # order correctly (mouse first then xenopus)
-    for clusterId in clusterDict.keys():
+    for clusterId in list(clusterDict.keys()):
         idTuple = clusterDict[clusterId]
         mouseKeyList = []
         xenKeyList = []
         for id in idTuple:
-            if id in egToMouseMarkerDict.keys():
+            if id in list(egToMouseMarkerDict.keys()):
                 mouseKeyList.append(str(egToMouseMarkerDict[id]))
-            elif id in egToXenMarkerDict.keys():
+            elif id in list(egToXenMarkerDict.keys()):
                 xenKeyList.append(str(egToXenMarkerDict[id]))
             else:
-                print 'not xenopus or mouse'
+                print('not xenopus or mouse')
         keyList = mouseKeyList + xenKeyList
         keyString = ', '.join(keyList)
         fpLoadFile.write('%s%s%s%s' % (clusterId, TAB, keyString, CRT))
@@ -447,21 +447,21 @@ def closeFiles():
 
 ###--- main program ---###
 
-print '%s' % mgi_utils.date()
+print('%s' % mgi_utils.date())
 
-print 'initializing'
+print('initializing')
 init()
 
-print 'processing input files'
+print('processing input files')
 processInputFiles()
 
-print 'processing clusters'
+print('processing clusters')
 process()
 
-print 'writing reports'
+print('writing reports')
 writeReports()
 
-print 'closing files'
+print('closing files')
 closeFiles()
 
-print '%s' % mgi_utils.date()
+print('%s' % mgi_utils.date())

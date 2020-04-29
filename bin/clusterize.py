@@ -40,7 +40,7 @@ def getRoots(aNeigh):
             aNode = aRoot[aNode][0]
         return (aNode,aRoot[aNode][1])
     myRoot = {}
-    for myNode in aNeigh.keys():
+    for myNode in list(aNeigh.keys()):
         myRoot[myNode] = (myNode,0)
     for myI in aNeigh:
         for myJ in aNeigh[myI]:
@@ -87,16 +87,16 @@ def cluster(toClusterList, idPrefix):
         idOne = pair[0] # egID
         idTwo = pair[1] # MGI ID
         #
-        if not idOneToIdTwoDict.has_key(idOne):
+        if idOne not in idOneToIdTwoDict:
             idOneToIdTwoDict[idOne] = []
         if idTwo != 'None':
             idOneToIdTwoDict[idOne].append(idTwo)
-            if not idTwoToIdOneDict.has_key(idTwo):
+            if idTwo not in idTwoToIdOneDict:
                 idTwoToIdOneDict[idTwo] = []
             idTwoToIdOneDict[idTwo].append(idOne)
                  
     # concatenate the dicts together
-    allDict = dict(idOneToIdTwoDict.items() + idTwoToIdOneDict.items())
+    allDict = dict(list(idOneToIdTwoDict.items()) + list(idTwoToIdOneDict.items()))
     #print 'allDict:'
     #for key in allDict:
         #print 'key: %s value: %s' % (key, allDict[key])

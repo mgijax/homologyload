@@ -49,16 +49,16 @@ memberBCP = os.environ['MEMBER_BCP']
 
 # Not all homology loads have accessions or properties
 accessionBCP = ''
-if os.environ.has_key('ACCESSION_BCP'):
+if 'ACCESSION_BCP' in os.environ:
     accessionBCP = os.environ['ACCESSION_BCP']
 
 # Property specific
 propertyBCP = ''
-if os.environ.has_key('PROPERTY_BCP'):
+if 'PROPERTY_BCP' in os.environ:
     propertyBCP = os.environ['PROPERTY_BCP']
 
 propertyTypeKey = ''    # MGI_PropertyType
-if os.environ.has_key('PROPERTY_TYPE_KEY'):
+if 'PROPERTY_TYPE_KEY' in os.environ:
     propertyTypeKey = os.environ['PROPERTY_TYPE_KEY']
 
 # property term:key pairs from the database
@@ -202,7 +202,7 @@ def deleteHomologies():
 
     db.sql('create index todelete2_idx2 on todelete2(_Cluster_key)', None)
    
-    print 'Deleting Homology Clusters, Members, Properties and Accessions' 
+    print('Deleting Homology Clusters, Members, Properties and Accessions') 
     db.sql('''delete from MRK_Cluster m
         using todelete2 d
         where d._Cluster_key = m._Cluster_key''', None)
@@ -220,10 +220,10 @@ def createBCPFiles():
 
     global nextClusterKey,  nextMemberKey, nextAccessionKey, nextPropertyKey
     for line in fpInFile.readlines():
-        tokens = string.split(line[:-1], TAB)
+        tokens = str.split(line[:-1], TAB)
         id = tokens[0]
         members = tokens[1]
-        memberList = map(string.strip, string.split(members, ','))
+        memberList = list(map(str.strip, str.split(members, ',')))
         properties = ''
         if len(tokens) == 3:
             properties = tokens[2]
@@ -263,10 +263,10 @@ def createBCPFiles():
         # e.g. source:HG, conflict:none 2/17 - not implementing conflict now
 
         if propertyDict and properties != '':
-            tokens = map(string.strip, string.split(properties, ','))
+            tokens = list(map(str.strip, str.split(properties, ',')))
             for p in tokens:
-                propertyTerm, propertyValue = string.split(p, ':')
-                if not propertyDict.has_key(propertyTerm):
+                propertyTerm, propertyValue = str.split(p, ':')
+                if propertyTerm not in propertyDict:
                     exit(1, 'Invalid property term: %s' % propertyTerm)
                 propertyTermKey = propertyDict[propertyTerm]
                 fpPropertyBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextPropertyKey, TAB, propertyTypeKey, TAB, propertyTermKey, TAB, nextClusterKey, TAB, mgiTypeKey, TAB, propertyValue, TAB, 1, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
@@ -296,11 +296,11 @@ def closeFiles():
 
 ###--- main program ---###
 
-print '%s' % mgi_utils.date()
+print('%s' % mgi_utils.date())
 
 init()
 deleteHomologies()
 createBCPFiles()
 closeFiles()
 
-print '%s' % mgi_utils.date()
+print('%s' % mgi_utils.date())

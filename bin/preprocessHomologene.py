@@ -178,7 +178,7 @@ def init():
         markerKey = r['_Marker_key']
         symbol = r['symbol']
         organism = r['commonName']
-        if not mrkToMultiEGDict.has_key(markerKey):
+        if markerKey not in mrkToMultiEGDict:
             mrkToMultiEGDict[markerKey] = []
         mrkToMultiEGDict[markerKey].append( Marker(markerKey, egId, symbol, organism) )
 
@@ -193,7 +193,7 @@ def init():
         markerKey = r['_Marker_key']
         symbol = r['symbol']
         organism = r['commonName']
-        if not egToMarkerDict.has_key(egId):
+        if egId not in egToMarkerDict:
             egToMarkerDict[egId] = []
         egToMarkerDict[egId].append( Marker(markerKey, egId, symbol, organism) )
 
@@ -201,14 +201,14 @@ def init():
     # create lookup from the input file mapping EG ID to the line in the file
     for line in fpInFile.readlines():
 
-        (hgId, taxId, egId, junk1, junk2, junk3) = string.split(line[:-1], TAB)
+        (hgId, taxId, egId, junk1, junk2, junk3) = str.split(line[:-1], TAB)
 
-        hgId = string.strip(hgId)
-        taxId = string.strip(taxId)
-        egId = string.strip(egId)
+        hgId = str.strip(hgId)
+        taxId = str.strip(taxId)
+        egId = str.strip(egId)
         if taxId not in taxIdList:
             continue
-        if not egIdToLineDict.has_key(egId):
+        if egId not in egIdToLineDict:
             egIdToLineDict[egId] = []
         egIdToLineDict[egId].append(line)
 
@@ -224,7 +224,7 @@ def process():
     global rptOne, rptTwo, rptThree, rptFour
 
     # iterate through the input file dictionary
-    for egId in egIdToLineDict.keys():
+    for egId in list(egIdToLineDict.keys()):
         lineList = egIdToLineDict[egId]
         
         #
@@ -234,17 +234,17 @@ def process():
             rptOne = rptOne + 'egID: %s\n' % (egId)
             for line in lineList:
                 rptOne = rptOne + '    %s\n' % \
-                    (string.strip(string.join(line, ',')).split('\t'))
+                    (str.strip(str.join(line, ',')).split('\t'))
             continue
 
         # we have only one class, format  the line
-        line = (string.strip(string.join(lineList, ',')).split('\t'))
+        line = (str.strip(str.join(lineList, ',')).split('\t'))
 
         #
         # EG ID not in MGI, therefore will not participate in a class
         # Report. All other members of class will be loaded
         # 
-        if not egToMarkerDict.has_key(egId):
+        if egId not in egToMarkerDict:
             rptTwo = rptTwo + '%s%s%s%s%s%s' % \
                 (line[0], TAB, line[1], TAB, egId, CRT)
 
@@ -266,7 +266,7 @@ def process():
                 # Markers associated with input EG ID and also associated with 
                 # other EG IDs in MGI - report and skip
                 #
-                if mrkToMultiEGDict.has_key(m.k):
+                if m.k in mrkToMultiEGDict:
                     mDbList = mrkToMultiEGDict[m.k]
                     otherEgIds = ''
                     for mDb in mDbList:
@@ -317,18 +317,18 @@ def closeFiles():
 
 ###--- main program ---###
 
-print '%s' % mgi_utils.date()
+print('%s' % mgi_utils.date())
 
-print 'initializing'
+print('initializing')
 init()
 
-print 'processing clusters'
+print('processing clusters')
 process()
 
-print 'writing reports'
+print('writing reports')
 writeReports()
 
-print 'closing files'
+print('closing files')
 closeFiles()
 
-print '%s' % mgi_utils.date()
+print('%s' % mgi_utils.date())
