@@ -250,7 +250,7 @@ def process():
         currentClusterList = []
         # report and skip lines where egID not in the database
         if egID and egID not in list(egToMarkerDict.keys()):
-            toReport = '%s%s%s%s' % (egID, TAB, str.join(mgiIDList), CRT)
+            toReport = '%s%s%s%s' % (egID, TAB, ''.join(mgiIDList), CRT)
             rptOne = '%s%s%s%s' % (rptOne, lineCt, TAB, toReport)
         
             # if egID not in database continue to next input line

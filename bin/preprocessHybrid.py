@@ -132,13 +132,13 @@ class Cluster:
         mList = []
         for m in self.markers:
             mList.append(m.toString())
-        return 'cKey: %s%ssource: %s%smembers:%s%s%s' % (self.clusterKey, CRT, self.source, CRT, CRT, str.join(mList, CRT ), CRT)
+        return 'cKey: %s%ssource: %s%smembers:%s%s%s' % (self.clusterKey, CRT, self.source, CRT, CRT, CRT.join(mList), CRT)
 
     def toStringHybrid(self):
         mList = []
         for m in self.markers:
             mList.append(m.toString())
-        return 'originalClustkey: %s%srule:%s%ssource: %s%shybrid source: %s%sconflict: %s%smembers:%s%s%s' % (self.clusterKey, CRT, self.rule, CRT, self.source, CRT, self.hybridSource, CRT, self.conflict, CRT, CRT, str.join(mList, CRT ), CRT)
+        return 'originalClustkey: %s%srule:%s%ssource: %s%shybrid source: %s%sconflict: %s%smembers:%s%s%s' % (self.clusterKey, CRT, self.rule, CRT, self.source, CRT, self.hybridSource, CRT, self.conflict, CRT, CRT, CRT.join(mList), CRT)
 
 ###--- functions ---###
 

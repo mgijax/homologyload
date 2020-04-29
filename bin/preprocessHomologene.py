@@ -234,11 +234,11 @@ def process():
             rptOne = rptOne + 'egID: %s\n' % (egId)
             for line in lineList:
                 rptOne = rptOne + '    %s\n' % \
-                    (str.strip(str.join(line, ',')).split('\t'))
+                    (str.strip(','.join(line)).split('\t'))
             continue
 
         # we have only one class, format  the line
-        line = (str.strip(str.join(lineList, ',')).split('\t'))
+        line = (str.strip(','.join(lineList)).split('\t'))
 
         #
         # EG ID not in MGI, therefore will not participate in a class
