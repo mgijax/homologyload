@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 #
 #  checkColumns.py
 ###########################################################################
@@ -72,10 +71,10 @@ def openFile ():
     global fpInput
 
     try:
-	fpInput = open(inputFile, 'r')
+        fpInput = open(inputFile, 'r')
     except:
-	print 'Cannot open input file: ' + inputFile
-	sys.exit(1)
+        print 'Cannot open input file: ' + inputFile
+        sys.exit(1)
     return
 
 def checkColumns ():
@@ -88,16 +87,16 @@ def checkColumns ():
     global errors
     lineNum = 0
     for line in fpInput.readlines():
-	colError = 0
-	lineNum = lineNum + 1
-   	columns = string.split(line, TAB)
-	# remove newline from last column
+        colError = 0
+        lineNum = lineNum + 1
+        columns = string.split(line, TAB)
+        # remove newline from last column
         last = columns[-1].strip()
         columns[-1] = last
-	nc = len(columns) 
-	if nc < numColumns:
-	    print 'Missing Column(s) in %s on line %s: %s ' % (inputFile, lineNum, columns)
-	    continue
+        nc = len(columns) 
+        if nc < numColumns:
+            print 'Missing Column(s) in %s on line %s: %s ' % (inputFile, lineNum, columns)
+            continue
     return
 
 def closeFile():

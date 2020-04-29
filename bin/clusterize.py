@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 ##########################################################################
 #
@@ -85,38 +84,38 @@ def cluster(toClusterList, idPrefix):
 
     #for line in fpCF.readlines():
     for pair in toClusterList:
-	idOne = pair[0] # egID
-	idTwo = pair[1] # MGI ID
-	#
-	if not idOneToIdTwoDict.has_key(idOne):
-	    idOneToIdTwoDict[idOne] = []
-	if idTwo != 'None':
-	    idOneToIdTwoDict[idOne].append(idTwo)
-	    if not idTwoToIdOneDict.has_key(idTwo):
-		idTwoToIdOneDict[idTwo] = []
-	    idTwoToIdOneDict[idTwo].append(idOne)
-	         
+        idOne = pair[0] # egID
+        idTwo = pair[1] # MGI ID
+        #
+        if not idOneToIdTwoDict.has_key(idOne):
+            idOneToIdTwoDict[idOne] = []
+        if idTwo != 'None':
+            idOneToIdTwoDict[idOne].append(idTwo)
+            if not idTwoToIdOneDict.has_key(idTwo):
+                idTwoToIdOneDict[idTwo] = []
+            idTwoToIdOneDict[idTwo].append(idOne)
+                 
     # concatenate the dicts together
     allDict = dict(idOneToIdTwoDict.items() + idTwoToIdOneDict.items())
     #print 'allDict:'
     #for key in allDict:
-	#print 'key: %s value: %s' % (key, allDict[key])
+        #print 'key: %s value: %s' % (key, allDict[key])
 
     #print getRoots(allDict)
     clusterDict = getRoots(allDict)
     #print 'clusterDict'
     #for key in clusterDict:
-	#print 'key: %s value: %s' % (key, clusterDict[key])
+        #print 'key: %s value: %s' % (key, clusterDict[key])
     #print clusterDict
     # {clusterID:(id1, ..., idn), ...} 
     namedDict = {}
     clusterCt = 0
     for c in clusterDict:
-	cluster = clusterDict[c]
-	
-	clusterCt += 1
-	nextId = '%s:%s' % (idPrefix, clusterCt)
-	#clusterDict[nextId] = ', '.join(c)
-	namedDict[nextId] = cluster
-	
+        cluster = clusterDict[c]
+        
+        clusterCt += 1
+        nextId = '%s:%s' % (idPrefix, clusterCt)
+        #clusterDict[nextId] = ', '.join(c)
+        namedDict[nextId] = cluster
+        
     return namedDict

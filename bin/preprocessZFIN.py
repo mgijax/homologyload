@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 ##########################################################################
 #
@@ -143,9 +142,9 @@ def init():
     db.set_sqlPasswordFromFile(passwordFileName)
 
     try:
-	fpGeneFile = open(inFileGenePath, 'r')
+        fpGeneFile = open(inFileGenePath, 'r')
     except:
-	exit('Could not open file for reading %s\n' % inFileGenePath)
+        exit('Could not open file for reading %s\n' % inFileGenePath)
 
     try:
         fpOrthoFile = open(inFileOrthoPath, 'r')
@@ -163,44 +162,44 @@ def init():
         exit('Could not open file for writing %s\n' % loadFilePath)
 
     try:
-	fpQcRpt = open(qcRptPath, 'w')
+        fpQcRpt = open(qcRptPath, 'w')
     except:
-	exit('Could not open file for writing %s\n' % qcRptPath)
+        exit('Could not open file for writing %s\n' % qcRptPath)
 
 
     # get all human markers that are associated with egIds
     results = db.sql('''select distinct a.accid as egId, m._Marker_key
-	from ACC_Accession a, MRK_Marker m
-	where a._MGIType_key = 2
-	and a._LogicalDB_key = 55
-	and a.preferred = 1
-	and a._Object_key = m._Marker_key
-	and m._Marker_Status_key = 1
-	and m._Organism_key = 84''', 'auto')
+        from ACC_Accession a, MRK_Marker m
+        where a._MGIType_key = 2
+        and a._LogicalDB_key = 55
+        and a.preferred = 1
+        and a._Object_key = m._Marker_key
+        and m._Marker_Status_key = 1
+        and m._Organism_key = 84''', 'auto')
     #
     # create ZFIN egID to marker lookup from database
     #
     for r in results:
-	egId = r['egId']
-	markerKey = r['_Marker_key']
-	egToMarkerDict[egId] = markerKey
+        egId = r['egId']
+        markerKey = r['_Marker_key']
+        egToMarkerDict[egId] = markerKey
 
     # get all mouse markers
     results = db.sql('''select distinct a.accID as mgiId, m._Marker_key
-	    from ACC_Accession a, MRK_Marker m
-	    where a._MGIType_key = 2
-	    and a._LogicalDB_key = 1
-	    and a.prefixPart = 'MGI:'
-	    and a._Object_key = m._Marker_key
-	    and m._Marker_Status_key = 1
-	    and m._Organism_key = 1''', 'auto')
+            from ACC_Accession a, MRK_Marker m
+            where a._MGIType_key = 2
+            and a._LogicalDB_key = 1
+            and a.prefixPart = 'MGI:'
+            and a._Object_key = m._Marker_key
+            and m._Marker_Status_key = 1
+            and m._Organism_key = 1''', 'auto')
 
     # removed per Richard
     # and a.preferred = 1
     for r in results:
-	    mgiId = r['mgiId']
-	    markerKey = r['_Marker_key']
-	    mgiToMarkerDict[mgiId] = markerKey
+            mgiId = r['mgiId']
+            markerKey = r['_Marker_key']
+            mgiToMarkerDict[mgiId] = markerKey
 
     return
 
@@ -214,24 +213,24 @@ def processInputFiles():
     global exprSet, geneDict, mouseDict
 
     for line in fpExprFile.readlines():
-	tokens = string.split(line, TAB)
-	zfinID = string.strip(tokens[0])
-	if zfinID.startswith('ZDB-GENE'):
-	    exprSet.add(zfinID)
+        tokens = string.split(line, TAB)
+        zfinID = string.strip(tokens[0])
+        if zfinID.startswith('ZDB-GENE'):
+            exprSet.add(zfinID)
     for line in fpGeneFile.readlines():
-	tokens = string.split(line, TAB)
-	zfinID = string.strip(tokens[0])
-	if zfinID.startswith('ZDB-GENE'):
-	    egID = string.strip(tokens[3])
-	    geneDict[zfinID] = egID
+        tokens = string.split(line, TAB)
+        zfinID = string.strip(tokens[0])
+        if zfinID.startswith('ZDB-GENE'):
+            egID = string.strip(tokens[3])
+            geneDict[zfinID] = egID
     for line in fpOrthoFile.readlines():
-	tokens = string.split(line, TAB)
-	zfinID = string.strip(tokens[0])
-	if zfinID.startswith('ZDB-GENE'):
-	    mgiID = string.strip(tokens[5])
-	    if not mouseDict.has_key(zfinID):
-		mouseDict[zfinID] = []
-	    mouseDict[zfinID].append(mgiID)
+        tokens = string.split(line, TAB)
+        zfinID = string.strip(tokens[0])
+        if zfinID.startswith('ZDB-GENE'):
+            mgiID = string.strip(tokens[5])
+            if not mouseDict.has_key(zfinID):
+                mouseDict[zfinID] = []
+            mouseDict[zfinID].append(mgiID)
 
     return
 
@@ -252,38 +251,38 @@ def process():
     mgiNotInDBSet = set([])
 
     for zfinID in exprSet:
-	# Join to gene and orthos to get EG and MGI IDs
-	egID = ''
-	mgiID = ''
-	error = 0
-	if zfinID in geneDict.keys():
-	    egID = geneDict[zfinID]
-	else:
-	    error = 1
-	    zfinIdNotInSet.add(zfinID)
-	if zfinID in mouseDict.keys():
-	    mgiIdList = mouseDict[zfinID]
-	else:
-	    error = 1
-	    zfinIdNotInSet.add(zfinID)
-	if error:
-	    continue
-	# verify zebra fish EG ID in database
-	if egID not in egToMarkerDict.keys():
-	    egNotInDBSet.add(egID)
-	    error = 1
-	# verify mouse mgiIDs in database
-	currentClusterList = []
-	for mgiID in mgiIdList:
-	    currentClusterList.append([egID, mgiID])
-	    if mgiID not in mgiToMarkerDict.keys():
-		mgiNotInDBSet.add(mgiID)
-		error = 1
-	if error:
-	    continue
-	else:
-	    # no errors so append the next cluster
-	    toClusterList = toClusterList + currentClusterList
+        # Join to gene and orthos to get EG and MGI IDs
+        egID = ''
+        mgiID = ''
+        error = 0
+        if zfinID in geneDict.keys():
+            egID = geneDict[zfinID]
+        else:
+            error = 1
+            zfinIdNotInSet.add(zfinID)
+        if zfinID in mouseDict.keys():
+            mgiIdList = mouseDict[zfinID]
+        else:
+            error = 1
+            zfinIdNotInSet.add(zfinID)
+        if error:
+            continue
+        # verify zebra fish EG ID in database
+        if egID not in egToMarkerDict.keys():
+            egNotInDBSet.add(egID)
+            error = 1
+        # verify mouse mgiIDs in database
+        currentClusterList = []
+        for mgiID in mgiIdList:
+            currentClusterList.append([egID, mgiID])
+            if mgiID not in mgiToMarkerDict.keys():
+                mgiNotInDBSet.add(mgiID)
+                error = 1
+        if error:
+            continue
+        else:
+            # no errors so append the next cluster
+            toClusterList = toClusterList + currentClusterList
     clusterDict = clusterize.cluster(toClusterList, 'ZFIN')
     # now resolve the ids to database keys; zfin and mouse gene keys
     for clusterId in clusterDict.keys():
@@ -302,15 +301,15 @@ def process():
 
 
     for id in zfinIdNotInSet:
-	rptOne = '%s%s%s' % (rptOne, id, CRT)
+        rptOne = '%s%s%s' % (rptOne, id, CRT)
     rptOne = '%s%sTotal IDs: %s%s' % (rptOne, CRT, len(zfinIdNotInSet), CRT) 
 
     for id in egNotInDBSet:
-	rptTwo =  '%s%s%s' % (rptTwo, id, CRT)
+        rptTwo =  '%s%s%s' % (rptTwo, id, CRT)
     rptTwo = '%s%sTotal IDs: %s%s' % (rptTwo, CRT, len(egNotInDBSet), CRT)
 
     for id in mgiNotInDBSet:
-	rptThree = '%s%s%s' % (rptThree, id, CRT)
+        rptThree = '%s%s%s' % (rptThree, id, CRT)
     rptThree = '%s%sTotal IDs: %s%s' % (rptThree, CRT, len(mgiNotInDBSet), CRT)
 
     return

@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 ##########################################################################
 #
@@ -111,24 +110,24 @@ def init():
 
     # create file descriptors for input/output files
     try:
-	fpInFile = open(inFile, 'r')
+        fpInFile = open(inFile, 'r')
     except:
-	exit(1, 'Could not open file %s\n' % inFile)
+        exit(1, 'Could not open file %s\n' % inFile)
 
     try:
-	fpClusterBCP = open(clusterBCP, 'w')
+        fpClusterBCP = open(clusterBCP, 'w')
     except:
-	exit(1, 'Could not open file %s\n' % clusterBCP)
+        exit(1, 'Could not open file %s\n' % clusterBCP)
 
     try:
-	fpMemberBCP = open(memberBCP, 'w')
+        fpMemberBCP = open(memberBCP, 'w')
     except:
-	exit(1, 'Could not open file %s\n' % memberBCP)
+        exit(1, 'Could not open file %s\n' % memberBCP)
 
     try:
-	fpAccessionBCP = open(accessionBCP, 'w')
+        fpAccessionBCP = open(accessionBCP, 'w')
     except:
-	exit(1, 'Could not open file %s\n' % accessionBCP)
+        exit(1, 'Could not open file %s\n' % accessionBCP)
 
     # get next ACC_Accession, MRK_Cluster and MRK_ClusterMember key
     user = os.environ['MGD_DBUSER']
@@ -138,21 +137,21 @@ def init():
     db.set_sqlPasswordFromFile(passwordFileName)
 
     results = db.sql('''select max(_Cluster_key) + 1 as nextKey
-	    from MRK_Cluster''', 'auto')
+            from MRK_Cluster''', 'auto')
     if results[0]['nextKey'] is None:
-	nextClusterKey = 1000
+        nextClusterKey = 1000
     else:
-	nextClusterKey = results[0]['nextKey']
+        nextClusterKey = results[0]['nextKey']
 
     results = db.sql('''select max(_ClusterMember_key) + 1 as nextKey
-	    from MRK_ClusterMember''', 'auto')
+            from MRK_ClusterMember''', 'auto')
     if results[0]['nextKey'] is None:
-	nextMemberKey = 1000
+        nextMemberKey = 1000
     else:
-	nextMemberKey = results[0]['nextKey']
+        nextMemberKey = results[0]['nextKey']
 
     results = db.sql('''select max(_Accession_key) + 1 as nextKey
-	    from ACC_Accession''', 'auto')
+            from ACC_Accession''', 'auto')
     nextAccessionKey = results[0]['nextKey']
 
     return
@@ -235,43 +234,43 @@ def process():
 
     # load input file into memory organizing by HG ID
     for line in fpInFile.readlines():
-	tokens = string.split(line[:-1], TAB)
-	hgId = tokens[2]
-	if not hgIdToMemberDict.has_key(hgId):
-	    hgIdToMemberDict[hgId] = []
-	hgIdToMemberDict[hgId].append(tokens)
+        tokens = string.split(line[:-1], TAB)
+        hgId = tokens[2]
+        if not hgIdToMemberDict.has_key(hgId):
+            hgIdToMemberDict[hgId] = []
+        hgIdToMemberDict[hgId].append(tokens)
 
     print "Creating BCP files"
     for hgId in hgIdToMemberDict.keys():
-	# lineList is list of lists [ [line1], [line2], ... ]
-	lineList = hgIdToMemberDict[hgId]
-	#    
-	# create MRK_Cluster
-	#
-	fpClusterBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextClusterKey, TAB, clusterTypeKey, TAB, clusterSource, TAB, hgId, TAB, clusterVersion, TAB, clusterDate, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
+        # lineList is list of lists [ [line1], [line2], ... ]
+        lineList = hgIdToMemberDict[hgId]
+        #    
+        # create MRK_Cluster
+        #
+        fpClusterBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextClusterKey, TAB, clusterTypeKey, TAB, clusterSource, TAB, hgId, TAB, clusterVersion, TAB, clusterDate, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
 
-	#
-	# create ACC_Accession
-	#
-	fpAccessionBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextAccessionKey, TAB, hgId, TAB, TAB, hgId, TAB, ldbKey, TAB, nextClusterKey, TAB, mgiTypeKey, TAB, 0, TAB, 1, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT) )
-	nextAccessionKey += 1
+        #
+        # create ACC_Accession
+        #
+        fpAccessionBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextAccessionKey, TAB, hgId, TAB, TAB, hgId, TAB, ldbKey, TAB, nextClusterKey, TAB, mgiTypeKey, TAB, 0, TAB, 1, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT) )
+        nextAccessionKey += 1
 
-	#
-	# create MRK_ClusterMember
-	#
+        #
+        # create MRK_ClusterMember
+        #
 
-	# sort the list by organism and symbol
-	lineList.sort(byOrganismAndSymbol)
-	sequenceNum = 0
-	for line in lineList:
-	    sequenceNum += 1
-	    markerKey = line[4]
-	    fpMemberBCP.write('%s%s%s%s%s%s%s%s' % \
-		(nextMemberKey, TAB, nextClusterKey, TAB, markerKey, TAB, sequenceNum, CRT))
-	    nextMemberKey += 1
+        # sort the list by organism and symbol
+        lineList.sort(byOrganismAndSymbol)
+        sequenceNum = 0
+        for line in lineList:
+            sequenceNum += 1
+            markerKey = line[4]
+            fpMemberBCP.write('%s%s%s%s%s%s%s%s' % \
+                (nextMemberKey, TAB, nextClusterKey, TAB, markerKey, TAB, sequenceNum, CRT))
+            nextMemberKey += 1
 
-	# now increment the cluster key
-	nextClusterKey += 1
+        # now increment the cluster key
+        nextClusterKey += 1
 
     return
 
@@ -290,4 +289,3 @@ def closeFiles():
 init()
 deleteHomologies()
 process()
-

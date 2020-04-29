@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 ##########################################################################
 #
@@ -144,41 +143,41 @@ def init():
         exit('Could not open file for writing %s\n' % loadFilePath)
 
     try:
-	fpQcRpt = open(qcRptPath, 'w')
+        fpQcRpt = open(qcRptPath, 'w')
     except:
-	exit('Could not open file for writing %s\n' % qcRptPath)
+        exit('Could not open file for writing %s\n' % qcRptPath)
 
 
     # get all chicken markers that are associated with EG IDs
     results = db.sql('''select distinct a.accid as egId, m._Marker_key
-	from ACC_Accession a, MRK_Marker m
-	where a._MGIType_key = 2
-	and a._LogicalDB_key = 55
-	and a.preferred = 1
-	and a._Object_key = m._Marker_key
-	and m._Marker_Status_key = 1
-	and m._Organism_key = 63''', 'auto')
+        from ACC_Accession a, MRK_Marker m
+        where a._MGIType_key = 2
+        and a._LogicalDB_key = 55
+        and a.preferred = 1
+        and a._Object_key = m._Marker_key
+        and m._Marker_Status_key = 1
+        and m._Organism_key = 63''', 'auto')
     #
     # create Chicken egID to marker lookup from database
     #
     for r in results:
-	egId = r['egId']
-	markerKey = r['_Marker_key']
-	egToChickenDict[egId] = markerKey
+        egId = r['egId']
+        markerKey = r['_Marker_key']
+        egToChickenDict[egId] = markerKey
 
     # get all mouse markers
     results = db.sql('''select distinct a.accID as egId, m._Marker_key
-	    from ACC_Accession a, MRK_Marker m
-	    where a._MGIType_key = 2
-	    and a._LogicalDB_key = 55
-	    and a._Object_key = m._Marker_key
-	    and m._Marker_Status_key = 1
-	    and m._Organism_key = 1''', 'auto')
+            from ACC_Accession a, MRK_Marker m
+            where a._MGIType_key = 2
+            and a._LogicalDB_key = 55
+            and a._Object_key = m._Marker_key
+            and m._Marker_Status_key = 1
+            and m._Organism_key = 1''', 'auto')
 
     for r in results:
-	    egId = r['egId']
-	    markerKey = r['_Marker_key']
-	    egToMouseDict[egId] = markerKey
+            egId = r['egId']
+            markerKey = r['_Marker_key']
+            egToMouseDict[egId] = markerKey
 
     return
 
@@ -196,29 +195,29 @@ def processInputFiles():
     header = fpExprFile.readline()
     line =  fpExprFile.readline()
     while line:
-	tokens = string.split(line, TAB)
-	egChickenID = string.strip(tokens[0])
-	exprSet.add(egChickenID)
-	line =  fpExprFile.readline()
+        tokens = string.split(line, TAB)
+        egChickenID = string.strip(tokens[0])
+        exprSet.add(egChickenID)
+        line =  fpExprFile.readline()
     # remove header
     header = fpOrthoFile.readline()
     line = fpOrthoFile.readline()
     while line:
-	tokens = string.split(line, TAB)
-	egChickenID = string.strip(tokens[0])
-	egMouseIDs = string.strip(tokens[4])
-	# skip if no mouse ID(s)  on this line
-	if egMouseIDs == '':
-	    line = fpOrthoFile.readline()
-	    continue
-	else:
-	    mouseList = string.split(egMouseIDs, ',')
-	    mouseDict[egChickenID] = mouseList
-	#for id in mouseList:
-	#    if not mouseDict.has_key(egChickenID):
-	#	mouseDict[egChickenID] = []
-	#    mouseDict[egChickenID].append(id)
-	line = fpOrthoFile.readline()
+        tokens = string.split(line, TAB)
+        egChickenID = string.strip(tokens[0])
+        egMouseIDs = string.strip(tokens[4])
+        # skip if no mouse ID(s)  on this line
+        if egMouseIDs == '':
+            line = fpOrthoFile.readline()
+            continue
+        else:
+            mouseList = string.split(egMouseIDs, ',')
+            mouseDict[egChickenID] = mouseList
+        #for id in mouseList:
+        #    if not mouseDict.has_key(egChickenID):
+        #	mouseDict[egChickenID] = []
+        #    mouseDict[egChickenID].append(id)
+        line = fpOrthoFile.readline()
 
 def process():
     # Purpose: Create load ready file from Geisha files and the database
@@ -236,33 +235,33 @@ def process():
     mouseIdNotInDBSet = set([])
 
     for chickenID in exprSet:
-	# Join to orthos to get mouse eg Ids
-	mouseID = ''
-	error = 0
-	# get the mouse orthology, if none report
-	if chickenID in mouseDict.keys():
-	    mouseIdList = mouseDict[chickenID]
-	else:
-	    error = 1
-	    chickenIdNotInSet.add(chickenID)
-	if error:
-	    continue
-	# verify chicken EG ID in database
-	if chickenID not in egToChickenDict.keys():
-	    chickenIdNotInDBSet.add(chickenID)
-	    error = 1
-	# verify mouse EG ID in database
-	currentClusterList = []
-	for mouseID in mouseIdList:
-	    currentClusterList.append([chickenID, mouseID])
-	    if mouseID not in egToMouseDict.keys():
-		mouseIdNotInDBSet.add(mouseID)
-		error = 1
-	if error:
-	    continue
-	else:
-	    # no errors so append the next cluster
-	    toClusterList = toClusterList + currentClusterList
+        # Join to orthos to get mouse eg Ids
+        mouseID = ''
+        error = 0
+        # get the mouse orthology, if none report
+        if chickenID in mouseDict.keys():
+            mouseIdList = mouseDict[chickenID]
+        else:
+            error = 1
+            chickenIdNotInSet.add(chickenID)
+        if error:
+            continue
+        # verify chicken EG ID in database
+        if chickenID not in egToChickenDict.keys():
+            chickenIdNotInDBSet.add(chickenID)
+            error = 1
+        # verify mouse EG ID in database
+        currentClusterList = []
+        for mouseID in mouseIdList:
+            currentClusterList.append([chickenID, mouseID])
+            if mouseID not in egToMouseDict.keys():
+                mouseIdNotInDBSet.add(mouseID)
+                error = 1
+        if error:
+            continue
+        else:
+            # no errors so append the next cluster
+            toClusterList = toClusterList + currentClusterList
     clusterDict = clusterize.cluster(toClusterList, 'GEISHA')
     # now resolve the ids to database keys; chicken and mouse gene keys
     # NOT SORTING BY ORGANISM for sequenceNum because we don't need to. 
@@ -271,25 +270,25 @@ def process():
     # order correctly (mouse first then chicken)
     for clusterId in clusterDict.keys():
         idTuple = clusterDict[clusterId]
-	mouseKeyList = []
-	chickenKeyList = []
-	for id in idTuple:
-	    if id in egToMouseDict.keys():
-		mouseKeyList.append(str(egToMouseDict[id]))
-	    elif id in egToChickenDict.keys():
-		chickenKeyList.append(str(egToChickenDict[id]))
-	    else:
-		print 'not chicken or mouse'
-	keyList = mouseKeyList + chickenKeyList
-	keyString = ', '.join(keyList)
+        mouseKeyList = []
+        chickenKeyList = []
+        for id in idTuple:
+            if id in egToMouseDict.keys():
+                mouseKeyList.append(str(egToMouseDict[id]))
+            elif id in egToChickenDict.keys():
+                chickenKeyList.append(str(egToChickenDict[id]))
+            else:
+                print 'not chicken or mouse'
+        keyList = mouseKeyList + chickenKeyList
+        keyString = ', '.join(keyList)
         fpLoadFile.write('%s%s%s%s' % (clusterId, TAB, keyString, CRT))
 
     for id in chickenIdNotInSet:
-	rptOne = '%s%s%s' % (rptOne, id, CRT)
+        rptOne = '%s%s%s' % (rptOne, id, CRT)
     rptOne = '%s%sTotal IDs: %s%s' % (rptOne, CRT, len(chickenIdNotInSet), CRT) 
 
     for id in chickenIdNotInDBSet:
-	rptTwo =  '%s%s%s' % (rptTwo, id, CRT)
+        rptTwo =  '%s%s%s' % (rptTwo, id, CRT)
     rptTwo = '%s%sTotal IDs: %s%s' % (rptTwo, CRT, len(chickenIdNotInDBSet), CRT)
 
     for id in mouseIdNotInDBSet:

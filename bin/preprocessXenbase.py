@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 ##########################################################################
 #
@@ -151,9 +150,9 @@ def init():
     db.set_sqlPasswordFromFile(passwordFileName)
 
     try:
-	fpEgFile = open(inFileEgPath, 'r')
+        fpEgFile = open(inFileEgPath, 'r')
     except:
-	exit('Could not open file for reading %s\n' % inFileGenePath)
+        exit('Could not open file for reading %s\n' % inFileGenePath)
 
     try:
         fpTransFile = open(inFileTransPath, 'r')
@@ -176,43 +175,43 @@ def init():
         exit('Could not open file for writing %s\n' % loadFilePath)
 
     try:
-	fpQcRpt = open(qcRptPath, 'w')
+        fpQcRpt = open(qcRptPath, 'w')
     except:
-	exit('Could not open file for writing %s\n' % qcRptPath)
+        exit('Could not open file for writing %s\n' % qcRptPath)
 
 
     # get all xenopus tropicalis markers that are associated with egIds
     results = db.sql('''select distinct a.accid as egId, m._Marker_key
-	from ACC_Accession a, MRK_Marker m
-	where a._MGIType_key = 2
-	and a._LogicalDB_key = 55
-	and a.preferred = 1
-	and a._Object_key = m._Marker_key
-	and m._Marker_Status_key = 1
-	and m._Organism_key = 95''', 'auto')
+        from ACC_Accession a, MRK_Marker m
+        where a._MGIType_key = 2
+        and a._LogicalDB_key = 55
+        and a.preferred = 1
+        and a._Object_key = m._Marker_key
+        and m._Marker_Status_key = 1
+        and m._Organism_key = 95''', 'auto')
     #
     # create Xenopus egID to marker lookup from database
     #
     for r in results:
-	egId = r['egId']
-	markerKey = r['_Marker_key']
-	egToXenMarkerDict[egId] = markerKey
+        egId = r['egId']
+        markerKey = r['_Marker_key']
+        egToXenMarkerDict[egId] = markerKey
 
     # mouse egID to marker lookup from database
     results = db.sql('''select distinct a.accID as egId, m._Marker_key
-	    from ACC_Accession a, MRK_Marker m
-	    where a._MGIType_key = 2
-	    and a._LogicalDB_key = 55
-	    and a._Object_key = m._Marker_key
-	    and m._Marker_Status_key = 1
-	    and m._Organism_key = 1''', 'auto')
+            from ACC_Accession a, MRK_Marker m
+            where a._MGIType_key = 2
+            and a._LogicalDB_key = 55
+            and a._Object_key = m._Marker_key
+            and m._Marker_Status_key = 1
+            and m._Organism_key = 1''', 'auto')
 
     # removed per Richard
     # and a.preferred = 1
     for r in results:
-	    egId = r['egId']
-	    markerKey = r['_Marker_key']
-	    egToMouseMarkerDict[egId] = markerKey
+            egId = r['egId']
+            markerKey = r['_Marker_key']
+            egToMouseMarkerDict[egId] = markerKey
 
     return
 
@@ -229,72 +228,72 @@ def processInputFiles():
     xenEgToGeneIdDict = {}
 
     for line in fpExprFile.readlines():
-	tokens = string.split(line, TAB)
-	# get the xbgid
-	exprSet.add(string.strip(tokens[0]))
+        tokens = string.split(line, TAB)
+        # get the xbgid
+        exprSet.add(string.strip(tokens[0]))
 
     #
     # Xenopus tropicalis gene ID to EG ID file
     #
     for line in fpEgFile.readlines():
-	tokens = string.split(line, TAB)
-	# get the Xenbase Gene ID
-	gId = string.strip(tokens[0])
-	# get the Xenopus EG ID
-	egId = string.strip(tokens[2])
-	if egId == '':
-	    egId = 'None'
-	egDict[gId] = egId
-	if egId !='None':
-	    if not xenEgToGeneIdDict.has_key(egId): 
-		xenEgToGeneIdDict[egId] = []
-	    xenEgToGeneIdDict[egId].append(gId)
+        tokens = string.split(line, TAB)
+        # get the Xenbase Gene ID
+        gId = string.strip(tokens[0])
+        # get the Xenopus EG ID
+        egId = string.strip(tokens[2])
+        if egId == '':
+            egId = 'None'
+        egDict[gId] = egId
+        if egId !='None':
+            if not xenEgToGeneIdDict.has_key(egId): 
+                xenEgToGeneIdDict[egId] = []
+            xenEgToGeneIdDict[egId].append(gId)
     for egId in xenEgToGeneIdDict.keys():
-	if len(xenEgToGeneIdDict[egId]) > 1:
-	    # write to bad egId report
-	    geneIds = xenEgToGeneIdDict[egId]
-	    mouseEgMultiGeneIdSet.add(egId)
-	    # now remove the gene ID from egDict because it participates in an
-	    # eg ID that maps to multiple gene IDs
-	    for g in geneIds:
-		egDict.pop(g)
+        if len(xenEgToGeneIdDict[egId]) > 1:
+            # write to bad egId report
+            geneIds = xenEgToGeneIdDict[egId]
+            mouseEgMultiGeneIdSet.add(egId)
+            # now remove the gene ID from egDict because it participates in an
+            # eg ID that maps to multiple gene IDs
+            for g in geneIds:
+                egDict.pop(g)
     if debug:
-	print 'Xenopus tropicalis gene ID to EG ID file'
-	keys = sorted(egDict.keys())
-	for key in keys:
-	    print 'gId: %s egId: %s' % (key, egDict[key])
+        print 'Xenopus tropicalis gene ID to EG ID file'
+        keys = sorted(egDict.keys())
+        for key in keys:
+            print 'gId: %s egId: %s' % (key, egDict[key])
     #
     # Xenbase Gene Page ID to list of Xenbase Gene IDs file
     #
     for line in fpTransFile.readlines():
         tokens = string.split(line, TAB)
-	# get the Xenbase Gene Page ID
+        # get the Xenbase Gene Page ID
         gpId = string.strip(tokens[0])
-	# get the Xenbase Gene IDs from every other field, ignoring
-	# the gene symbols
-	for gId in tokens[2::2]:
-	    transDict[gId] = gpId
+        # get the Xenbase Gene IDs from every other field, ignoring
+        # the gene symbols
+        for gId in tokens[2::2]:
+            transDict[gId] = gpId
     if debug:
-	print 'Xenbase Gene ID to Gene Page ID translation file'
-	keys = sorted(transDict.keys())
-	for key in keys:
-	    print 'gId: %s gpId: %s' % (key, transDict[key])
+        print 'Xenbase Gene ID to Gene Page ID translation file'
+        keys = sorted(transDict.keys())
+        for key in keys:
+            print 'gId: %s gpId: %s' % (key, transDict[key])
     #
     # Xenopus Gene Page ID to mouse EG ID  file
     #
     for line in fpOrthoFile.readlines():
-	tokens = string.split(line, TAB)
-	# get the mouse EG ID
-	egID = string.strip(tokens[0])
-	# get the Xenbase Gene Page ID
-	gpId = string.strip(tokens[1])
-	# one mouse egId to many genePage IDs
-	mouseDict[gpId] = egID
+        tokens = string.split(line, TAB)
+        # get the mouse EG ID
+        egID = string.strip(tokens[0])
+        # get the Xenbase Gene Page ID
+        gpId = string.strip(tokens[1])
+        # one mouse egId to many genePage IDs
+        mouseDict[gpId] = egID
     if debug:
-	print 'Xenopus Gene Page ID to mouse EG ID file'
-	keys = sorted(mouseDict.keys())
-	for key in keys:
-	    print 'gpId: %s mouseEgId: %s' % (key, mouseDict[key])
+        print 'Xenopus Gene Page ID to mouse EG ID file'
+        keys = sorted(mouseDict.keys())
+        for key in keys:
+            print 'gpId: %s mouseEgId: %s' % (key, mouseDict[key])
 
 def process():
     # Purpose: Create load ready file and  QC reports from Xenbase files 
@@ -332,37 +331,37 @@ def process():
     mouseNotInDbSet = set([])
 
     for geneId in exprSet:
-	# Join to trans and eg file on geneId
-	if not  transDict.has_key(geneId):
-	    noTransSet.add(geneId)
-	    continue
-	gpId = transDict[geneId]
-	skip = 0
- 	if not egDict.has_key(geneId):
-	    noXenEgSet.add(geneId)
-	    skip = 1
-	elif egDict[geneId] == 'None':
-	    noXenEgSet.add('%s: %s' % (geneId, egDict[geneId]))
-	    skip = 1
-	if skip == 1:
-	    continue
-	xenEg = egDict[geneId]
-	# join from trans to orth file on genePageId
-	if not mouseDict.has_key(gpId):
-	    noOrthSet.add(gpId)
-	    continue
-	mouseEg = mouseDict[gpId]
-	notInDb = 0
-	if not egToXenMarkerDict.has_key(xenEg):
-	    xenNotInDbSet.add(xenEg)
-	    notInDb = 1
-	if not egToMouseMarkerDict.has_key(mouseEg):
-	    mouseNotInDbSet.add(mouseEg)
-	    notInDb = 1
-	if notInDb:
-	    continue
-	# now we have a homology
-	toClusterList.append([xenEg, mouseEg])
+        # Join to trans and eg file on geneId
+        if not  transDict.has_key(geneId):
+            noTransSet.add(geneId)
+            continue
+        gpId = transDict[geneId]
+        skip = 0
+        if not egDict.has_key(geneId):
+            noXenEgSet.add(geneId)
+            skip = 1
+        elif egDict[geneId] == 'None':
+            noXenEgSet.add('%s: %s' % (geneId, egDict[geneId]))
+            skip = 1
+        if skip == 1:
+            continue
+        xenEg = egDict[geneId]
+        # join from trans to orth file on genePageId
+        if not mouseDict.has_key(gpId):
+            noOrthSet.add(gpId)
+            continue
+        mouseEg = mouseDict[gpId]
+        notInDb = 0
+        if not egToXenMarkerDict.has_key(xenEg):
+            xenNotInDbSet.add(xenEg)
+            notInDb = 1
+        if not egToMouseMarkerDict.has_key(mouseEg):
+            mouseNotInDbSet.add(mouseEg)
+            notInDb = 1
+        if notInDb:
+            continue
+        # now we have a homology
+        toClusterList.append([xenEg, mouseEg])
 
     # send cluster list to clusterizer
     clusterDict = clusterize.cluster(toClusterList, 'XENBASE')
@@ -387,7 +386,7 @@ def process():
         fpLoadFile.write('%s%s%s%s' % (clusterId, TAB, keyString, CRT))
 
     for id in noTransSet:
-	rptOne = '%s%s%s' % (rptOne, id, CRT)
+        rptOne = '%s%s%s' % (rptOne, id, CRT)
     rptOne = '%s%sTotal IDs: %s%s' % (rptOne, CRT, len(noTransSet), CRT)
 
     for id in noXenEgSet:

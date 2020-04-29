@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 ##########################################################################
 #
@@ -115,31 +114,31 @@ def init():
 
     # create file descriptors for input/output files
     try:
-	fpInFile = open(inFile, 'r')
+        fpInFile = open(inFile, 'r')
     except:
-	exit(1, 'Could not open file %s\n' % inFile)
+        exit(1, 'Could not open file %s\n' % inFile)
 
     try:
-	fpClusterBCP = open(clusterBCP, 'w')
+        fpClusterBCP = open(clusterBCP, 'w')
     except:
-	exit(1, 'Could not open file %s\n' % clusterBCP)
+        exit(1, 'Could not open file %s\n' % clusterBCP)
 
     try:
-	fpMemberBCP = open(memberBCP, 'w')
+        fpMemberBCP = open(memberBCP, 'w')
     except:
-	exit(1, 'Could not open file %s\n' % memberBCP)
+        exit(1, 'Could not open file %s\n' % memberBCP)
 
     if accessionBCP != '':
-	try:
-	    fpAccessionBCP = open(accessionBCP, 'w')
-	except:
-	    exit(1, 'Could not open file %s\n' % accessionBCP)
+        try:
+            fpAccessionBCP = open(accessionBCP, 'w')
+        except:
+            exit(1, 'Could not open file %s\n' % accessionBCP)
 
     if propertyBCP != '':
-	try:
-	    fpPropertyBCP = open(propertyBCP, 'w')
-	except:
-	     exit(1, 'Could not open file %s\n' % propertyBCP)
+        try:
+            fpPropertyBCP = open(propertyBCP, 'w')
+        except:
+             exit(1, 'Could not open file %s\n' % propertyBCP)
 
     # get next ACC_Accession, MRK_Cluster and MRK_ClusterMember key
     user = os.environ['MGD_DBUSER']
@@ -149,43 +148,43 @@ def init():
     db.set_sqlPasswordFromFile(passwordFileName)
 
     results = db.sql('''select _User_key
-	    from MGI_User
-	    where login = '%s' ''' % createdBy, 'auto')
+            from MGI_User
+            where login = '%s' ''' % createdBy, 'auto')
 
     createdByKey = results[0]['_User_key']
     #print 'createdByKey: %s' % createdByKey
     results = db.sql('''select max(_Cluster_key) + 1 as nextKey
-	    from MRK_Cluster''', 'auto')
+            from MRK_Cluster''', 'auto')
     if results[0]['nextKey'] is None:
-	nextClusterKey = 1000
+        nextClusterKey = 1000
     else:
-	nextClusterKey = results[0]['nextKey']
+        nextClusterKey = results[0]['nextKey']
 
     results = db.sql('''select max(_ClusterMember_key) + 1 as nextKey
-	    from MRK_ClusterMember''', 'auto')
+            from MRK_ClusterMember''', 'auto')
     if results[0]['nextKey'] is None:
-	nextMemberKey = 1000
+        nextMemberKey = 1000
     else:
-	nextMemberKey = results[0]['nextKey']
+        nextMemberKey = results[0]['nextKey']
 
     results = db.sql('''select max(_Accession_key) + 1 as nextKey
-	    from ACC_Accession''', 'auto')
+            from ACC_Accession''', 'auto')
     nextAccessionKey = results[0]['nextKey']
 
     results = db.sql('''select max(_Property_key) + 1 as nextKey
-	    from MGI_Property''', 'auto')
+            from MGI_Property''', 'auto')
     if results[0]['nextKey'] is None:
-	nextPropertyKey = 1000
+        nextPropertyKey = 1000
     else:
-	nextPropertyKey = results[0]['nextKey']
+        nextPropertyKey = results[0]['nextKey']
 
     if propertyTypeKey != '':
- 	results = db.sql('''select t._Term_key, t.term
-		from VOC_Term t, MGI_PropertyType p
-		where p._PropertyType_key = %s
-		and p._Vocab_key = t._Vocab_key''' % propertyTypeKey, 'auto')
-	for r in results:
-	     propertyDict[r['term']] = r['_Term_key']
+        results = db.sql('''select t._Term_key, t.term
+                from VOC_Term t, MGI_PropertyType p
+                where p._PropertyType_key = %s
+                and p._Vocab_key = t._Vocab_key''' % propertyTypeKey, 'auto')
+        for r in results:
+             propertyDict[r['term']] = r['_Term_key']
 
     return
 
@@ -221,60 +220,60 @@ def createBCPFiles():
 
     global nextClusterKey,  nextMemberKey, nextAccessionKey, nextPropertyKey
     for line in fpInFile.readlines():
-	tokens = string.split(line[:-1], TAB)
-	id = tokens[0]
-	members = tokens[1]
-	memberList = map(string.strip, string.split(members, ','))
-	properties = ''
-	if len(tokens) == 3:
-	    properties = tokens[2]
+        tokens = string.split(line[:-1], TAB)
+        id = tokens[0]
+        members = tokens[1]
+        memberList = map(string.strip, string.split(members, ','))
+        properties = ''
+        if len(tokens) == 3:
+            properties = tokens[2]
 
-	#
-	# create MRK_Cluster
-	#
-	if accessionBCP != '':
-	    # Has clusterID
-	    fpClusterBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextClusterKey, TAB, clusterTypeKey, TAB, clusterSource, TAB, id, TAB, TAB, clusterDate, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
-	else:
-	    # No clusterID
-	    fpClusterBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextClusterKey, TAB, clusterTypeKey, TAB, clusterSource, TAB, TAB, TAB, clusterDate, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
+        #
+        # create MRK_Cluster
+        #
+        if accessionBCP != '':
+            # Has clusterID
+            fpClusterBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextClusterKey, TAB, clusterTypeKey, TAB, clusterSource, TAB, id, TAB, TAB, clusterDate, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
+        else:
+            # No clusterID
+            fpClusterBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextClusterKey, TAB, clusterTypeKey, TAB, clusterSource, TAB, TAB, TAB, clusterDate, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
 
-	if accessionBCP != '':
-	    #
-	    # create ACC_Accession
-	    #
-	    fpAccessionBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextAccessionKey, TAB, id, TAB, TAB, id, TAB, ldbKey, TAB, nextClusterKey, TAB, mgiTypeKey, TAB, 0, TAB, 1, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT) )
-	    nextAccessionKey += 1
+        if accessionBCP != '':
+            #
+            # create ACC_Accession
+            #
+            fpAccessionBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextAccessionKey, TAB, id, TAB, TAB, id, TAB, ldbKey, TAB, nextClusterKey, TAB, mgiTypeKey, TAB, 0, TAB, 1, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT) )
+            nextAccessionKey += 1
 
-	#
-	# create MRK_ClusterMember
-	#
+        #
+        # create MRK_ClusterMember
+        #
 
-	# sort the list by organism and symbol
-	sequenceNum = 0
-	for markerKey in memberList:
-	    sequenceNum += 1
-	    fpMemberBCP.write('%s%s%s%s%s%s%s%s' % (nextMemberKey, TAB, nextClusterKey, TAB, markerKey, TAB, sequenceNum, CRT))
-	    nextMemberKey += 1
+        # sort the list by organism and symbol
+        sequenceNum = 0
+        for markerKey in memberList:
+            sequenceNum += 1
+            fpMemberBCP.write('%s%s%s%s%s%s%s%s' % (nextMemberKey, TAB, nextClusterKey, TAB, markerKey, TAB, sequenceNum, CRT))
+            nextMemberKey += 1
 
-	#
-	# create MGI_Property if there are any
-	#
-	# properties are comma delimited key:value pairs 
-	# e.g. source:HG, conflict:none 2/17 - not implementing conflict now
+        #
+        # create MGI_Property if there are any
+        #
+        # properties are comma delimited key:value pairs 
+        # e.g. source:HG, conflict:none 2/17 - not implementing conflict now
 
-	if propertyDict and properties != '':
-	    tokens = map(string.strip, string.split(properties, ','))
-	    for p in tokens:
-		propertyTerm, propertyValue = string.split(p, ':')
-		if not propertyDict.has_key(propertyTerm):
-		    exit(1, 'Invalid property term: %s' % propertyTerm)
-		propertyTermKey = propertyDict[propertyTerm]
-		fpPropertyBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextPropertyKey, TAB, propertyTypeKey, TAB, propertyTermKey, TAB, nextClusterKey, TAB, mgiTypeKey, TAB, propertyValue, TAB, 1, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
-		nextPropertyKey += 1
-		
-	# now increment the cluster key
-	nextClusterKey += 1
+        if propertyDict and properties != '':
+            tokens = map(string.strip, string.split(properties, ','))
+            for p in tokens:
+                propertyTerm, propertyValue = string.split(p, ':')
+                if not propertyDict.has_key(propertyTerm):
+                    exit(1, 'Invalid property term: %s' % propertyTerm)
+                propertyTermKey = propertyDict[propertyTerm]
+                fpPropertyBCP.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % (nextPropertyKey, TAB, propertyTypeKey, TAB, propertyTermKey, TAB, nextClusterKey, TAB, mgiTypeKey, TAB, propertyValue, TAB, 1, TAB, createdByKey, TAB, createdByKey, TAB, cdate, TAB, cdate, CRT))
+                nextPropertyKey += 1
+                
+        # now increment the cluster key
+        nextClusterKey += 1
 
     return
 
@@ -289,9 +288,9 @@ def closeFiles():
     fpClusterBCP.close()
     fpMemberBCP.close()
     if accessionBCP != '':
-	fpAccessionBCP.close()
+        fpAccessionBCP.close()
     if propertyBCP != '':
-	fpPropertyBCP.close()
+        fpPropertyBCP.close()
 
     return
 
@@ -305,4 +304,3 @@ createBCPFiles()
 closeFiles()
 
 print '%s' % mgi_utils.date()
-

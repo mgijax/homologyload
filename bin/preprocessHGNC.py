@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 ##########################################################################
 #
@@ -115,57 +114,57 @@ def init():
     db.set_sqlPasswordFromFile(passwordFileName)
 
     try:
-	fpInFile = open(inFilePath, 'r')
+        fpInFile = open(inFilePath, 'r')
     except:
-	exit('Could not open file for reading %s\n' % inFilePath)
+        exit('Could not open file for reading %s\n' % inFilePath)
     try:
-	fpClustererFile = open(clustererFilePath, 'w')
+        fpClustererFile = open(clustererFilePath, 'w')
     except:
-	exit('Could not open file for writing %s\n' % clustererFilePath)
+        exit('Could not open file for writing %s\n' % clustererFilePath)
     try:
         fpLoadFile = open(loadFilePath, 'w')
     except:
         exit('Could not open file for writing %s\n' % loadFilePath)
 
     try:
-	fpQcRpt = open(qcRptPath, 'w')
+        fpQcRpt = open(qcRptPath, 'w')
     except:
-	exit('Could not open file for writing %s\n' % qcRptPath)
+        exit('Could not open file for writing %s\n' % qcRptPath)
 
 
     # get all human markers that are associated with egIDs
     results = db.sql('''select distinct a.accid as egID, m._Marker_key
-	from ACC_Accession a, MRK_Marker m
-	where a._MGIType_key = 2
-	and a._LogicalDB_key = 55
-	and a.preferred = 1
-	and a._Object_key = m._Marker_key
-	and m._Marker_Status_key = 1
-	and m._Organism_key = 2''', 'auto')
+        from ACC_Accession a, MRK_Marker m
+        where a._MGIType_key = 2
+        and a._LogicalDB_key = 55
+        and a.preferred = 1
+        and a._Object_key = m._Marker_key
+        and m._Marker_Status_key = 1
+        and m._Organism_key = 2''', 'auto')
     #
     # create Human egID to marker lookup from database
     #
     for r in results:
-	egID = r['egID']
-	markerKey = r['_Marker_key']
-	egToMarkerDict[egID] = markerKey
+        egID = r['egID']
+        markerKey = r['_Marker_key']
+        egToMarkerDict[egID] = markerKey
 
     # get all mouse markers
     results = db.sql('''select distinct a.accID as mgiId, m._Marker_key
-	    from ACC_Accession a, MRK_Marker m
-	    where a._MGIType_key = 2
-	    and a._LogicalDB_key = 1
-	    and a.prefixPart = 'MGI:'
-	    and a._Object_key = m._Marker_key
-	    and m._Marker_Status_key = 1
-	    and m._Organism_key = 1''', 'auto')
+            from ACC_Accession a, MRK_Marker m
+            where a._MGIType_key = 2
+            and a._LogicalDB_key = 1
+            and a.prefixPart = 'MGI:'
+            and a._Object_key = m._Marker_key
+            and m._Marker_Status_key = 1
+            and m._Organism_key = 1''', 'auto')
 
     # removed per Richard
     # and a.preferred = 1
     for r in results:
-	    mgiId = r['mgiId']
-	    markerKey = r['_Marker_key']
-	    mgiToMarkerDict[mgiId] = markerKey
+            mgiId = r['mgiId']
+            markerKey = r['_Marker_key']
+            mgiToMarkerDict[mgiId] = markerKey
 
     return
 
@@ -192,9 +191,9 @@ def parseFile():
     header = fpInFile.readline()
 
     for line in fpInFile.readlines():
-	# 6/30 - file is no longer one line per cluster
-	(hgncID, mgiIDstring, egID) =  map(string.strip, string.split(line, TAB))
-	# if both egID and mgiId columns are blank, skip and don't
+        # 6/30 - file is no longer one line per cluster
+        (hgncID, mgiIDstring, egID) =  map(string.strip, string.split(line, TAB))
+        # if both egID and mgiId columns are blank, skip and don't
         # report
         if egID == '' and mgiIDstring == '':
             hgncIdOnlyCount += 1
@@ -204,18 +203,18 @@ def parseFile():
         elif egID == '':
             mgiIdOnlyCount += 1
             continue
-	# if no mouse homology add to the count and mgiID value should be 'None'
+        # if no mouse homology add to the count and mgiID value should be 'None'
         if mgiIDstring == '':
              mgiIDstring = 'None'
              egIdOnlyCount += 1
-	# value  of humanEgToMouseMgiDict will be empty list if no mouse homology
+        # value  of humanEgToMouseMgiDict will be empty list if no mouse homology
 
-	if not egID in humanEgToMouseMgiDict:
-	    humanEgToMouseMgiDict[egID] = []
-	# add the mouse homology to the dictionary
-	ids = string.split(mgiIDstring, ', ')
-	for id in ids:
-	    humanEgToMouseMgiDict[egID].append(id)
+        if not egID in humanEgToMouseMgiDict:
+            humanEgToMouseMgiDict[egID] = []
+        # add the mouse homology to the dictionary
+        ids = string.split(mgiIDstring, ', ')
+        for id in ids:
+            humanEgToMouseMgiDict[egID].append(id)
     return
 
 def process():
@@ -238,57 +237,57 @@ def process():
     lineCt =  1  
 
     for egID in humanEgToMouseMgiDict:
-	mgiIDList = humanEgToMouseMgiDict[egID]
-	lineCt += 1
-	
-	# 1 means error on this line
-	error = 0
+        mgiIDList = humanEgToMouseMgiDict[egID]
+        lineCt += 1
+        
+        # 1 means error on this line
+        error = 0
 
-	clusterFileLine = ''
+        clusterFileLine = ''
 
-	# current cluster - if there are no errors it will be added to
+        # current cluster - if there are no errors it will be added to
         # 'toClusterList'
         currentClusterList = []
-	# report and skip lines where egID not in the database
-	if egID and egID not in egToMarkerDict.keys():
-	    toReport = '%s%s%s%s' % (egID, TAB, string.join(mgiIDList), CRT)
-	    rptOne = '%s%s%s%s' % (rptOne, lineCt, TAB, toReport)
-	
-	    # if egID not in database continue to next input line
-	    continue
+        # report and skip lines where egID not in the database
+        if egID and egID not in egToMarkerDict.keys():
+            toReport = '%s%s%s%s' % (egID, TAB, string.join(mgiIDList), CRT)
+            rptOne = '%s%s%s%s' % (rptOne, lineCt, TAB, toReport)
+        
+            # if egID not in database continue to next input line
+            continue
 
-	#
-	# egID is in the database; check the mgi IDs
-	#
+        #
+        # egID is in the database; check the mgi IDs
+        #
 
-	# add clusters with mouse to the list
-	for id in mgiIDList:
-	    id = string.strip(id)
-	    # report and skip lines with mgiId not in the database
-	    if id != 'None' and id not in mgiToMarkerDict.keys(): 
-		error = 1
-	        toReport = '%s%s%s%s' % (egID, TAB, id, CRT)
-		rptTwo = '%s%s%s%s' % (rptTwo, lineCt, TAB, toReport)
-		# No need to check any more ids, get out of the loop
-		break
-	    else:
-		currentClusterList.append([egID, id])
-	    clusterFileLine = ('%s%s%s%s%s' % \
-		(clusterFileLine, egID, TAB, id, CRT))
+        # add clusters with mouse to the list
+        for id in mgiIDList:
+            id = string.strip(id)
+            # report and skip lines with mgiId not in the database
+            if id != 'None' and id not in mgiToMarkerDict.keys(): 
+                error = 1
+                toReport = '%s%s%s%s' % (egID, TAB, id, CRT)
+                rptTwo = '%s%s%s%s' % (rptTwo, lineCt, TAB, toReport)
+                # No need to check any more ids, get out of the loop
+                break
+            else:
+                currentClusterList.append([egID, id])
+            clusterFileLine = ('%s%s%s%s%s' % \
+                (clusterFileLine, egID, TAB, id, CRT))
 
-	# if any mgi IDs not in database continue to next input line
-	if error == 1:
-		continue
+        # if any mgi IDs not in database continue to next input line
+        if error == 1:
+                continue
 
-	# if we have a cluster add it to the cluster list and to the file
-	if currentClusterList != []:
-	    # no errors so append the next cluster
-	    toClusterList = toClusterList + currentClusterList
+        # if we have a cluster add it to the cluster list and to the file
+        if currentClusterList != []:
+            # no errors so append the next cluster
+            toClusterList = toClusterList + currentClusterList
 
-	    fpClustererFile.write(clusterFileLine)
-	    # if we get here, we the egID is in the database and ALL the
-	    # mgiIds are in the database
-		
+            fpClustererFile.write(clusterFileLine)
+            # if we get here, we the egID is in the database and ALL the
+            # mgiIds are in the database
+                
     fpClustererFile.close()
 
     # clusterDict = clusterize.cluster(clustererFilePath, 'HGNC')
@@ -296,20 +295,20 @@ def process():
 
     # now resolve the ids to database keys; human and mouse gene keys
     for clusterId in clusterDict.keys():
-	idTuple = clusterDict[clusterId]
-	humanKeyList = []
-	mouseKeyList = []
-	for id in idTuple:
-	    if id.startswith('MGI:'):
-		mouseKeyList.append(str(mgiToMarkerDict[id]))
-	    else:
-		humanKeyList.append(str(egToMarkerDict[id]))
-	# we want human before mouse for cluster member sequence numbering
-	keyList = humanKeyList + mouseKeyList
-	keyString = ', '.join(keyList)
-	# write debug to qc rpt
-	rptDebug = '%s%s%s%s%s%s%s' % (rptDebug, idTuple, TAB, humanKeyList, TAB, mouseKeyList, CRT)
-	fpLoadFile.write('%s%s%s%s' % (clusterId, TAB, keyString, CRT))
+        idTuple = clusterDict[clusterId]
+        humanKeyList = []
+        mouseKeyList = []
+        for id in idTuple:
+            if id.startswith('MGI:'):
+                mouseKeyList.append(str(mgiToMarkerDict[id]))
+            else:
+                humanKeyList.append(str(egToMarkerDict[id]))
+        # we want human before mouse for cluster member sequence numbering
+        keyList = humanKeyList + mouseKeyList
+        keyString = ', '.join(keyList)
+        # write debug to qc rpt
+        rptDebug = '%s%s%s%s%s%s%s' % (rptDebug, idTuple, TAB, humanKeyList, TAB, mouseKeyList, CRT)
+        fpLoadFile.write('%s%s%s%s' % (clusterId, TAB, keyString, CRT))
 
     return
 
