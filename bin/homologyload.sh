@@ -225,7 +225,7 @@ then
     checkStatus ${STAT} "runSanityChecks"
 fi
 
-${PYTHON} ${PREPROCESSOR}
+${PREPROCESSOR}
 STAT=$?
 checkStatus ${STAT} "${PREPROCESSOR}"
 
