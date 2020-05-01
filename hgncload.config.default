@@ -49,7 +49,7 @@ QC_RPT=${RPTDIR}/qc.rpt
 export SANITY_RPT QC_RPT
 
 # Pre-processor to use
-PREPROCESSOR=${HOMOLOGYLOAD}/bin/preprocessHGNC.py
+PREPROCESSOR=${HOMOLOGYLOAD}/bin/preprocessHGNC.sh
 LOADER=${HOMOLOGYLOAD}/bin/homologyload.py
 
 export PREPROCESSOR
