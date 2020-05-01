@@ -192,10 +192,10 @@ def parseFile():
 
     for line in fpInFile.readlines():
         # 6/30 - file is no longer one line per cluster
-        (hgncID, mgiIDstr. egID) =  list(map(str.strip, str.split(line, TAB)))
+        (hgncID, mgiIDstr, egID) =  list(map(str.strip, str.split(line, TAB)))
         # if both egID and mgiId columns are blank, skip and don't
         # report
-        if egID == '' and mgiIDstr.== '':
+        if egID == '' and mgiIDstr == '':
             hgncIdOnlyCount += 1
             continue
 
@@ -204,15 +204,15 @@ def parseFile():
             mgiIdOnlyCount += 1
             continue
         # if no mouse homology add to the count and mgiID value should be 'None'
-        if mgiIDstr.== '':
-             mgiIDstr.= 'None'
+        if mgiIDstr == '':
+             mgiIDstr = 'None'
              egIdOnlyCount += 1
         # value  of humanEgToMouseMgiDict will be empty list if no mouse homology
 
         if not egID in humanEgToMouseMgiDict:
             humanEgToMouseMgiDict[egID] = []
         # add the mouse homology to the dictionary
-        ids = str.split(mgiIDstr. ', ')
+        ids = str.split(mgiIDstr,', ')
         for id in ids:
             humanEgToMouseMgiDict[egID].append(id)
     return

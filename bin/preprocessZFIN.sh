@@ -16,6 +16,7 @@
 # terminates.
 #
 TMP2_FILE=/tmp/`basename $0`.$$
+echo ${TMP2_FILE}
 touch ${TMP2_FILE}
 trap "rm -f ${TMP2_FILE}" 0 1 2 15
 
@@ -157,7 +158,7 @@ fi
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
 echo 'Running Preprocessor' >> ${LOG_DIAG}
-${{PYTHON} ${HOMOLOGYLOAD}/bin/preprocessZFIN.py
+${PYTHON} ${HOMOLOGYLOAD}/bin/preprocessZFIN.py
 STAT=$?
 exit ${STAT}
 
