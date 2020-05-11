@@ -55,8 +55,7 @@ import db
 TAB = '\t'
 CRT = '\n'
 
-preferredOrganisms = [ 'human', 'mouse, laboratory', 'rat' ]
-
+organismOrder = [ 'human', 'mouse, laboratory', 'rat', 'cattle', 'chicken', 'chimpanzee', 'dog, domestic', 'frog, western clawed', 'macaque, rhesus', 'zebrafish' ]
 # Lookup of members by hgID (cluster ID)
 hgIdToMemberDict = {}
 
@@ -179,48 +178,30 @@ def deleteHomologies():
 
     return
 
-def byOrganismAndSymbol (a, b):
-    # Purpose: function to pass to python list sort to sort 
-    # cluster members so they get the proper sequence number
-    # Returns: 1 if file descriptors cannot be initialized
-    # Assumes: a and b have at least two elements
-    # Effects: Nothing
-    # Throws: Nothing
+def organismAndSymbolSortKey(a):
+    # Purpose: return a key for sorting element a, which has (organism, symbol,
+    #    …and other stuff) cluster members so they get the proper sequence 
+    #    number
+    # Returns: (organism preference code, organism.lowercase, tuple of 
+    #    symbol pieces arranged for sorting)
+    # Assumes: a has at least two elements
 
-     global x
+    [aOrg, aSym] = a[:2]
+    #print('organismAndSymbolSortKey aOrg: %s aSym: %s' % (aOrg, aSym))
+    elements = []  # collection of items to be returned (see comment above)
 
-     [aOrg, aSym] = a[:2]
-     [bOrg, bSym] = b[:2]
+    # organisms must appear in the order of their occurrence in the list.
+    # any new organisms will go to the end of the list
+    if aOrg in organismOrder:
+        elements.append(organismOrder.index(aOrg))
+    else:
+        elements.append(len(organismOrder))
 
-     # easy cases first...
+    results = symbolsort.splitter(aSym)
+    elements.append(results)
+    elements.append(symbolsort.splitter(aSym)) 
 
-     # matching organisms, so purely a symbol sort
-     if (aOrg == bOrg):
-           return symbolsort.nomenCompare (aSym, bSym)
-
-     # 'a' is from a preferred organism and 'b' is not
-     if (aOrg in preferredOrganisms) and (bOrg not in preferredOrganisms):
-           return -1
-
-     # 'b' is from a preferred organism and 'a' is not
-     if (aOrg not in preferredOrganisms) and (bOrg in preferredOrganisms):
-           # 'b' comes first
-           return 1
-
-     # somewhat harder cases next...
-
-     # both organisms are preferred (and they do not match), so need to
-     # sort by position in the preferredOrganisms list
-
-     if (aOrg in preferredOrganisms) and (bOrg in preferredOrganisms):
-           aOrgPosition = preferredOrganisms.index(aOrg)
-           bOrgPosition = preferredOrganisms.index(bOrg)
-           return cmp(aOrgPosition, bOrgPosition)
-
-     # neither organism is preferred (and they do not match), so need to
-     # sort alphabetically by organism
-
-     return cmp(aOrg, bOrg)
+    return tuple(elements)
 
 def process():
     # Purpose: Create bcp files from the load ready HomoloGene file  created
@@ -242,6 +223,7 @@ def process():
 
     print("Creating BCP files")
     for hgId in list(hgIdToMemberDict.keys()):
+        #print('hgId: %s' % hgId)
         # lineList is list of lists [ [line1], [line2], ... ]
         lineList = hgIdToMemberDict[hgId]
         #    
@@ -260,11 +242,16 @@ def process():
         #
 
         # sort the list by organism and symbol
-        lineList.sort(byOrganismAndSymbol)
+        #lineList.sort(byOrganismAndSymbol)
+        #print('lineList: %s' % lineList)
+        lineList.sort(key=organismAndSymbolSortKey)
+        #print ('lineList sorted: %s' % lineList)
         sequenceNum = 0
         for line in lineList:
             sequenceNum += 1
             markerKey = line[4]
+            #print('%s%s%s%s%s%s%s%s' % \
+             #   (nextMemberKey, TAB, nextClusterKey, TAB, markerKey, TAB, sequenceNum, CRT))
             fpMemberBCP.write('%s%s%s%s%s%s%s%s' % \
                 (nextMemberKey, TAB, nextClusterKey, TAB, markerKey, TAB, sequenceNum, CRT))
             nextMemberKey += 1
