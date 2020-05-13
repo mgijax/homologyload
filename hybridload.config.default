@@ -44,7 +44,7 @@ HYBRID_RPT=${RPTDIR}/hybridCluster.rpt
 export HYBRID_RPT
 
 # Pre-processor to use
-PREPROCESSOR=${HOMOLOGYLOAD}/bin/preprocessHybrid.py
+PREPROCESSOR=${HOMOLOGYLOAD}/bin/preprocessHybrid.sh
 LOADER=${HOMOLOGYLOAD}/bin/homologyload.py
 
 export PREPROCESSOR
