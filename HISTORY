@@ -5,6 +5,11 @@ download_package ftp.ncbi.nih.gov.homologene
 download_package ftp.xenbase.org.downloads
 download_package zfin.org.downloads
 
+TAG: homologyload-6-0-16-1
+DATE: 08/21/2020
+STAFF: sc
+CHANGES: TR13204/I20 project/python 3.7 upgrade
+
 TAG: homologyload-6-0-12-2
 TAG: homologyload-6-0-12-1
 DATE: 08/29/2018
