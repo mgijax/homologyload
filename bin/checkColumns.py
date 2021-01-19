@@ -87,6 +87,8 @@ def checkColumns ():
     global errors
     lineNum = 0
     for line in fpInput.readlines():
+        if str.find(line, '#') == 0:
+            continue
         colError = 0
         lineNum = lineNum + 1
         columns = str.split(line, TAB)
