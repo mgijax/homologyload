@@ -35,10 +35,10 @@ INPUT_FILE_LOAD=${OUTPUTDIR}/alliance_directload.txt
 export INPUT_FILE_DEFAULT INPUT_FILE INPUT_FILE_LOAD #INPUT_FILE_CLUSTERER
 
 #  Full path name of the log files
-LOG_PROC=${LOGDIR}/allianceload.proc.log
-LOG_DIAG=${LOGDIR}/allianceload.diag.log
-LOG_CUR=${LOGDIR}/allianceload.cur.log
-LOG_VAL=${LOGDIR}/allianceload.val.log
+LOG_PROC=${LOGDIR}/alliance_directload.proc.log
+LOG_DIAG=${LOGDIR}/alliance_directload.diag.log
+LOG_CUR=${LOGDIR}/alliance_directload.cur.log
+LOG_VAL=${LOGDIR}/alliance_directload.val.log
 
 export LOG_PROC LOG_DIAG LOG_CUR LOG_VAL
 
