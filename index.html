@@ -4,99 +4,32 @@
 
 See <A HREF="http://mgiwiki/mediawiki/index.php/Homologyload">Homology Load Wiki </A> for input file format, report descriptions, processing algorithms, etc.
 
-<H2>HomoloGene Load</H2>
+<H2>Alliance Direct Load</H2>
 <UL>
 <H3>Input</H3>
 <UL>
-<LI><A HREF="/data/loads/homology/homologeneload/input/homologene.data">Homologene Input File</A>
-<LI><A HREF="/data/loads/homology/homologeneload/output/homologeneload_load.txt">Load Ready Input File</A> 
+<LI><A HREF="/data/loads/homology/alliance_directload/input/ORTHOLOGY-ALLIANCE_COMBINED_37.tsv">Alliance Homology Input File</A>
+<LI><A HREF="/data/loads/homology/alliance_directload/output/alliance_directload.txt">Load Ready Input File</A> 
 </UL>
 
 <H3>Logs</H3>
 <UL>
-<LI><A HREF="/data/loads/homology/homologeneload/logs/homologeneload.proc.log">Process Log</A>
-<LI><A HREF="/data/loads/homology/homologeneload/logs/homologeneload.diag.log">Diagnostic Log</A>
-
+<LI><A HREF="/data/loads/homology/alliance_directload/logs/alliance_directload.proc.log">Process Log</A>
+<LI><A HREF="/data/loads/homology/alliance_directload/logs/alliance_directloadload.diag.log">Diagnostic Log</A>
 </UL>
 
 <H3>Reports</H3>
 <UL>
-<LI><A HREF="/data/loads/homology/homologeneload/reports/sanity.rpt">Input File Sanity Report</A>
-<LI><A HREF="/data/loads/homology/homologeneload/reports/qc.rpt">Input File QC Reports</A>
+<LI><A HREF="/data/loads/homology/alliance_directload/reports/sanity.rpt">Input File Sanity Report</A>
+<LI><A HREF="/data/loads/homology/alliance_directload/reports/qc.rpt">Input File QC Reports</A>
 </UL>
 
 <H3>Output Files</H3>
 <UL>
-<LI><A HREF="/data/loads/homology/homologeneload/output/ACC_Accession.bcp">ACC_Accession.bcp</A>
-<LI><A HREF="/data/loads/homology/homologeneload/output/MRK_Cluster.bcp">MRK_Cluster.bcp</A>
-<LI><A HREF="/data/loads/homology/homologeneload/output/MRK_ClusterMember.bcp">MRK_ClusterMember.bcp</A>
+<LI><A HREF="/data/loads/homology/alliance_directload/output/MRK_Cluster.bcp">MRK_Cluster.bcp</A>
+<LI><A HREF="/data/loads/homology/alliance_directload/output/MRK_ClusterMember.bcp">MRK_ClusterMember.bcp</A>
 </UL>
 </UL>
-
-<H2>HGNC Load</H2>
-<UL>
-<H3>Input</H3>
-<UL>
-<LI><A HREF="/data/loads/homology/hgncload/input/hgnc.tsv">HGNC Input File</A>
-<LI><A HREF="/data/loads/homology/hgncload/output/hgnc_load.txt">Load Ready Input File</A>
-</UL>
-
-<H3>Logs</H3>
-<UL>
-<LI><A HREF="/data/loads/homology/hgncload/logs/hgncload.proc.log">Process Log</A>
-<LI><A HREF="/data/loads/homology/hgncload/logs/hgncload.diag.log">Diagnostic Log</A>
-</UL>
-
-<H3>Reports</H3>
-<UL>
-<LI><A HREF="/data/loads/homology/hgncload/reports/sanity.rpt">Input File Sanity Report</A>
-<LI><A HREF="/data/loads/homology/hgncload/reports/qc.rpt">Input File QC Reports</A>
-</UL>
-
-<H3>Output Files</H3>
-<UL>
-<LI><A HREF="/data/loads/homology/hgncload/output/MRK_Cluster.bcp">MRK_Cluster.bcp</A>
-<LI><A HREF="/data/loads/homology/hgncload/output/MRK_ClusterMember.bcp">MRK_ClusterMember.bcp</A>
-</UL>
-</UL>
-
-<H2>Hybrid HGNC/HomoloGene Load</H2>
-<UL>
-<H3>Input</H3>
-<UL>
-<LI>Input is HGNC and HomoloGen clusters from the database
-</UL>
-
-<H3>Logs</H3>
-<UL>
-<LI><A HREF="/data/loads/homology/hybridload/logs/hybridload.proc.log">Process Log</A>
-<LI><A HREF="/data/loads/homology/hybridload/logs/hybridload.diag.log">Diagnostic Log</A>
-</UL>
-
-<H3>Reports</H3>
-<UL>
-<LI><A HREF="/data/loads/homology/hybridload/reports/hybridCluster.rpt">Hybrid Cluster Report ## delimited</A>
-<LI> Columns:
-    <OL>
-    <LI> The connected component ID (arbitrary)
-    <LI> All clusters in the connected component
-    <LI> HGNC clusters in the connected component
-    <LI> HomoloGene clusters in the connected componenet
-    <LI> Hybrid Cluster
-    <LI> Hybrid Source
-    <LI> Conflict value (dev use only)
-    <LI> Rule # from the Requirements wiki
-    </OL>
-</UL>
-
-<H3>Output Files</H3>
-<UL>
-<LI><A HREF="/data/loads/homology/hybridload/output/MRK_Cluster.bcp">MRK_Cluster.bcp</A>
-<LI><A HREF="/data/loads/homology/hybridload/output/MRK_ClusterMember.bcp">MRK_ClusterMember.bcp
-</A>
-</UL>
-</UL>
-
 
 <H2>ZFIN Load</H2>
 <UL>
