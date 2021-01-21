@@ -9,13 +9,13 @@
 #       1. Alliance file tab-delimited in following format:
 #
 #           1. Gene1ID 
-#           2. Gene1Symbol 
-#           3. Gene1SpeciesTaxonID 
-#           4. Gene1SpeciesName 
+#           2. Gene1Symbol (not used)
+#           3. Gene1SpeciesTaxonID (not used)
+#           4. Gene1SpeciesName (not used)
 #           5. Gene2ID
-#           6. Gene2Symbol
-#           7. Gene2SpeciesTaxonID
-#           8. Gene2SpeciesName
+#           6. Gene2Symbol (not used)
+#           7. Gene2SpeciesTaxonID (not used)
+#           8. Gene2SpeciesName (not used)
 #           9-13 (not used)
 #
 #       2. Configuration - see alliance_directload.config
