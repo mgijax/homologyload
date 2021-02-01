@@ -1,0 +1,96 @@
+#format: sh
+#
+#  alliance_clusteredload.config.default
+#
+#  This file sets up the common environment variables that are needed by
+#  the Alliance Clustered homology load
+#
+###########################################################################
+
+# Full path to the logs, reports, and archive clusteredories 
+FILEDIR=${DATALOADSOUTPUT}/homology/alliance_clusteredload
+
+# Full path to the input, output, logs, reports and archive directories.
+#
+INPUTDIR=${FILEDIR}/input
+LOGDIR=${FILEDIR}/logs
+RPTDIR=${FILEDIR}/reports
+OUTPUTDIR=${FILEDIR}/output
+ARCHIVEDIR=${FILEDIR}/archive
+
+export INPUTDIR FILEDIR LOGDIR RPTDIR OUTPUTDIR ARCHIVEDIR
+
+# Full path name of the Alliance file we copy to INPUTDIR
+INPUT_FILE_DEFAULT="${DATADOWNLOADS}/download.alliancegenome.org/3.2.0/ORTHOLOGY-ALLIANCE/COMBINED/ORTHOLOGY-ALLIANCE_COMBINED_37.tsv"
+
+# Full path name of the file we copy from INPUT_FILE_DEFAULT for use by the load
+INPUT_FILE="${INPUTDIR}/ORTHOLOGY-ALLIANCE_COMBINED_37.tsv"
+
+# Full path name of the load-ready file that is created
+# by the preprocessor
+INPUT_FILE_LOAD=${OUTPUTDIR}/alliance_clusteredload.txt
+
+INPUT_FILE_CLUSTERER=${OUTPUTDIR}/alliance_toclustered.txt
+
+export INPUT_FILE_DEFAULT INPUT_FILE INPUT_FILE_LOAD INPUT_FILE_CLUSTERER
+
+#  Full path name of the log files
+LOG_PROC=${LOGDIR}/alliance_clusteredload.proc.log
+LOG_DIAG=${LOGDIR}/alliance_clusteredload.diag.log
+LOG_CUR=${LOGDIR}/alliance_clusteredload.cur.log
+LOG_VAL=${LOGDIR}/alliance_clusteredload.val.log
+
+export LOG_PROC LOG_DIAG LOG_CUR LOG_VAL
+
+# Full path name of the sanity and QC reports
+SANITY_RPT=${RPTDIR}/sanity.rpt
+QC_RPT=${RPTDIR}/qc.rpt
+
+export SANITY_RPT QC_RPT
+
+# Pre-processor to use
+PREPROCESSOR=${HOMOLOGYLOAD}/bin/preprocessAllianceClustered.sh
+LOADER=${HOMOLOGYLOAD}/bin/homologyload.py
+
+export PREPROCESSOR
+export LOADER
+
+# Number of columns expected for the input file (for sanity check).
+# file has 13 columns, we only parse 1 and 5
+NUM_COLUMNS=13
+
+# minimum  number of lines in the file (for sanity check).
+# during developement the ORTHOLOGY-ALLIANCE_COMBINED_37.tsv file had 560,846 lines
+MIN_LENGTH=500000
+
+# Version number of the ALLIANCE homology - there isn't one
+HOMOLOGY_VERSION=''
+
+export NUM_COLUMNS MIN_LENGTH HOMOLOGY_VERSION
+
+# Full path name of the BCP files
+CLUSTER_BCP=${OUTPUTDIR}/MRK_Cluster.bcp
+MEMBER_BCP=${OUTPUTDIR}/MRK_ClusterMember.bcp
+
+export CLUSTER_BCP MEMBER_BCP 
+
+# from Marker Cluster Source vocab key=89 term='Alliance'
+CLUSTER_SRC_KEY=75885740
+
+export CLUSTER_SRC_KEY 
+
+# homology ldb key  - empty as there are no Alliance clustered IDs
+HOM_LDB_KEY=''
+
+export HOM_LDB_KEY
+
+# this load's login value for DB table CreatedBy and ModifiedBy
+JOBSTREAM=allianceclustered_homologyload
+
+export JOBSTREAM
+
+#  The name of the load for the subject of an email notification
+# will be set by wrapper based on collection for each load
+MAIL_LOADNAME="Alliance Clustered Homology Load"
+
+export MAIL_LOADNAME
