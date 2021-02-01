@@ -137,9 +137,8 @@ def init():
         and a._logicalDB_key in (47, 64, 172)
         and a._object_key = m._marker_key
         and m._marker_status_key = 1''', 'auto')
-    print('loading homologyLookup')
     for r in results:
-        print('hMrkID: %s orgKey: %s hMrkKey: %s' % (r['accid'], int(r['_organism_key']), int(r['markerKey']) ))
+        #print('hMrkID: %s orgKey: %s hMrkKey: %s' % (r['accid'], int(r['_organism_key']), int(r['markerKey']) ))
         homologyLookup[r['accid']] = [ int(r['_organism_key']), int(r['markerKey'])]
 
     # Create lookup of mouse MGI IDs to their marker keys
@@ -184,10 +183,10 @@ def process():
         homologyID = tokens[5]
         if not(str.find(homologyID, 'ZFIN:') == 0 or str.find(homologyID, 'HGNC:') == 0 or str.find(homologyID, 'RGD:') == 0):
             continue
-        print('\n\nlineCt: %s' % lineCt)
-        print('line: %s' % line)
-        print('mgiID: %s' % mgiID)
-        print('homologyID: %s' % homologyID)
+        #print('\n\nlineCt: %s' % lineCt)
+        #print('line: %s' % line)
+        #print('mgiID: %s' % mgiID)
+        #print('homologyID: %s' % homologyID)
         #Alliance adds a prefix to the zfin id, remove it
         if str.find(homologyID, 'ZFIN:') == 0:
             homologyID = homologyID[5:]
@@ -199,7 +198,7 @@ def process():
         
         # report if mgiID not in db
         if mgiID not in mouseLookup:
-            print('mgiID not in db: %s' % mgiID)
+            #print('mgiID not in db: %s' % mgiID)
             rptOne = '%s%s%s%s%s' % (rptOne, lineCt, TAB, line, CRT)
             notIn = 1
         else:   
@@ -207,7 +206,7 @@ def process():
 
         # report if homology ID not in MGI
         if homologyID not in homologyLookup:
-            print('homologyID not in db: %s' % homologyID)
+            #print('homologyID not in db: %s' % homologyID)
             rptTwo = '%s%s%s%s%s' % (rptTwo, lineCt, TAB, line, CRT)
             notIn = 1
         # if either mgiID or homologyID not in MGI skip
@@ -221,28 +220,28 @@ def process():
             homologyDict[mouseKey].append([1, int(mouseKey)])
 
         l = copy.deepcopy(list(homologyLookup[homologyID])) # l is 2-element list [orgKey, homologyKey]
-        print ('mouseKey: %s' % mouseKey)
-        print('homologyLookup[homologyID] before: %s' % l)
+        #print ('mouseKey: %s' % mouseKey)
+        #print('homologyLookup[homologyID] before: %s' % l)
         idx = organismOrder.index(l[0]) # get the index of the orgKey in the organismOrder list
-        print('idx: %s' % idx)
+        #print('idx: %s' % idx)
         l[0] = idx                      # and replace the orgKey with the index
-        print('l after: %s' % l)
+        #print('l after: %s' % l)
         homologyDict[mouseKey].append(l)# add homologies to the dictionary
-        print('homologyLookup[homologyID] after: %s' % homologyLookup[homologyID])
+        #print('homologyLookup[homologyID] after: %s' % homologyLookup[homologyID])
 
     # now iterate through the clusters and write to the load ready file
     for mKey in homologyDict:
         homologyList = homologyDict[mKey]  # list of lists e.g. [ [2, rKey], [0, hKey], [1, mKey] ]
-        print('homologyList: %s' % homologyList)
+        #print('homologyList: %s' % homologyList)
         sortedList = sorted(homologyList, key=lambda hom: hom[0])    # sort by the index in position 1
-        print('sortedList: %s' % sortedList)
+        #print('sortedList: %s' % sortedList)
 
         # get the list of marker keys for writing out to load ready file
         keyList = []
         for l in sortedList:
             keyList.append(str(l[1]))
         keyString = ', '.join(keyList)
-        print('writing keyString to file: %s' % keyString)
+        #print('writing keyString to file: %s' % keyString)
         fpLoadFile.write ('%s%s%s%s' % ('', TAB, keyString, CRT))
 
     return
