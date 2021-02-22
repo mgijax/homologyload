@@ -231,6 +231,7 @@ def process():
 
     # now iterate through the clusters and write to the load ready file
     for mKey in homologyDict:
+        #print('mKey: %s homology: %s' % (mKey, list(homologyDict[mKey])))
         homologyList = homologyDict[mKey]  # list of lists e.g. [ [2, rKey], [0, hKey], [1, mKey] ]
         #print('homologyList: %s' % homologyList)
         sortedList = sorted(homologyList, key=lambda hom: hom[0])    # sort by the index in position 1
