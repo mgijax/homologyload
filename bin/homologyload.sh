@@ -118,6 +118,7 @@ then
 fi
 
 #
+# copy file from default to input - some files are gzipped
 # loads with no input file will be specified as 'None'
 #
 
@@ -126,7 +127,12 @@ then
 
     echo "copying ${INPUT_FILE_DEFAULT} to ${INPUTDIR}" >> ${LOG_DIAG}
     # copy the latest file from /data/downloads to the input dir
-    cp ${INPUT_FILE_DEFAULT} ${INPUTDIR}
+    if [ ${INPUT_FILE_DEFAULT: -2} = 'gz' ]
+    then
+        zcat ${INPUT_FILE_DEFAULT} > ${INPUT_FILE}
+    else
+        cp ${INPUT_FILE_DEFAULT} ${INPUTDIR}
+    fi
 fi
 
 #
