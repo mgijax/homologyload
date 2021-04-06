@@ -21,10 +21,10 @@ ARCHIVEDIR=${FILEDIR}/archive
 export INPUTDIR FILEDIR LOGDIR RPTDIR OUTPUTDIR ARCHIVEDIR
 
 # Full path name of the Alliance file we copy to INPUTDIR
-INPUT_FILE_DEFAULT="${DATADOWNLOADS}/download.alliancegenome.org/3.2.0/ORTHOLOGY-ALLIANCE/COMBINED/ORTHOLOGY-ALLIANCE_COMBINED_37.tsv"
+INPUT_FILE_DEFAULT="${DATADOWNLOADS}/fms.alliancegenome.org/download/ORTHOLOGY-ALLIANCE_COMBINED.tsv.gz"
 
 # Full path name of the file we copy from INPUT_FILE_DEFAULT for use by the load
-INPUT_FILE="${INPUTDIR}/ORTHOLOGY-ALLIANCE_COMBINED_37.tsv"
+INPUT_FILE="${INPUTDIR}/ORTHOLOGY-ALLIANCE_COMBINED.tsv"
 
 # Full path name of the load-ready file that is created
 # by the preprocessor
