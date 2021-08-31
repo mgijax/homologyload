@@ -5,6 +5,12 @@ download_package ftp.xenbase.org.downloads
 download_package zfin.org.downloads
 download_package alliancegenome.org.orthology
 
+TAG: homologyload-6-0-17-2
+DATE: 08/31/2021
+STAFF: sc
+CHANGES: WTS2-678  Parse Alliance data files by column header, not by position
+Alliance clustered and direct preprocessor updates
+
 TAG: homologyload-6-0-17-1
 DATE: 05/11/2021
 STAFF: sc

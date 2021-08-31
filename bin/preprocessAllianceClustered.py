@@ -59,6 +59,7 @@ organismOrder = [2, 1, 40, 84]
 
 # input file from Alliance
 inFilePath = os.environ['INPUT_FILE']
+print('inFilePath: %s' % inFilePath)
 
 # path to the file to be clustered by the clusterizer
 # this was for debugging this first clustered load. I chose to leave this code
@@ -188,18 +189,26 @@ def parseFile():
     global mouseMgiToHGNCDict
 
     # ignore header lines which start with '#'
+    headers = []
     for line in fpInFile.readlines():
         line = str.strip(line)
         if str.find(line, '#') == 0:
-            #print(line)
             continue
-        tokens = str.split(line)
-        mgiID = tokens[0]
+        elif str.find(line, 'Gene1ID') == 0:
+            headers = str.split(line, TAB)
+            print("headers.index('Gene1ID'): %s" % headers.index('Gene1ID'))
+            continue
+        tokens =  str.split(line, TAB)
+        mgiID = tokens[headers.index('Gene1ID')]
         if str.find(mgiID, 'MGI:') != 0:
             continue
-        homologyID = tokens[5]
+        #print('line: %s' % line)
+        #print('mgiID: %s' % mgiID)
+
+        homologyID = tokens[headers.index('Gene2ID')]
         if not str.find(homologyID, 'HGNC:') == 0:
             continue
+        #print('homologyID: %s' % homologyID)
         if not mgiID in mouseMgiToHGNCDict:
             mouseMgiToHGNCDict[mgiID] = []
         # add the human  homology to the dictionary

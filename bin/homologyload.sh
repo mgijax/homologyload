@@ -240,7 +240,7 @@ checkStatus ${STAT} "${PREPROCESSOR}"
 #
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
-echo 'Running loader ${LOADER}' >> ${LOG_DIAG}
+echo "Running loader ${LOADER}" >> ${LOG_DIAG}
 ${PYTHON} ${LOADER}
 STAT=$?
 checkStatus ${STAT} "${LOADER}"

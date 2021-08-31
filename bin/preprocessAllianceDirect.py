@@ -166,6 +166,7 @@ def process():
     # {mgiID:[list of homology IDs], ...}
     homologyDict = {}
     lineCt = 0
+    headers = []
     for line in fpInFile.readlines():
         line = str.strip(line)
         lineCt += 1
@@ -175,12 +176,16 @@ def process():
         if str.find(line, '#') == 0:
             #print(line)
             continue
+        elif str.find(line, 'Gene1ID') == 0:
+            headers = str.split(line, TAB)
+            print("headers.index('Gene1ID'): %s" % headers.index('Gene1ID'))
+            continue
 
-        tokens = str.split(line)
-        mgiID = tokens[0]
+        tokens = str.split(line, TAB)
+        mgiID = tokens[headers.index('Gene1ID')]
         if str.find(mgiID, 'MGI:') != 0:
             continue
-        homologyID = tokens[5]
+        homologyID = tokens[headers.index('Gene2ID')]
         if not(str.find(homologyID, 'ZFIN:') == 0 or str.find(homologyID, 'HGNC:') == 0 or str.find(homologyID, 'RGD:') == 0):
             continue
         #print('\n\nlineCt: %s' % lineCt)
