@@ -1,9 +1,13 @@
-${MIRROR_WGET}
-download_package geisha.arizona.edu.geisha
-download_package www.genenames.org.hgnc
-download_package ftp.xenbase.org.downloads
-download_package zfin.org.downloads
-download_package alliancegenome.org.orthology
+${MIRROR_WGET}/download_package geisha.arizona.edu.geisha
+${MIRROR_WGET}/download_package www.genenames.org.hgnc
+${MIRROR_WGET}/download_package ftp.xenbase.org.downloads
+${MIRROR_WGET}/download_package zfin.org.downloads
+${MIRROR_WGET}/download_package alliancegenome.org.orthology
+
+TAG: homologyload-6-0-17-3
+DATE: 11/30/2021
+STAFF: lec
+CHANGES: WTS2-732/homologyload/remove obsolete/retired code
 
 TAG: homologyload-6-0-17-2
 DATE: 08/31/2021
