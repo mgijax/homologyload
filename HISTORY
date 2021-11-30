@@ -1,9 +1,14 @@
 ${MIRROR_WGET}
-download_package geisha.arizona.edu.geisha
-download_package www.genenames.org.hgnc
-download_package ftp.ncbi.nih.gov.homologene
-download_package ftp.xenbase.org.downloads
-download_package zfin.org.downloads
+${MIRROR_WGET}/download_package geisha.arizona.edu.geisha
+${MIRROR_WGET}/download_package www.genenames.org.hgnc
+${MIRROR_WGET}/download_package ftp.ncbi.nih.gov.homologene
+${MIRROR_WGET}/download_package ftp.xenbase.org.downloads
+${MIRROR_WGET}/download_package zfin.org.downloads
+
+TAG: homologyload-6-0-16-2
+DATE: 11/30/2021
+STAFF: lec
+CHANGES: wts2-732/remove obsolete PROPERTY code in bin/homologyload.py
 
 TAG: homologyload-6-0-16-1
 DATE: 08/21/2020
