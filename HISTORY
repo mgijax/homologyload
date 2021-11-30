@@ -7,7 +7,7 @@ ${MIRROR_WGET}/download_package alliancegenome.org.orthology
 TAG: homologyload-6-0-17-3
 DATE: 11/30/2021
 STAFF: lec
-CHANGES: WTS2-732/homologyload/remove obsolete/retired code
+CHANGES: wts2-732/homologyload/remove obsolete/retired code
 
 TAG: homologyload-6-0-17-2
 DATE: 08/31/2021
