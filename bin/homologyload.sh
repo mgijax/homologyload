@@ -301,6 +301,12 @@ then
     ${PG_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${TABLE}.bcp ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG}
 fi
 
+
+cat - <<EOSQL | ${PG_DBUTILS}/bin/doisql.csh $0 >> ${LOG_DIAG}
+select setval('mrk_cluster_seq', (select max(_Cluster_key) from MRK_Cluster));
+select setval('mrk_clustermember_seq', (select max(_ClusterMember_key) from MRK_ClusterMember));
+EOSQL
+
 #
 # run postload cleanup and email logs
 #

@@ -110,25 +110,15 @@ def init():
     db.set_sqlUser(user)
     db.set_sqlPasswordFromFile(passwordFileName)
 
-    results = db.sql('''select _User_key
-            from MGI_User
-            where login = '%s' ''' % createdBy, 'auto')
-
+    results = db.sql('''select _User_key from MGI_User where login = '%s' ''' % createdBy, 'auto')
     createdByKey = results[0]['_User_key']
     #print 'createdByKey: %s' % createdByKey
-    results = db.sql('''select max(_Cluster_key) + 1 as nextKey
-            from MRK_Cluster''', 'auto')
-    if results[0]['nextKey'] is None:
-        nextClusterKey = 1000
-    else:
-        nextClusterKey = results[0]['nextKey']
 
-    results = db.sql('''select max(_ClusterMember_key) + 1 as nextKey
-            from MRK_ClusterMember''', 'auto')
-    if results[0]['nextKey'] is None:
-        nextMemberKey = 1000
-    else:
-        nextMemberKey = results[0]['nextKey']
+    results = db.sql(''' select nextval('mrk_cluster_seq') as nextKey ''', 'auto')
+    nextClusterKey = results[0]['nextKey']
+
+    results = db.sql(''' select nextval('mrk_clustermember_seq') as nextKey ''', 'auto')
+    nextMemberKey = results[0]['nextKey']
 
     return
 
